@@ -11,4 +11,9 @@
 * CYVERSE_PASSWORD environment variable set
 
 
+## Setup
 
+`conda env create -f=environment.yml`
+
+## Testing
+`python subset_tools_tests.py`
