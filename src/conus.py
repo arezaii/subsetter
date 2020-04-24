@@ -1,5 +1,6 @@
 import os
 
+
 class Conus:
     """
     Class to hold the information about the CONUS dataset we are working with
