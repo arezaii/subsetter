@@ -17,7 +17,7 @@ class Conus:
             }
             self.cyverse_path = '/iplant/home/shared/avra/CONUS_1.0/SteadyState_Final/Other_Domain_Files/'
             self.local_path = local_path
-        if self.version == 2:
+        elif self.version == 2:
             self.files = {
                 'CONUS_MASK': 'conus_1km_PFmask2.tif',
                 'SUBSURFACE_DATA': '3d-grid.v3.tif',

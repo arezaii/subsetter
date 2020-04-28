@@ -14,6 +14,11 @@ class CyVerseDownloader:
         self.destination = dest
 
     def get_conus_data(self, file):
+        """
+        download the conus data file from cyverse
+        :param file: the full cyverse path of the file to download and save
+        :return:
+        """
         with iRODSSession(host='data.cyverse.org',
                           port=1247,
                           user=self.username,
