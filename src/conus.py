@@ -23,7 +23,7 @@ class Conus:
                 'SUBSURFACE_DATA': '3d-grid.v3.tif',
                 'PME': 'PME.tif',
                 'SLOPE_X': 'Str3Ep0_smth.rvth_1500.mx0.5.mn5.sec0.up_slopex.tif',
-                'SLOPE_Y': 'sStr3Ep0_smth.rvth_1500.mx0.5.mn5.sec0.up_slopey.tif',
+                'SLOPE_Y': 'Str3Ep0_smth.rvth_1500.mx0.5.mn5.sec0.up_slopey.tif',
                 'SINKS': 'conus_1km_PFmask_manualsinks.tif',
                 'RESERVOIRS': 'conus_1km_PFmask_reservoirs.tif',
                 'LAKE_BORDER': 'conus_1km_PFmask_selectLakesborder.tif',
