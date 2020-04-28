@@ -9,7 +9,7 @@ from conus import Conus
 from conus_sources import CyVerseDownloader
 import file_reader
 from clipper import Clipper
-
+import tcl_builder
 
 def is_valid_file(parser, arg):
     if not os.path.isfile(arg):
@@ -104,9 +104,9 @@ def main():
         os.chdir('pf-mask-utilities')
         os.system('make')
         os.chdir('..')
-    clip.make_solid_file(return_arr, os.path.join(args.out_dir, Path(args.shapefile.name).stem))
+    batches = clip.make_solid_file(return_arr, os.path.join(args.out_dir, Path(args.shapefile.name).stem))
     for key, value in conus.files.items():
-        if key != 'CONUS_MASK':
+        if key not in ['CONUS_MASK','CHANNELS']:
             domain_file = file_reader.read_file(os.path.join(conus.local_path, value))
             return_arr1, new_geom1, bbox1 = clip.subset(domain_file, mask_array, conus_tif)
             # TODO: option to write tif instead of pfb
@@ -115,8 +115,14 @@ def main():
             pfio.pfwrite(return_arr1, os.path.join(args.out_dir, f'{key.lower()}.pfb'),
                          float(0), float(0), float(0),
                          float(1000), float(1000), float(1000))
-    # TODO: save this bounding box data to a file
-    print(bbox)
+    with open(os.path.join(args.out_dir, 'bbox.txt'), 'w') as f_bbox:
+        f_bbox.write('y1\ty2\tx1\tx2\n')
+        f_bbox.write('\t'.join('%d' % x for x in bbox))
+
+    # TODO: Fix the arguments
+    os.path.join(args.out_dir, 'runname.tcl')
+    tcl_builder.build_tcl(os.path.join(args.out_dir, 'runname.tcl'), 'parking_lot_template.tcl', 'runname', os.path.join(args.out_dir, 'slope_x.pfb'),
+                          os.path.join(args.out_dir,'WBDHU8.pfsol'), os.path.join(args.out_dir,'pme.pfb'), 10, batches, 2, 1, 1, 1)
 
 
 if __name__ == '__main__':
