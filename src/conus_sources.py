@@ -11,6 +11,8 @@ class CyVerseDownloader:
                  dest='.'):
         self.username = username
         self.password = password
+        if self.username is None or self.password is None:
+            raise ValueError("CyVerse username or password not supplied")
         self.destination = dest
 
     def get_conus_data(self, file):
