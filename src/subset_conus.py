@@ -10,6 +10,8 @@ from conus_sources import CyVerseDownloader
 import file_reader
 from clipper import Clipper
 import tcl_builder
+import logging
+
 
 def is_valid_file(parser, arg):
     if not os.path.isfile(arg):
@@ -72,6 +74,8 @@ def download_conus_inputs(conus, missing_files):
 
 
 def main():
+    # setup logging
+    logging.basicConfig(filename='subset.log', filemode='w', level=logging.INFO)
     # parse the command line arguments
     args = parse_args(sys.argv[1:])
     conus = Conus(args.conus_version, args.conus_files)
@@ -89,7 +93,8 @@ def main():
     shape_utils = ShapefileUtilities()
     conus_mask = file_reader.read_file(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
     # TODO: why is this in the original code? Because it doesn't work without it
-    conus_mask += 1
+    if conus.version == 1:
+        conus_mask += 1
     # end
     conus_tif = gdal.Open(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
     mem_raster_path = shape_utils.reproject(args.shapefile.name, conus_tif)
@@ -106,7 +111,7 @@ def main():
         os.chdir('..')
     batches = clip.make_solid_file(return_arr, os.path.join(args.out_dir, Path(args.shapefile.name).stem))
     for key, value in conus.files.items():
-        if key not in ['CONUS_MASK','CHANNELS']:
+        if key not in ['CONUS_MASK', 'CHANNELS']:
             domain_file = file_reader.read_file(os.path.join(conus.local_path, value))
             return_arr1, new_geom1, bbox1 = clip.subset(domain_file, mask_array, conus_tif)
             # TODO: option to write tif instead of pfb
