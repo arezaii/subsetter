@@ -2,6 +2,7 @@ import gdal
 import ogr
 from pathlib import Path
 import os
+import logging
 
 
 class ShapefileUtilities:
@@ -41,6 +42,9 @@ class ShapefileUtilities:
             raise Exception("error rasterizing layer: %s" % shp_layer)
         else:
             target_ds.FlushCache()
+            logging.info(f'reprojected shapefile input from '
+                         f'{shp_layer.GetSpatialRef()} \n '
+                         f'to \n {ds_ref.GetProjectionRef()}')
         return tif_path
 
     def write_to_tif(self, data_set, filename):
