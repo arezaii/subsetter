@@ -1,6 +1,5 @@
 import os
 import subprocess
-
 import numpy as np
 
 
@@ -170,14 +169,14 @@ class Clipper:
             os.remove(out_pfsol)
 
         create_sub = subprocess.run(['pf-mask-utilities/mask-to-pfsol', '--mask-back', list_patches[0],
-                         '--mask-front', list_patches[1],
-                         '--mask-right', list_patches[2],
-                         '--mask-left ' + list_patches[3],
-                         '--mask-bottom ' + list_patches[4],
-                         '--mask-top ' + list_patches[5],
-                         '--vtk', out_vtk,
-                         '--pfsol', out_pfsol,
-                         '--depth', str(dz)], stdout=subprocess.PIPE)
+                                     '--mask-front', list_patches[1],
+                                     '--mask-right', list_patches[2],
+                                     '--mask-left ' + list_patches[3],
+                                     '--mask-bottom ' + list_patches[4],
+                                     '--mask-top ' + list_patches[5],
+                                     '--vtk', out_vtk,
+                                     '--pfsol', out_pfsol,
+                                     '--depth', str(dz)], stdout=subprocess.PIPE)
         temp_list = create_sub.stdout.decode('utf-8').split('\n')
         batches = ''
         for line in temp_list:
@@ -185,21 +184,3 @@ class Clipper:
                 line = line.strip()
                 batches += line.split()[-3] + ' '
         return batches
-        # cmd_create_sol = 'pf-mask-utilities/mask-to-pfsol --mask-back ' + list_patches[0] + \
-        #                  ' --mask-front ' + list_patches[1] + \
-        #                  ' --mask-right ' + list_patches[2] + \
-        #                  ' --mask-left ' + list_patches[3] + \
-        #                  ' --mask-bottom ' + list_patches[4] + \
-        #                  ' --mask-top ' + list_patches[5] + \
-        #                  ' --vtk ' + out_vtk + \
-        #                  ' --pfsol ' + out_pfsol + \
-        #                  ' --depth ' + str(dz)
-        #
-        # os.system(cmd_create_sol)
-        #
-        # temp_list = cmd_create_sol.stdout.decode('utf-8').split('\n')
-        # batches = ''
-        # for line in temp_list:
-        #     if 'Number of triangles in patch' in line:
-        #         line = line.strip()
-        #         batches += line.split()[-3] + ' '
