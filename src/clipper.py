@@ -1,6 +1,7 @@
 import os
 import subprocess
 import numpy as np
+from global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 
 
 class Clipper:
@@ -16,95 +17,62 @@ class Clipper:
         mask_arr = (shp_raster_arr == 1).astype(np.int)
         return mask_arr
 
-    """
-    Code from Hoang's subset_domain.py
-    """
-
-    def subset(self, arr, mask_arr, ds_ref, crop_to_domain=1, no_data=0):
-        arr1 = arr.copy()
-        # create new geom
-        old_geom = ds_ref.GetGeoTransform()
-        # find new up left index
-        yy, xx = np.where(mask_arr == 1)
-        new_x = old_geom[0] + old_geom[1] * (min(xx) + 1)
-        new_y = old_geom[3] + old_geom[5] * (min(yy) + 1)
-        new_geom = (new_x, old_geom[1], old_geom[2], new_y, old_geom[4], old_geom[5])
-        # start subsetting
-        if len(arr.shape) == 2:
-            arr1[mask_arr != 1] = no_data
-            new_arr = arr1[min(yy):max(yy) + 1, min(xx):max(xx) + 1]
-            # add grid cell to make dimensions as multiple of 32 (nicer PxQxR)
-            len_y, len_x = new_arr.shape
-            new_len_y = ((len_y // 32) + 1) * 32
-            n1 = (new_len_y - len_y) // 2
-            n2 = new_len_y - len_y - n1
-            new_len_x = ((len_x // 32) + 1) * 32
-            n3 = (new_len_x - len_x) // 2
-            n4 = new_len_x - len_x - n3
-            return_arr = np.zeros((new_len_y, new_len_x))
-            return_arr[n1:-n2, n3:-n4] = new_arr
-        else:
-            arr1[:, mask_arr != 1] = no_data
-            new_arr = arr1[:, min(yy):max(yy) + 1, min(xx):max(xx) + 1]
-            # add grid cell to make dimensions as multiple of 32 (nicer PxQxR)
-            _, len_y, len_x = new_arr.shape
-            new_len_y = ((len_y // 32) + 1) * 32
-            n1 = (new_len_y - len_y) // 2
-            n2 = new_len_y - len_y - n1
-            new_len_x = ((len_x // 32) + 1) * 32
-            n3 = (new_len_x - len_x) // 2
-            n4 = new_len_x - len_x - n3
-            return_arr = np.zeros((new_arr.shape[0], new_len_y, new_len_x))
-            return_arr[:, n1:-n2, n3:-n4] = new_arr
-        bbox = (min(yy) - n1, max(yy) + n2 + 1, min(xx) - n3, max(xx) + n4 + 1)
-        return return_arr, new_geom, bbox
 
     """
     Code from Hoang's clip_inputs.py
     """
+    def subset(self, arr, mask_arr, ds_ref, crop_to_domain=True, no_data=NO_DATA):
+        arr1 = arr.copy()
+        # create new geom
+        old_geom = ds_ref.GetGeoTransform()
+        # find new upper left index
+        _, yy, xx = np.where(mask_arr == 1)
+        max_x, max_y, min_x, min_y = self.find_mask_edges(xx, yy)
+        len_y = max_y - min_y + 1
+        len_x = max_x - min_x + 1
+        # add grid cell to make dimensions as multiple of 32 (nicer PxQxR)
+        top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y = self.calculate_new_dimensions(len_x, len_y)
+        # create new geom
+        new_geom = self.calculate_new_geom(min_x, min_y, old_geom)
+        new_mask = mask_arr[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
+        if crop_to_domain:
+            # clever use of slicing in numpy to get the data back within the mask, 0's everywhere else, and no_data
+            # value carries over from clip input
+            # Credit to Dr. Hoang Tran
+            arr1[:, np.squeeze(mask_arr, axis=0) != 1] = no_data
+            return_arr = np.zeros((arr1.shape[0], new_len_y, new_len_x))
+            return_arr[:, top_pad:-bottom_pad, left_pad:-right_pad] = arr1[:, min_y:max_y + 1, min_x:max_x + 1]
+        else:
+            return_arr = arr1[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
+        bbox = (min_y - top_pad, max_y + bottom_pad + 1, min_x - left_pad, max_x + right_pad + 1)
+        return return_arr, new_geom, new_mask, bbox
 
-    # def subset(self, arr, mask_arr, ds_ref, crop_to_domain=1, no_data=0):
-    #     arr1 = arr.copy()
-    #     # create new geom
-    #     old_geom = ds_ref.GetGeoTransform()
-    #     # find new up left index
-    #     yy, xx = np.where(mask_arr == 1)
-    #     len_y = max(yy) - min(yy) + 1
-    #     len_x = max(xx) - min(xx) + 1
-    #     # add grid cell to make dimensions as multiple of 32 (nicer PxQxR)
-    #     new_len_y = ((len_y // 32) + 1) * 32
-    #     n1 = (new_len_y - len_y) // 2
-    #     n2 = new_len_y - len_y - n1
-    #     new_len_x = ((len_x // 32) + 1) * 32
-    #     n3 = (new_len_x - len_x) // 2
-    #     n4 = new_len_x - len_x - n3
-    #     # create new geom
-    #     new_x = old_geom[0] + old_geom[1] * (min(xx) + 1)
-    #     new_y = old_geom[3] + old_geom[5] * (min(yy) + 1)
-    #     new_geom = (new_x, old_geom[1], old_geom[2], new_y, old_geom[4], old_geom[5])
-    #     new_mask = mask_arr[min(yy) - n1:max(yy) + n2 + 1, min(xx) - n3:max(xx) + n4 + 1]
-    #     # start clipping
-    #     # 2d array
-    #     if len(arr.shape) == 2:
-    #         if crop_to_domain:
-    #             arr1[mask_arr != 1] = no_data
-    #             return_arr = np.zeros((new_len_y, new_len_x))
-    #             return_arr[n1:-n2, n3:-n4] = arr1[min(yy):max(yy) + 1, min(xx):max(xx) + 1]
-    #         else:
-    #             return_arr = arr1[min(yy) - n1:max(yy) + n2 + 1, min(xx) - n3:max(xx) + n4 + 1]
-    #         return_arr = return_arr[np.newaxis, ...]
-    #     else:
-    #         if crop_to_domain:
-    #             arr1[:, mask_arr != 1] = no_data
-    #             return_arr = np.zeros((arr1.shape[0], new_len_y, new_len_x))
-    #             return_arr[:, n1:-n2, n3:-n4] = arr1[:, min(yy):max(yy) + 1, min(xx):max(xx) + 1]
-    #         else:
-    #             return_arr = arr1[:, min(yy) - n1:max(yy) + n2 + 1, min(xx) - n3:max(xx) + n4 + 1]
-    #     bbox = (min(yy) - n1, max(yy) + n2 + 1, min(xx) - n3, max(xx) + n4 + 1)
-    #     return return_arr, new_geom, new_mask, bbox
+    def calculate_new_geom(self, min_x, min_y, old_geom):
+        new_x = old_geom[0] + old_geom[1] * (min_x + 1)
+        new_y = old_geom[3] + old_geom[5] * (min_y + 1)
+        new_geom = (new_x, old_geom[1], old_geom[2], new_y, old_geom[4], old_geom[5])
+        return new_geom
+
+    def find_mask_edges(self, xx, yy):
+        min_x = min(xx)
+        min_y = min(yy)
+        max_x = max(xx)
+        max_y = max(yy)
+        return max_x, max_y, min_x, min_y
+
+    def calculate_new_dimensions(self, len_x, len_y):
+        # add grid cell to make dimensions as multiple of 32 (nicer PxQxR)
+        new_len_y = ((len_y // 32) + 1) * 32
+        top_pad = (new_len_y - len_y) // 2
+        bottom_pad = new_len_y - len_y - top_pad
+        new_len_x = ((len_x // 32) + 1) * 32
+        left_pad = (new_len_x - len_x) // 2
+        right_pad = new_len_x - len_x - left_pad
+        return top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y
 
     def make_solid_file(self, mask_mat, out_name, dx=1000, dz=1000):
-
+        if len(mask_mat.shape) == 3:
+            mask_mat = np.squeeze(mask_mat, axis=0)
         # create back borders
         # Back borders occur where mask[y+1]-mask[y] is negative
         # (i.e. the cell above is a zero and the cell is inside the mask, i.e. a 1)

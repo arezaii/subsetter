@@ -1,38 +1,17 @@
+import argparse
+import logging
+import os
 import sys
 from pathlib import Path
-import pfio
+from argparse_utils import is_valid_path, is_positive_integer, is_valid_file
 import gdal
-from shapefile_utils import ShapefileUtilities
-import argparse
-import os
+
+import file_io_tools
+import tcl_builder
+from clipper import Clipper
 from conus import Conus
 from conus_sources import CyVerseDownloader
-import file_reader
-from clipper import Clipper
-import tcl_builder
-import logging
-
-
-def is_valid_file(parser, arg):
-    if not os.path.isfile(arg):
-        parser.error("The file %s does not exist!" % arg)
-    else:
-        return open(arg, 'r')  # return open file handle
-
-
-def is_positive_integer(parser, arg):
-    ivalue = int(arg)
-    if ivalue <= 0:
-        raise parser.ArgumentTypeError("%s is an invalid positive int value" % arg)
-    else:
-        return ivalue
-
-
-def is_valid_path(parser, arg):
-    if not os.path.isdir(arg):
-        parser.error("The path %s does not exist!" % arg)
-    else:
-        return arg  # return the arg
+from shapefile_utils import ShapefileRasterizer
 
 
 def parse_args(args):
@@ -90,18 +69,19 @@ def main():
     else:
         print("located all CONUS inputs")
 
-    shape_utils = ShapefileUtilities()
-    conus_mask = file_reader.read_file(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
-    # TODO: why is this in the original code? Because it doesn't work without it
+    shape_utils = ShapefileRasterizer(args.shapefile)
+    conus_mask = file_io_tools.read_file(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
+    # having to add 1 to this CONUS1 mask file so that it has non-zero data.
     if conus.version == 1:
         conus_mask += 1
     # end
     conus_tif = gdal.Open(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
-    mem_raster_path = shape_utils.reproject(args.shapefile.name, conus_tif)
-    shape_raster_array = file_reader.read_file(mem_raster_path)
+    mem_raster_path = shape_utils.reproject_and_mask(conus_tif)
+    shape_raster_array = file_io_tools.read_file(mem_raster_path)
     clip = Clipper()
+    # TODO: Why this get_mask_array call?
     mask_array = clip.get_mask_array(shape_raster_array)
-    return_arr, new_geom, bbox = clip.subset(conus_mask, mask_array, conus_tif)
+    return_arr, new_geom, new_mask, bbox = clip.subset(conus_mask, mask_array, conus_tif, no_data=0)
     # TODO: Move this out of here, assume installed?
     # Download and install pf-mask-utilities
     if not os.path.isdir('pf-mask-utilities'):
@@ -109,25 +89,26 @@ def main():
         os.chdir('pf-mask-utilities')
         os.system('make')
         os.chdir('..')
-    batches = clip.make_solid_file(return_arr, os.path.join(args.out_dir, Path(args.shapefile.name).stem))
+    batches = clip.make_solid_file(return_arr, os.path.join(args.out_dir, shape_utils.shapefile_name))
+    if len(batches) == 0:
+        raise Exception("Did not make solid file correctly")
     for key, value in conus.files.items():
         if key not in ['CONUS_MASK', 'CHANNELS']:
-            domain_file = file_reader.read_file(os.path.join(conus.local_path, value))
-            return_arr1, new_geom1, bbox1 = clip.subset(domain_file, mask_array, conus_tif)
-            # TODO: option to write tif instead of pfb
-            # TODO: change 0's to x0, y0, z0
-            # TODO: change 1000 to dx, dy=dx, dz
-            pfio.pfwrite(return_arr1, os.path.join(args.out_dir, f'{key.lower()}.pfb'),
-                         float(0), float(0), float(0),
-                         float(1000), float(1000), float(1000))
-    with open(os.path.join(args.out_dir, 'bbox.txt'), 'w') as f_bbox:
-        f_bbox.write('y1\ty2\tx1\tx2\n')
-        f_bbox.write('\t'.join('%d' % x for x in bbox))
+            domain_file = file_io_tools.read_file(os.path.join(conus.local_path, value))
+            return_arr1, new_geom1, new_mask1, bbox1 = clip.subset(domain_file, mask_array, conus_tif, crop_to_domain=True)
+            file_io_tools.write_pfb(return_arr1, os.path.join(args.out_dir, f'{key.lower()}.pfb'), 0, 0, 0, 1000, 1000)
+            file_io_tools.write_array_to_geotiff(os.path.join(args.out_dir, f'{key.lower()}.tif'), return_arr1,
+                                                 new_geom1, conus_tif.GetProjection())
+    file_io_tools.write_bbox(bbox, os.path.join(args.out_dir, 'bbox.txt'))
 
     # TODO: Fix the arguments
     os.path.join(args.out_dir, 'runname.tcl')
-    tcl_builder.build_tcl(os.path.join(args.out_dir, 'runname.tcl'), 'parking_lot_template.tcl', 'runname', os.path.join(args.out_dir, 'slope_x.pfb'),
-                          os.path.join(args.out_dir,'WBDHU8.pfsol'), os.path.join(args.out_dir,'pme.pfb'), 10, batches, 2, 1, 1, 1)
+    tcl_builder.build_tcl(os.path.join(args.out_dir, 'runname.tcl'),
+                          'parking_lot_template.tcl',
+                          'runname',
+                          os.path.join(args.out_dir, 'slope_x.pfb'),
+                          os.path.join(args.out_dir, 'WBDHU8.pfsol'),
+                          os.path.join(args.out_dir, 'pme.pfb'), 10, batches, 2, 1, 1, 1)
 
 
 if __name__ == '__main__':
