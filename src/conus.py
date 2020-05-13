@@ -3,7 +3,7 @@ import os
 
 class Conus:
     """
-    Class to hold the information about the CONUS dataset we are working with
+    Information about the CONUS dataset we are working with
     """
     def __init__(self, version, local_path):
         self.version = version
@@ -13,7 +13,8 @@ class Conus:
                 'SUBSURFACE_DATA': 'grid3d.v3.pfb',
                 'PME': 'PmE.flux.pfb',
                 'SLOPE_X': 'slopex.pfb',
-                'SLOPE_Y': 'slopey.pfb'
+                'SLOPE_Y': 'slopey.pfb',
+                'DEM': 'CONUS2.0_RawDEM_CONUS1clip.tif'
             }
             self.cyverse_path = '/iplant/home/shared/avra/CONUS_1.0/SteadyState_Final/Other_Domain_Files/'
             self.local_path = local_path
@@ -29,7 +30,8 @@ class Conus:
                 'LAKE_BORDER': 'conus_1km_PFmask_selectLakesborder.tif',
                 'LAKE_MASK': 'conus_1km_PFmask_selectLakesmask.tif',
                 'CHANNELS': '1km_upscaledNWM_ChannelOrder5_mod2.tif',
-                'CELL_TYPES': '1km_PF_BorderCellType.tif'
+                'CELL_TYPES': '1km_PF_BorderCellType.tif',
+                'DEM': 'CONUS2.0_RawDEM.tif'
             }
             self.cyverse_path = '/iplant/home/shared/avra/CONUS2.0/Inputs/domain/'
             self.local_path = local_path
