@@ -70,7 +70,7 @@ def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dty
     driver = gdal.GetDriverByName('GTiff')
     no_bands, rows, cols = data.shape
     data_set = driver.Create(out_raster_path, xsize=cols, ysize=rows, bands=no_bands, eType=dtype,
-                             options=['COMPRESS=LZW'])
+                             options=['COMPRESS=LZW', 'NUM_THREADS=ALL_CPUS'])
     data_set.SetGeoTransform(geo_transform)
     data_set.SetProjection(projection)
     for i, image in enumerate(data, 1):

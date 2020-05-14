@@ -10,10 +10,13 @@
 * CYVERSE_USERNAME environment variable set
 * CYVERSE_PASSWORD environment variable set
 
+### Packages
+* [pf-mask-utilities](https://github.com/smithsg84/pf-mask-utilities.git)
+* pfio-tools
 
 ## Setup
-
 `conda env create -f=environment.yml`
 
+
 ## Testing
-`python subset_tools_tests.py`
+`run_tests.sh`

@@ -2,10 +2,8 @@ import argparse
 import logging
 import os
 import sys
-from pathlib import Path
 from argparse_utils import is_valid_path, is_positive_integer, is_valid_file
 import gdal
-
 import file_io_tools
 import tcl_builder
 from clipper import Clipper
@@ -79,9 +77,11 @@ def main():
     mem_raster_path = shape_utils.reproject_and_mask(conus_tif)
     shape_raster_array = file_io_tools.read_file(mem_raster_path)
     clip = Clipper()
-    # TODO: Why this get_mask_array call?
+    # TODO: Why this get_mask_array call? To convert from no_data=-999 mask to 0 and 1's mask for the
     mask_array = clip.get_mask_array(shape_raster_array)
-    return_arr, new_geom, new_mask, bbox = clip.subset(conus_mask, mask_array, conus_tif, no_data=0)
+    # TODO: Why do we need to subset conus mask? We already have the mask, right?
+    # This is getting back our bounding box and converting to a 32x32 grid?
+    return_arr, new_geom, new_mask, bbox = clip.subset(conus_mask, mask_array, conus_tif, no_data=0.0)
     # TODO: Move this out of here, assume installed?
     # Download and install pf-mask-utilities
     if not os.path.isdir('pf-mask-utilities'):
@@ -95,7 +95,7 @@ def main():
     for key, value in conus.files.items():
         if key not in ['CONUS_MASK', 'CHANNELS']:
             domain_file = file_io_tools.read_file(os.path.join(conus.local_path, value))
-            return_arr1, new_geom1, new_mask1, bbox1 = clip.subset(domain_file, mask_array, conus_tif, crop_to_domain=True)
+            return_arr1, new_geom1, new_mask1, bbox1 = clip.subset(domain_file, shape_raster_array, conus_tif)
             file_io_tools.write_pfb(return_arr1, os.path.join(args.out_dir, f'{key.lower()}.pfb'), 0, 0, 0, 1000, 1000)
             file_io_tools.write_array_to_geotiff(os.path.join(args.out_dir, f'{key.lower()}.tif'), return_arr1,
                                                  new_geom1, conus_tif.GetProjection())
@@ -108,7 +108,8 @@ def main():
                           'runname',
                           os.path.join(args.out_dir, 'slope_x.pfb'),
                           os.path.join(args.out_dir, 'WBDHU8.pfsol'),
-                          os.path.join(args.out_dir, 'pme.pfb'), 10, batches, 2, 1, 1, 1)
+                          os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
+                          p=2, q=1, r=1, timestep=1)
 
 
 if __name__ == '__main__':
