@@ -20,7 +20,7 @@ class ShapefileRasterizer:
             if not os.path.isfile(os.path.join(Path(self.shapefile_path).parent, shp_component_file)):
                 print(f'warning: Missing {shp_component_file}')
 
-    def reproject_and_mask(self, ds_ref, dtype=gdal.GDT_Int16, no_data=NO_DATA):
+    def reproject_and_mask(self, ds_ref, dtype=gdal.GDT_Int32, no_data=NO_DATA):
         """
         Given an input shapefile, convert to an array in the same projection as the reference datasource
         :param shapefile: the ERSI shapefile as input
@@ -45,7 +45,8 @@ class ShapefileRasterizer:
         # Rasterize layer
         if gdal.RasterizeLayer(target_ds, [1],
                                shp_layer,
-                               options=["ATTRIBUTE=OBJECTID"]) != 0:
+                               options=["ATTRIBUTE=OBJECTID"],
+                               burn_values=[1.0]) != 0:
             raise Exception("error rasterizing layer: %s" % shp_layer)
         else:
             target_ds.FlushCache()
@@ -55,5 +56,6 @@ class ShapefileRasterizer:
         return tif_path
 
     def write_to_tif(self, data_set, filename):
-        dest_ds = gdal.GetDriverByName('GTiff').CreateCopy(filename, data_set, 0)
+        dest_ds = gdal.GetDriverByName('GTiff').CreateCopy(filename, data_set, strict=1,
+                                                           options=["COMPRESS=LZW", "NUM_THREADS=ALL_CPUS"])
         dest_ds.FlushCache()
