@@ -40,7 +40,7 @@ def write_pfb(data, outfile, x0, y0, z0, dx, dz):
     """
     Write a 3d numpy array to a PFB output file
     """
-    pfio.pfwrite(data, outfile, float(x0), float(y0), float(z0), float(dx), float(dx), float(dz))
+    pfio.pfwrite(data.astype(np.float64), outfile, float(x0), float(y0), float(z0), float(dx), float(dx), float(dz))
 
 
 def write_bbox(bbox, outfile):

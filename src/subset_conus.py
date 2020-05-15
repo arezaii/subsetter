@@ -67,21 +67,18 @@ def main():
     else:
         print("located all CONUS inputs")
 
-    shape_utils = ShapefileRasterizer(args.shapefile)
+    rasterizer = ShapefileRasterizer(args.shapefile)
     conus_mask = file_io_tools.read_file(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
+    # TODO:Fix CONUS1 reference dataset so that it has 1's everywhere instead of 0's
     # having to add 1 to this CONUS1 mask file so that it has non-zero data.
     if conus.version == 1:
         conus_mask += 1
     # end
     conus_tif = gdal.Open(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
-    mem_raster_path = shape_utils.reproject_and_mask(conus_tif)
+    mem_raster_path = rasterizer.reproject_and_mask(ds_ref=conus_tif, no_data=0)
     shape_raster_array = file_io_tools.read_file(mem_raster_path)
-    clip = Clipper()
-    # TODO: Why this get_mask_array call? To convert from no_data=-999 mask to 0 and 1's mask for the
-    mask_array = clip.get_mask_array(shape_raster_array)
-    # TODO: Why do we need to subset conus mask? We already have the mask, right?
-    # This is getting back our bounding box and converting to a 32x32 grid?
-    return_arr, new_geom, new_mask, bbox = clip.subset(conus_mask, mask_array, conus_tif, no_data=0.0)
+    clip = Clipper(shape_raster_array, conus_tif, no_data_threshold=0.0)
+
     # TODO: Move this out of here, assume installed?
     # Download and install pf-mask-utilities
     if not os.path.isdir('pf-mask-utilities'):
@@ -89,17 +86,19 @@ def main():
         os.chdir('pf-mask-utilities')
         os.system('make')
         os.chdir('..')
-    batches = clip.make_solid_file(return_arr, os.path.join(args.out_dir, shape_utils.shapefile_name))
+    batches = clip.make_solid_file(os.path.join(args.out_dir, rasterizer.shapefile_name))
     if len(batches) == 0:
         raise Exception("Did not make solid file correctly")
     for key, value in conus.files.items():
         if key not in ['CONUS_MASK', 'CHANNELS']:
             domain_file = file_io_tools.read_file(os.path.join(conus.local_path, value))
-            return_arr1, new_geom1, new_mask1, bbox1 = clip.subset(domain_file, shape_raster_array, conus_tif)
-            file_io_tools.write_pfb(return_arr1, os.path.join(args.out_dir, f'{key.lower()}.pfb'), 0, 0, 0, 1000, 1000)
+            return_arr1, new_geom1, new_mask1, bbox1 = clip.subset(domain_file)
+            file_io_tools.write_pfb(return_arr1, os.path.join(args.out_dir, f'{key.lower()}.pfb'),
+                                    x0=0, y0=0, z0=0, dx=1000, dz=1000)
             file_io_tools.write_array_to_geotiff(os.path.join(args.out_dir, f'{key.lower()}.tif'), return_arr1,
                                                  new_geom1, conus_tif.GetProjection())
-    file_io_tools.write_bbox(bbox, os.path.join(args.out_dir, 'bbox.txt'))
+
+    file_io_tools.write_bbox(clip.bbox, os.path.join(args.out_dir, 'bbox.txt'))
 
     # TODO: Fix the arguments
     os.path.join(args.out_dir, 'runname.tcl')

@@ -20,13 +20,14 @@ class ShapefileRasterizer:
             if not os.path.isfile(os.path.join(Path(self.shapefile_path).parent, shp_component_file)):
                 print(f'warning: Missing {shp_component_file}')
 
-    def reproject_and_mask(self, ds_ref, dtype=gdal.GDT_Int32, no_data=NO_DATA):
+    def reproject_and_mask(self, ds_ref, dtype=gdal.GDT_Int32, no_data=NO_DATA, shape_field='OBJECTID'):
         """
         Given an input shapefile, convert to an array in the same projection as the reference datasource
         :param shapefile: the ERSI shapefile as input
         :param ds_ref: the reference datasource to project to
         :param dtype: datatype for gdal
         :param no_data: no data value for cells
+        :shape_field: attribute name to extract from shapefile
         :return: the path (virtual) to the tif file
         """
         geom_ref = ds_ref.GetGeoTransform()
@@ -45,7 +46,7 @@ class ShapefileRasterizer:
         # Rasterize layer
         if gdal.RasterizeLayer(target_ds, [1],
                                shp_layer,
-                               options=["ATTRIBUTE=OBJECTID"],
+                               options=[f'ATTRIBUTE={shape_field}'],
                                burn_values=[1.0]) != 0:
             raise Exception("error rasterizing layer: %s" % shp_layer)
         else:
