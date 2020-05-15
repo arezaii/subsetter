@@ -1,32 +1,36 @@
 import os
 import subprocess
+import numpy.ma as ma
 import numpy as np
 from global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 
 
 class Clipper:
 
-    def get_mask_array(self, subset_raster):
+    def __init__(self, mask_array, reference_dataset, no_data_threshold=NO_DATA):
         """
-        get the mask back as an array
-        :param subset_raster: gdal dataset (typically result of rasterizing a shapefile)
-        :return: array with 0's for blank and 1 for mask, representing shapefile
+        Assumes input mask_array has 1's written to valid data, and <=no_data_threshold for no_data val
         """
-        shp_raster_arr = subset_raster  # gdal.Open(subset_raster).ReadAsArray()
-        # mask array
-        mask_arr = (shp_raster_arr == 1).astype(np.int)
-        return mask_arr
+        self.inverse_zero_one_mask = ma.masked_where(mask_array <= no_data_threshold, mask_array)
+        self.ds_ref = reference_dataset
+        # crop the domain to from full extents to a small subset
+        self.clipped_mask, self.clipped_geom, \
+        self.min_x, self.min_y, self.max_x, self.max_y, self.top_pad, \
+        self.bottom_pad, self.left_pad, self.right_pad = self.clip_mask()
+        # mark the extents of the new cropped mask
+        self.top_edge = self.min_y - self.top_pad
+        self.bottom_edge = self.max_y + self.bottom_pad + 1
+        self.left_edge = self.min_x - self.left_pad
+        self.right_edge = self.max_x + self.right_pad + 1
+        self.bbox = [self.top_edge, self.bottom_edge, self.left_edge, self.right_edge]
 
-
-    """
-    Code from Hoang's clip_inputs.py
-    """
-    def subset(self, arr, mask_arr, ds_ref, crop_to_domain=True, no_data=NO_DATA):
-        arr1 = arr.copy()
-        # create new geom
-        old_geom = ds_ref.GetGeoTransform()
-        # find new upper left index
-        _, yy, xx = np.where(mask_arr == 1)
+    def clip_mask(self):
+        """
+        clip the input mask (full extents) to extents of masked data plus an edge buffer
+        creates a mask of 1 for valid data and 0 for no_data
+        """
+        old_geom = self.ds_ref.GetGeoTransform()
+        _, yy, xx = np.where(~self.inverse_zero_one_mask.mask == 1)
         max_x, max_y, min_x, min_y = self.find_mask_edges(xx, yy)
         len_y = max_y - min_y + 1
         len_x = max_x - min_x + 1
@@ -34,18 +38,39 @@ class Clipper:
         top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y = self.calculate_new_dimensions(len_x, len_y)
         # create new geom
         new_geom = self.calculate_new_geom(min_x, min_y, old_geom)
-        new_mask = mask_arr[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
-        if crop_to_domain:
-            # clever use of slicing in numpy to get the data back within the mask, 0's everywhere else, and no_data
-            # value carries over from clip input
-            # Credit to Dr. Hoang Tran
-            arr1[:, np.squeeze(mask_arr, axis=0) != 1] = no_data
-            return_arr = np.zeros((arr1.shape[0], new_len_y, new_len_x))
-            return_arr[:, top_pad:-bottom_pad, left_pad:-right_pad] = arr1[:, min_y:max_y + 1, min_x:max_x + 1]
-        else:
-            return_arr = arr1[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
-        bbox = (min_y - top_pad, max_y + bottom_pad + 1, min_x - left_pad, max_x + right_pad + 1)
-        return return_arr, new_geom, new_mask, bbox
+        new_mask = self.inverse_zero_one_mask[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
+        return new_mask.filled(fill_value=0), new_geom, min_x, min_y, max_x, max_y, top_pad, bottom_pad, left_pad, right_pad
+
+    """
+    Code from Hoang's clip_inputs.py
+    """
+    def subset(self, data_array, crop_to_domain=True, no_data=NO_DATA):
+        """
+        clip the data from data_array in the shape and extents of the clipper's clipped mask
+        """
+        mask = self.inverse_zero_one_mask.mask
+        # Handle multi-layered files, such as subsurface or forcings
+        if data_array.shape[0] > 1:
+            mask = np.broadcast_to(mask, data_array.shape)
+
+        # mask the input data using numpy masked array module (True=InvalidData, False=ValidData)
+        masked_data = ma.masked_array(data=data_array, mask=mask)
+
+        # return an array that includes all of the z data, and x and y no_data outside of the mask area
+        return_arr = masked_data[:,
+                     self.top_edge: self.bottom_edge,
+                     self.left_edge: self.right_edge].filled(fill_value=no_data)
+        return return_arr, self.clipped_geom, self.clipped_mask, self.bbox
+        # TODO: Figure out if we still need the crop to domain functionality
+        # if crop_to_domain:
+        #     # clever use of slicing in numpy to get the data back within the mask,
+        #     # adapted to write no_data values everywhere outside mask bounds
+        #     # Thanks to Dr. Hoang Tran
+        #     return_arr = np.ones((data_array.shape[0], self.clipped_mask.shape[1], self.clipped_mask.shape[2])) * no_data
+        #     data_array[:, np.squeeze(self.inverse_zero_one_mask, axis=0) != 1] = no_data
+        #     return_arr[:, top_pad:-bottom_pad, left_pad:-right_pad] = data_array[:, min_y:max_y + 1, min_x:max_x + 1]
+        # else:
+        #     return_arr = data_array[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
 
     def calculate_new_geom(self, min_x, min_y, old_geom):
         new_x = old_geom[0] + old_geom[1] * (min_x + 1)
@@ -70,7 +95,8 @@ class Clipper:
         right_pad = new_len_x - len_x - left_pad
         return top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y
 
-    def make_solid_file(self, mask_mat, out_name, dx=1000, dz=1000):
+    def make_solid_file(self, out_name, dx=1000, dz=1000):
+        mask_mat = self.clipped_mask
         if len(mask_mat.shape) == 3:
             mask_mat = np.squeeze(mask_mat, axis=0)
         # create back borders
