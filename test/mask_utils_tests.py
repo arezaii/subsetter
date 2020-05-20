@@ -89,12 +89,12 @@ class MyTestCase(unittest.TestCase):
         utils = MaskUtils(mask)
         old_geom = (1000.0, 0.0, -22.0, 0.0, -1000.0, 15.0)
         new_geom = utils.calculate_new_geom(0, 0, old_geom)
-        self.assertEqual((1000.0, 0.0, -22.0, 15.0, -1000.0, 15.0), new_geom,
+        self.assertEqual((1000.0, 0.0, -22.0, 0.0, -1000.0, 15.0), new_geom,
                          'Zero offset does not change transform')
 
         old_geom = (-1884563.75453, 1000.0, 0.0, 1282344.99762, 0.0, -1000.0)
         new_geom = utils.calculate_new_geom(1039, 1142, old_geom)
-        self.assertEqual((-844563.75453, 1000.0, 0.0, 139344.99762000004, 0.0, -1000.0), new_geom,
+        self.assertEqual((-845563.75453, 1000.0, 0.0, 140344.99762000004, 0.0, -1000.0), new_geom,
                          'Extracted values from CONUS1 tests match')
 
 

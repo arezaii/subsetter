@@ -7,6 +7,8 @@ from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 import os
 from pathlib import Path
 import gdal
+import logging
+from datetime import datetime
 
 
 def parse_args(args):
@@ -66,6 +68,10 @@ def clip_inputs(mask, ref_ds, input_list, out_dir='.', pfb_outs=1, tif_outs=0, n
 
 
 def main():
+    # setup logging
+    logging.basicConfig(filename='bulk_clipper.log', filemode='w', level=logging.INFO)
+    start_date = datetime.utcnow()
+    logging.info(f'start process at {start_date}')
     args = parse_args(sys.argv[1:])
     ref_ds = None
     if args.write_tifs:
@@ -82,6 +88,8 @@ def main():
             ref_ds = gdal.Open(args.ref_file)
 
     clip_inputs(read_file(args.mask_file), ref_ds, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+    end_date = datetime.utcnow()
+    logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
 
 
 if __name__ == '__main__':

@@ -4,6 +4,8 @@ import argparse
 import sys
 import gdal
 import os
+import logging
+from datetime import datetime
 
 
 def parse_args(args):
@@ -43,10 +45,15 @@ def rasterize_shapefile_to_disk(reference_dataset, shapefile, out_dir, side_mult
 
 
 def main():
+    # setup logging
+    start_date = datetime.utcnow()
+    logging.basicConfig(filename='rasterize_shape.log', filemode='w', level=logging.INFO)
+    logging.info(f'start process at {start_date}')
     args = parse_args(sys.argv[1:])
     reference_dataset = gdal.Open(args.ref_file)
     rasterize_shapefile_to_disk(reference_dataset, args.shapefile, args.out_dir, args.side_multiple)
-
+    end_date = datetime.utcnow()
+    logging.info(f'finish process at {end_date} for a runtime of {end_date-start_date}')
 
 if __name__ == '__main__':
     main()
