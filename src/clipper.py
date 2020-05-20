@@ -4,6 +4,7 @@ import numpy.ma as ma
 import numpy as np
 from global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 from src.mask_utils import find_mask_edges, MaskUtils
+import logging
 
 
 class Clipper:
@@ -17,7 +18,7 @@ class Clipper:
         self.ds_ref = reference_dataset
         mask_utils = MaskUtils(mask_array, bbox_val=0, no_data_threshold=no_data_threshold)
         self.inverted_zero_one_mask = mask_utils.bbox_crop
-        max_x, max_y, min_x, min_y = find_mask_edges(self.inverted_zero_one_mask)
+        max_x, max_y, min_x, min_y = mask_utils.bbox_crop_edges
         self.bbox = [min_y, max_y+1, min_x, max_x+1]
         self.new_geom = mask_utils.calculate_new_geom(min_x, min_y, self.ds_ref.GetGeoTransform())
         self.new_mask = (self.inverted_zero_one_mask.filled(fill_value=no_data_threshold) == 1)[:,
@@ -95,7 +96,6 @@ class Clipper:
                    os.path.join(os.path.dirname(out_name), 'Top_Border.asc'): top_mat}
 
         list_patches = list(patches.keys())
-
         for patch in patches:
             with open(patch, 'w') as fo:
                 fo.write(header)
@@ -127,4 +127,5 @@ class Clipper:
             if 'Number of triangles in patch' in line:
                 line = line.strip()
                 batches += line.split()[-3] + ' '
+        logging.info(f'identified batches in domain {batches}')
         return batches

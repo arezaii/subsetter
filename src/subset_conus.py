@@ -10,7 +10,7 @@ from clipper import Clipper
 from conus import Conus
 from conus_sources import CyVerseDownloader
 from shapefile_utils import ShapefileRasterizer
-from rasterize_shape import rasterize_shapefile_to_disk
+from datetime import datetime
 
 
 def parse_args(args):
@@ -53,7 +53,9 @@ def download_conus_inputs(conus, missing_files):
 
 def main():
     # setup logging
-    logging.basicConfig(filename='subset.log', filemode='w', level=logging.INFO)
+    start_date = datetime.utcnow()
+    logging.basicConfig(filename='subset_conus.log', filemode='w', level=logging.INFO)
+    logging.info(f'start process at {start_date}')
     # parse the command line arguments
     args = parse_args(sys.argv[1:])
     conus = Conus(args.conus_version, args.conus_files)
@@ -109,6 +111,9 @@ def main():
                           os.path.join(args.out_dir, 'WBDHU8.pfsol'),
                           os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
                           p=2, q=1, r=1, timestep=1)
+
+    end_date = datetime.utcnow()
+    logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
 
 
 if __name__ == '__main__':

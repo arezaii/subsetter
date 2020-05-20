@@ -5,6 +5,8 @@ import pfio
 import gdal
 import numpy as np
 from global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
+import logging
+
 
 """
 Common disk I/O operations
@@ -41,6 +43,7 @@ def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
     Write a 3d numpy array to a PFB output file
     """
     # TODO: why do other datatypes (float32) cause invalid pfb files?
+    logging.info(f'wrote pfb file {outfile}, (z,y,x)={data.shape}')
     pfio.pfwrite(data.astype(np.float64), outfile, float(x0), float(y0), float(z0), float(dx), float(dx), float(dz))
 
 
@@ -48,6 +51,7 @@ def write_bbox(bbox, outfile):
     """
     Write bounding box values to tab separated text file
     """
+    logging.info(f'wrote bbox file {outfile}, {bbox}')
     with open(outfile, 'w') as fp:
         fp.write('y1\ty2\tx1\tx2\n')
         fp.write('\t'.join('%d' % x for x in bbox))
@@ -67,6 +71,7 @@ def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dty
     write a numpy array to a geotiff
 
     """
+    # flip the z axis for proper orientation
     np.flip(data, axis=0)
     driver = gdal.GetDriverByName('GTiff')
     no_bands, rows, cols = data.shape
@@ -77,4 +82,5 @@ def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dty
     for i, image in enumerate(data, 1):
         data_set.GetRasterBand(i).WriteArray(image)
         data_set.GetRasterBand(i).SetNoDataValue(no_data)
+    logging.info(f'wrote geotif {out_raster_path}, (bands,rows,cols)=({no_bands}, {rows}, {cols})')
     data_set = None
