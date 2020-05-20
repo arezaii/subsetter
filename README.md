@@ -22,9 +22,20 @@
 
 ## Usage
 
-rasterize a shapefile for use as a mask, based on a reference dataset
-`rasterize_shape.py -s <shapefile> -r <reference_dataset> -o [output_dir]`
+**rasterize a shapefile for use as a mask, based on a reference dataset**
+```
+python rasterize_shape.py -s <shapefile> -r <reference_dataset> -o [output_dir=.]
+```
 
+**create subset from CONUS models from a shapefile**
+```
+python subset_conus.py -s <shapefile> -v -c <path to conus input files> [conus version=1]  -o [path_to_write_outputs=.]
+```
 
+**use a tif mask to clip multiple files to PFB or TIF**
 
+assumes all files are identically gridded and same as the mask file
+```
+python bulk_clipper.py -m <mask_file> -d <list_of_datafiles_to_clip> -t [write_tifs=0] -o [output_directory=.]
+```
 
