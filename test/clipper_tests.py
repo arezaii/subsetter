@@ -10,60 +10,16 @@ import os
 
 
 class MyTestCase(unittest.TestCase):
-    def test_calculate_new_dims(self):
-        mask = read_file('test_inputs/test_truth.tif')
-        ref_ds = gdal.Open('CONUS1_Inputs/Domain_Blank_Mask.tif')
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds)
-        """
-        Test Odd Split
-        """
-        x = 7
-        y = 31
-        new_dims = clipper.calculate_new_dimensions(x, y)
-        self.assertEqual(new_dims[4], 32, 'New x length is 32 when less than 32')
-        self.assertEqual(new_dims[5], 32, 'New y length is 32 when less than 32')
-        self.assertEqual(new_dims[0], 0, 'New top padding validation')
-        self.assertEqual(new_dims[1], 1, 'New bottom padding validation')
-        self.assertEqual(new_dims[2], 12, 'New left padding validation')
-        self.assertEqual(new_dims[3], 13, 'New right padding validation')
-        """
-        Test Even Split
-        """
-        x = 32
-        y = 32
-        new_dims = clipper.calculate_new_dimensions(x, y)
-        self.assertEqual(new_dims[4], 64)
-        self.assertEqual(new_dims[5], 64)
-        self.assertEqual(new_dims[0], 16, 'New top padding validation')
-        self.assertEqual(new_dims[1], 16, 'New bottom padding validation')
-        self.assertEqual(new_dims[2], 16, 'New left padding validation')
-        self.assertEqual(new_dims[3], 16, 'New right padding validation')
-
-    def test_create_new_geometry(self):
-        mask = read_file('test_inputs/test_truth.tif')
-        ref_ds = gdal.Open('CONUS1_Inputs/Domain_Blank_Mask.tif')
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds)
-        old_geom = (1000.0, 0.0, -22.0, 0.0, -1000.0, 15.0)
-        new_geom = clipper.calculate_new_geom(0, 0, old_geom)
-        self.assertEqual((1000.0, 0.0, -22.0, 15.0, -1000.0, 15.0), new_geom,
-                         'Zero offset does not change transform')
-
-        old_geom = (-1884563.75453, 1000.0, 0.0, 1282344.99762, 0.0, -1000.0)
-        new_geom = clipper.calculate_new_geom(1039, 1142, old_geom)
-        self.assertEqual((-844563.75453, 1000.0, 0.0, 139344.99762000004, 0.0, -1000.0), new_geom,
-                         'Extracted values from CONUS1 tests match')
-
     """
     Regression tests to verify subsetting can correctly clip a data file,
     correctly produces the subset clip,
     and correctly writes the bounding box file
     """
-
     def test_subset_dem_to_tif_conus1(self):
         data_array = read_file('CONUS1_Inputs/CONUS2.0_RawDEM_CONUS1clip.tif')
         mask = read_file('test_inputs/WBDHU8_conus1_mask.tif')
         ref_ds = gdal.Open('CONUS1_Inputs/CONUS2.0_RawDEM_CONUS1clip.tif')
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=0)
+        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         return_arr, new_geom, new_mask, bbox = clipper.subset(data_array)
         write_array_to_geotiff("conus_1_clip_dem_test.tif",
                                return_arr, new_geom, ref_ds.GetProjection())
@@ -90,7 +46,7 @@ class MyTestCase(unittest.TestCase):
         data_array = read_file('CONUS2_Inputs/CONUS2.0_RawDEM.tif')
         mask = read_file('test_inputs/WBDHU8_conus2_mask.tif')
         ref_ds = gdal.Open('CONUS2_Inputs/CONUS2.0_RawDEM.tif')
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=0)
+        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         return_arr, new_geom, new_mask, bbox = clipper.subset(data_array)
         write_array_to_geotiff("conus_2_clip_dem_test.tif",
                                return_arr, new_geom, ref_ds.GetProjection())
@@ -117,7 +73,7 @@ class MyTestCase(unittest.TestCase):
     def test_create_solid_file_conus1(self):
         mask = read_file('test_inputs/WBDHU8_conus1_mask.tif')
         ref_ds = gdal.Open('CONUS1_Inputs/CONUS2.0_RawDEM_CONUS1clip.tif')
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=0)
+        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         batches = clipper.make_solid_file('conus1_solid')
         self.assertEqual(batches, '0 3 6 ')
         with open('conus1_solid.pfsol', 'r') as test_file:
@@ -136,7 +92,7 @@ class MyTestCase(unittest.TestCase):
     def test_create_solid_file_conus2(self):
         mask = read_file('test_inputs/WBDHU8_conus2_mask.tif')
         ref_ds = gdal.Open('CONUS2_Inputs/CONUS2.0_RawDEM.tif')
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=0)
+        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         batches = clipper.make_solid_file('conus2_solid')
         self.assertEqual(batches, '0 3 6 ')
         with open('conus2_solid.pfsol','r') as test_file:
@@ -150,7 +106,7 @@ class MyTestCase(unittest.TestCase):
         with open('conus2_solid.vtk','r') as test_file:
             with open('test_inputs/WBDHU8_conus2_ref.vtk','r') as ref_file:
                 self.assertEqual(test_file.read().split('\n')[2:], ref_file.read().split('\n')[2:],
-                         'Writing vtk file matches reference for conus2')
+                                 'Writing vtk file matches reference for conus2')
 
 
 if __name__ == '__main__':

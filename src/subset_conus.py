@@ -10,6 +10,7 @@ from clipper import Clipper
 from conus import Conus
 from conus_sources import CyVerseDownloader
 from shapefile_utils import ShapefileRasterizer
+from rasterize_shape import rasterize_shapefile_to_disk
 
 
 def parse_args(args):
@@ -66,19 +67,18 @@ def main():
         exit(1)
     else:
         print("located all CONUS inputs")
-
-    rasterizer = ShapefileRasterizer(args.shapefile)
+    conus_tif = gdal.Open(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
+    rasterizer = ShapefileRasterizer(args.shapefile, reference_dataset=conus_tif, output_path=args.out_dir)
     conus_mask = file_io_tools.read_file(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
     # TODO:Fix CONUS1 reference dataset so that it has 1's everywhere instead of 0's
     # having to add 1 to this CONUS1 mask file so that it has non-zero data.
     if conus.version == 1:
         conus_mask += 1
     # end
-    conus_tif = gdal.Open(os.path.join(conus.local_path, conus.files.get("CONUS_MASK")))
-    mem_raster_path = rasterizer.reproject_and_mask(ds_ref=conus_tif, no_data=0)
-    shape_raster_array = file_io_tools.read_file(mem_raster_path)
-    clip = Clipper(shape_raster_array, conus_tif, no_data_threshold=0.0)
-
+    mem_raster_path = rasterizer.reproject_and_mask(no_data=-999)
+    shape_raster_array = rasterizer.add_bbox_to_mask(mem_raster_path, side_length_multiple=32)
+    #shape_raster_array = file_io_tools.read_file(mem_raster_path)
+    clip = Clipper(shape_raster_array, conus_tif, no_data_threshold=-1)
     # TODO: Move this out of here, assume installed?
     # Download and install pf-mask-utilities
     if not os.path.isdir('pf-mask-utilities'):
