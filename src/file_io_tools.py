@@ -36,7 +36,7 @@ def read_file(infile):
     return res_arr
 
 
-def write_pfb(data, outfile, x0, y0, z0, dx, dz):
+def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
     """
     Write a 3d numpy array to a PFB output file
     """
