@@ -3,100 +3,50 @@ import subprocess
 import numpy.ma as ma
 import numpy as np
 from global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
+from src.mask_utils import find_mask_edges, MaskUtils
 
 
 class Clipper:
 
     def __init__(self, mask_array, reference_dataset, no_data_threshold=NO_DATA):
         """
-        Assumes input mask_array has 1's written to valid data, and <=no_data_threshold for no_data val
+        Assumes input mask_array has 1's written to valid data, 0's for bounding box,
+         and <=no_data_threshold for no_data val, no_data_threshold must be < 0 or bounding box will
+         not be identifiable
         """
-        self.inverse_zero_one_mask = ma.masked_where(mask_array <= no_data_threshold, mask_array)
         self.ds_ref = reference_dataset
-        # crop the domain to from full extents to a small subset
-        self.clipped_mask, self.clipped_geom, \
-        self.min_x, self.min_y, self.max_x, self.max_y, self.top_pad, \
-        self.bottom_pad, self.left_pad, self.right_pad = self.clip_mask()
-        # mark the extents of the new cropped mask
-        self.top_edge = self.min_y - self.top_pad
-        self.bottom_edge = self.max_y + self.bottom_pad + 1
-        self.left_edge = self.min_x - self.left_pad
-        self.right_edge = self.max_x + self.right_pad + 1
-        self.bbox = [self.top_edge, self.bottom_edge, self.left_edge, self.right_edge]
+        mask_utils = MaskUtils(mask_array, bbox_val=0, no_data_threshold=no_data_threshold)
+        self.inverted_zero_one_mask = mask_utils.bbox_crop
+        max_x, max_y, min_x, min_y = find_mask_edges(self.inverted_zero_one_mask)
+        self.bbox = [min_y, max_y+1, min_x, max_x+1]
+        self.new_geom = mask_utils.calculate_new_geom(min_x, min_y, self.ds_ref.GetGeoTransform())
+        self.new_mask = (self.inverted_zero_one_mask.filled(fill_value=no_data_threshold) == 1)[:,
+                        min_y:max_y+1, min_x:max_x+1]
 
-    def clip_mask(self):
-        """
-        clip the input mask (full extents) to extents of masked data plus an edge buffer
-        creates a mask of 1 for valid data and 0 for no_data
-        """
-        old_geom = self.ds_ref.GetGeoTransform()
-        _, yy, xx = np.where(~self.inverse_zero_one_mask.mask == 1)
-        max_x, max_y, min_x, min_y = self.find_mask_edges(xx, yy)
-        len_y = max_y - min_y + 1
-        len_x = max_x - min_x + 1
-        # add grid cell to make dimensions as multiple of 32 (nicer PxQxR)
-        top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y = self.calculate_new_dimensions(len_x, len_y)
-        # create new geom
-        new_geom = self.calculate_new_geom(min_x, min_y, old_geom)
-        new_mask = self.inverse_zero_one_mask[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
-        return new_mask.filled(fill_value=0), new_geom, min_x, min_y, max_x, max_y, top_pad, bottom_pad, left_pad, right_pad
-
-    """
-    Code from Hoang's clip_inputs.py
-    """
-    def subset(self, data_array, crop_to_domain=True, no_data=NO_DATA):
+    def subset(self, data_array, no_data=NO_DATA):
         """
         clip the data from data_array in the shape and extents of the clipper's clipped mask
         """
-        mask = self.inverse_zero_one_mask.mask
-        # Handle multi-layered files, such as subsurface or forcings
+        full_mask = self.inverted_zero_one_mask.mask
+        clip_mask = ~self.new_mask
+        # Handle multi-layered files, such as subsurface or forcings or pme
         if data_array.shape[0] > 1:
-            mask = np.broadcast_to(mask, data_array.shape)
+            full_mask = np.broadcast_to(full_mask, data_array.shape)
+            clip_mask = np.broadcast_to(clip_mask, (data_array.shape[0], clip_mask.shape[1], clip_mask.shape[2]))
 
         # mask the input data using numpy masked array module (True=InvalidData, False=ValidData)
-        masked_data = ma.masked_array(data=data_array, mask=mask)
+        masked_data = ma.masked_array(data=data_array, mask=full_mask)
 
         # return an array that includes all of the z data, and x and y no_data outside of the mask area
-        return_arr = masked_data[:,
-                     self.top_edge: self.bottom_edge,
-                     self.left_edge: self.right_edge].filled(fill_value=no_data)
-        return return_arr, self.clipped_geom, self.clipped_mask, self.bbox
-        # TODO: Figure out if we still need the crop to domain functionality
-        # if crop_to_domain:
-        #     # clever use of slicing in numpy to get the data back within the mask,
-        #     # adapted to write no_data values everywhere outside mask bounds
-        #     # Thanks to Dr. Hoang Tran
-        #     return_arr = np.ones((data_array.shape[0], self.clipped_mask.shape[1], self.clipped_mask.shape[2])) * no_data
-        #     data_array[:, np.squeeze(self.inverse_zero_one_mask, axis=0) != 1] = no_data
-        #     return_arr[:, top_pad:-bottom_pad, left_pad:-right_pad] = data_array[:, min_y:max_y + 1, min_x:max_x + 1]
-        # else:
-        #     return_arr = data_array[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
+        return_arr = ma.masked_array(masked_data[:,
+                     self.bbox[0]: self.bbox[1],
+                     self.bbox[2]: self.bbox[3]].filled(fill_value=no_data),
+                                     mask=clip_mask).filled(fill_value=no_data)
 
-    def calculate_new_geom(self, min_x, min_y, old_geom):
-        new_x = old_geom[0] + old_geom[1] * (min_x + 1)
-        new_y = old_geom[3] + old_geom[5] * (min_y + 1)
-        new_geom = (new_x, old_geom[1], old_geom[2], new_y, old_geom[4], old_geom[5])
-        return new_geom
-
-    def find_mask_edges(self, xx, yy):
-        min_x = min(xx)
-        min_y = min(yy)
-        max_x = max(xx)
-        max_y = max(yy)
-        return max_x, max_y, min_x, min_y
-
-    def calculate_new_dimensions(self, len_x, len_y):
-        # add grid cell to make dimensions as multiple of 32 (nicer PxQxR)
-        new_len_y = ((len_y // 32) + 1) * 32
-        top_pad = (new_len_y - len_y) // 2
-        bottom_pad = new_len_y - len_y - top_pad
-        new_len_x = ((len_x // 32) + 1) * 32
-        left_pad = (new_len_x - len_x) // 2
-        right_pad = new_len_x - len_x - left_pad
-        return top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y
+        return return_arr, self.new_geom, self.new_mask, self.bbox
 
     def make_solid_file(self, out_name, dx=1000, dz=1000):
-        mask_mat = self.clipped_mask
+        mask_mat = self.new_mask
         if len(mask_mat.shape) == 3:
             mask_mat = np.squeeze(mask_mat, axis=0)
         # create back borders
