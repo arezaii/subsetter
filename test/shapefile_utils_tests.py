@@ -2,7 +2,7 @@ import os
 import unittest
 import gdal
 import numpy as np
-from file_io_tools import read_file
+from src.file_io_tools import read_file
 from src.shapefile_utils import ShapefileRasterizer
 
 
