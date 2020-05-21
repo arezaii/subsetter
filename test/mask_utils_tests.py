@@ -3,7 +3,7 @@ from src.file_io_tools import read_file
 from src.mask_utils import MaskUtils
 
 
-class MyTestCase(unittest.TestCase):
+class MaskUtilsCalculationUnitTests(unittest.TestCase):
     def test_calculate_new_dims(self):
         mask = read_file('test_inputs/test_truth.tif')
         utils = MaskUtils(mask)

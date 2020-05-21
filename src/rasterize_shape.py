@@ -37,7 +37,7 @@ def rasterize_shapefile_to_disk(reference_dataset, shapefile, out_dir, side_mult
                                      reference_dataset=reference_dataset,
                                      output_path=out_dir)
 
-    raster_path = rasterizer.reproject_and_mask(no_data=-999)
+    raster_path = rasterizer.reproject_and_mask()
     final_mask = rasterizer.add_bbox_to_mask(raster_path, side_length_multiple=side_multiple)
 
     rasterizer.write_to_tif(filename=".".join([os.path.join(out_dir, rasterizer.shapefile_name), "tif"]),
@@ -54,6 +54,7 @@ def main():
     rasterize_shapefile_to_disk(reference_dataset, args.shapefile, args.out_dir, args.side_multiple)
     end_date = datetime.utcnow()
     logging.info(f'finish process at {end_date} for a runtime of {end_date-start_date}')
+
 
 if __name__ == '__main__':
     main()
