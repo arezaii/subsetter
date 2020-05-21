@@ -1,6 +1,6 @@
 import argparse
 import sys
-from argparse_utils import is_valid_file, is_valid_path
+from src.argparse_utils import is_valid_file, is_valid_path
 
 
 def parse_args(args):

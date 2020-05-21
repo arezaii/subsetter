@@ -2,14 +2,14 @@ import argparse
 import logging
 import os
 import sys
-from argparse_utils import is_valid_path, is_positive_integer, is_valid_file
+from src.argparse_utils import is_valid_path, is_positive_integer, is_valid_file
 import gdal
 import file_io_tools
-import tcl_builder
-from clipper import Clipper
-from conus import Conus
-from conus_sources import CyVerseDownloader
-from shapefile_utils import ShapefileRasterizer
+from src.tcl_builder import build_tcl
+from src.clipper import Clipper
+from src.conus import Conus
+from src.conus_sources import CyVerseDownloader
+from src.shapefile_utils import ShapefileRasterizer
 from datetime import datetime
 
 
@@ -104,7 +104,7 @@ def main():
 
     # TODO: Fix the arguments
     os.path.join(args.out_dir, 'runname.tcl')
-    tcl_builder.build_tcl(os.path.join(args.out_dir, 'runname.tcl'),
+    build_tcl(os.path.join(args.out_dir, 'runname.tcl'),
                           'parking_lot_template.tcl',
                           'runname',
                           os.path.join(args.out_dir, 'slope_x.pfb'),

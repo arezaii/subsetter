@@ -2,7 +2,7 @@ import os
 import subprocess
 import numpy.ma as ma
 import numpy as np
-from global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
+from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 from src.mask_utils import MaskUtils
 import logging
 
