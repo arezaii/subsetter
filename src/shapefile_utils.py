@@ -1,11 +1,9 @@
 import gdal
 import ogr
-import osr
 from pathlib import Path
 import os
 import logging
-from pyproj import Proj, transform
-from global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
+from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 from src.mask_utils import MaskUtils, calculate_buffer_edges
 import numpy as np
 from src.file_io_tools import write_array_to_geotiff

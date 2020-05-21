@@ -4,7 +4,7 @@ import pandas as pd
 import pfio
 import gdal
 import numpy as np
-from global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
+from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 import logging
 
 
