@@ -5,7 +5,7 @@ from src.file_io_tools import read_file
 from src.file_io_tools import write_array_to_geotiff
 from src.file_io_tools import write_bbox
 import numpy as np
-from file_io_tools import read_bbox
+from src.file_io_tools import read_bbox
 import os
 
 
