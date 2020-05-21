@@ -1,4 +1,4 @@
-name: subsetter_test
+name: pf_subsetter
 channels:
   - conda-forge
   - defaults
