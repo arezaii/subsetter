@@ -4,8 +4,8 @@ import numpy.ma as ma
 from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 
 
-def find_mask_edges(mask):
-    _, yy, xx = np.where(~mask.mask == 1)
+def find_mask_edges(mask, mask_val=1):
+    _, yy, xx = np.where(~mask.mask == mask_val)
     min_x = min(xx)
     min_y = min(yy)
     max_x = max(xx)

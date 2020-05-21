@@ -9,16 +9,16 @@ from file_io_tools import read_bbox
 import os
 
 
-class MyTestCase(unittest.TestCase):
+class RegressionClipTests(unittest.TestCase):
     """
     Regression tests to verify subsetting can correctly clip a data file,
     correctly produces the subset clip,
     and correctly writes the bounding box file
     """
     def test_subset_dem_to_tif_conus1(self):
-        data_array = read_file('CONUS1_Inputs/CONUS2.0_RawDEM_CONUS1clip.tif')
+        data_array = read_file('test_inputs/CONUS2.0_RawDEM_CONUS1clip.tif')
         mask = read_file('test_inputs/WBDHU8_conus1_mask.tif')
-        ref_ds = gdal.Open('CONUS1_Inputs/CONUS2.0_RawDEM_CONUS1clip.tif')
+        ref_ds = gdal.Open('test_inputs/CONUS2.0_RawDEM_CONUS1clip.tif')
         clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         return_arr, new_geom, new_mask, bbox = clipper.subset(data_array)
         write_array_to_geotiff("conus_1_clip_dem_test.tif",
@@ -43,9 +43,9 @@ class MyTestCase(unittest.TestCase):
         os.remove('bbox_conus1.txt')
 
     def test_subset_tif_conus2(self):
-        data_array = read_file('CONUS2_Inputs/CONUS2.0_RawDEM.tif')
+        data_array = read_file('test_inputs/CONUS2.0_RawDEM.tif')
         mask = read_file('test_inputs/WBDHU8_conus2_mask.tif')
-        ref_ds = gdal.Open('CONUS2_Inputs/CONUS2.0_RawDEM.tif')
+        ref_ds = gdal.Open('test_inputs/CONUS2.0_RawDEM.tif')
         clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         return_arr, new_geom, new_mask, bbox = clipper.subset(data_array)
         write_array_to_geotiff("conus_2_clip_dem_test.tif",
@@ -72,7 +72,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_create_solid_file_conus1(self):
         mask = read_file('test_inputs/WBDHU8_conus1_mask.tif')
-        ref_ds = gdal.Open('CONUS1_Inputs/CONUS2.0_RawDEM_CONUS1clip.tif')
+        ref_ds = gdal.Open('test_inputs/CONUS2.0_RawDEM_CONUS1clip.tif')
         clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         batches = clipper.make_solid_file('conus1_solid')
         self.assertEqual(batches, '0 3 6 ')
@@ -88,10 +88,11 @@ class MyTestCase(unittest.TestCase):
             with open('test_inputs/WBDHU8_conus1_ref.vtk', 'r') as ref_file:
                 self.assertEqual(test_file.read().split('\n')[2:], ref_file.read().split('\n')[2:],
                                  'Writing vtk file matches reference for conus1')
+        os.remove('conus1_solid.vtk')
 
     def test_create_solid_file_conus2(self):
         mask = read_file('test_inputs/WBDHU8_conus2_mask.tif')
-        ref_ds = gdal.Open('CONUS2_Inputs/CONUS2.0_RawDEM.tif')
+        ref_ds = gdal.Open('test_inputs/CONUS2.0_RawDEM.tif')
         clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         batches = clipper.make_solid_file('conus2_solid')
         self.assertEqual(batches, '0 3 6 ')
@@ -104,9 +105,10 @@ class MyTestCase(unittest.TestCase):
         may vary
         """
         with open('conus2_solid.vtk','r') as test_file:
-            with open('test_inputs/WBDHU8_conus2_ref.vtk','r') as ref_file:
+            with open('test_inputs/WBDHU8_conus2_ref.vtk', 'r') as ref_file:
                 self.assertEqual(test_file.read().split('\n')[2:], ref_file.read().split('\n')[2:],
                                  'Writing vtk file matches reference for conus2')
+        os.remove('conus2_solid.vtk')
 
 
 if __name__ == '__main__':

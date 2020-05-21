@@ -6,7 +6,7 @@ import os
 import logging
 from pyproj import Proj, transform
 from global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
-from src.mask_utils import MaskUtils, find_mask_edges, calculate_buffer_edges
+from src.mask_utils import MaskUtils, calculate_buffer_edges
 import numpy as np
 from src.file_io_tools import write_array_to_geotiff
 
@@ -14,6 +14,9 @@ from src.file_io_tools import write_array_to_geotiff
 class ShapefileRasterizer:
 
     def __init__(self, shapefile_path, reference_dataset, no_data=NO_DATA, output_path='.'):
+        if no_data in [0, 1]:
+            raise Exception(f'ShapfileRasterizer: '
+                            f'Do not used reserved values 1 or 0 for no_data value: got no_data={no_data}')
         self.shapefile_path = shapefile_path
         self.check_shapefile_parts()
         self.output_path = output_path
@@ -27,7 +30,7 @@ class ShapefileRasterizer:
             if not os.path.isfile(os.path.join(Path(self.shapefile_path).parent, shp_component_file)):
                 print(f'warning: Missing {shp_component_file}')
 
-    def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=NO_DATA, shape_field='OBJECTID'):
+    def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=None, shape_field='OBJECTID'):
         """
         Given an input shapefile, convert to an array in the same projection as the reference datasource
         :param dtype: datatype for gdal
@@ -35,6 +38,8 @@ class ShapefileRasterizer:
         :param shape_field: attribute name to extract from shapefile
         :return: the path (virtual) to the tif file
         """
+        if no_data is None:
+            no_data = self.no_data
         geom_ref = self.ds_ref.GetGeoTransform()
         shape_name = self.shapefile_name
         tif_path = f'/vsimem/{shape_name}.tif'
@@ -91,14 +96,4 @@ class ShapefileRasterizer:
         write_array_to_geotiff(filename, data_set, self.ds_ref.GetGeoTransform(), self.ds_ref.GetProjection(),
                                no_data=self.no_data)
 
-    def pixzone2latlon(self, xul, yul, dx, dy, x0, y0):
-        lat = yul - dy*y0
-        lon = xul + dx*x0
-        return lat, lon
 
-    def write_clm_lat_lon(self):
-        inSRS_converter = osr.SpatialReference()  # makes an empty spatial ref object
-        inSRS_converter.ImportFromWkt(self.ds_ref.GetProjection())  # populates the spatial ref object with our WKT SRS
-        inSRS_forPyProj = inSRS_converter.ExportToProj4()  # Exports an SRS ref as a Proj4 string usable by PyProj
-        inProj = Proj(inSRS_forPyProj)
-        outProj = Proj(init='epsg:4326')
