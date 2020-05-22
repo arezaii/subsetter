@@ -15,6 +15,7 @@
 * [pfio-tools](https://github.com/hydroframe/tools)
 
 ## Setup
+
 ```
 git clone https://github.com/arezaii/subsetter
 cd subsetter
@@ -30,6 +31,14 @@ python setup.py install
 cd ../..
 ```
 
+### Troubleshooting
+
+Known issue: When makOn Ubuntu systems, the tcl.h file is located in /usr/include/tcl, so you may need to modify
+the Makefile in pf-mask-utilities to add -I/usr/include/tcl to line 49 like this:
+```
+g++ -Ithird-party -I/usr/include/tcl -g -Wno-write-strings -std=c++11 $(SRC) -o mask-to-pfsol
+```
+
 ## Testing
 ```
 chmod +x run_tests.sh
@@ -38,17 +47,17 @@ chmod +x run_tests.sh
 
 ## Usage
 
-**rasterize a shapefile for use as a mask, based on a reference dataset**
+####Rasterize a shapefile for use as a mask, based on a reference dataset
 ```
 python src/rasterize_shape.py -s <shapefile> -r <reference_dataset> -o [output_dir=.]
 ```
 
-**create subset from CONUS models from a shapefile**
+####Create subset from CONUS models from a shapefile
 ```
 python src/subset_conus.py -s <shapefile> -v -c <path to conus input files> [conus version=1]  -o [path_to_write_outputs=.]
 ```
 
-**use a tif mask to clip multiple files to PFB or TIF**
+####Use a tif mask to clip multiple files to PFB or TIF
 
 assumes all files are identically gridded and same as the mask file
 ```
