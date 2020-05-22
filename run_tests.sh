@@ -7,4 +7,4 @@ else
   echo "Warning: Cyverse Downloader tests will fail if username/password not supplied"
   echo "example: ./run_tests.sh <cyverse_username> <cyverse_password>"
 fi
-python -m unittest discover test -p '*_tests.py'
+python -m unittest discover tests -p '*_tests.py'
