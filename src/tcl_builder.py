@@ -2,6 +2,8 @@ import argparse
 import os
 import sys
 import pfio
+from datetime import datetime
+import logging
 
 
 def read_infile(infile):
@@ -255,6 +257,12 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
 
 def main():
     # parsing arguments
+
+    # setup logging
+    start_date = datetime.utcnow()
+    logging.basicConfig(filename='tcl_builder.log', filemode='w', level=logging.INFO)
+    logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
+
     args = parse_args(sys.argv[1:])
     out_file = args.out_file
 
@@ -314,6 +322,9 @@ def main():
               k, poros, rain,
               rec, constant, init, initw, flow, start_time, baseu, timestep, dump, dx, dy, dz, nz,
               dz_scales)
+
+    end_date = datetime.utcnow()
+    logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
 
 
 if __name__ == '__main__':

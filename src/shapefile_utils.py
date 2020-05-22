@@ -26,7 +26,7 @@ class ShapefileRasterizer:
         shape_parts = [Path(self.shapefile_path).stem + x for x in ['.shp', '.dbf', '.prj', '.shx', '.sbx', '.sbn']]
         for shp_component_file in shape_parts:
             if not os.path.isfile(os.path.join(Path(self.shapefile_path).parent, shp_component_file)):
-                print(f'warning: Missing {shp_component_file}')
+                logging.warning(f'Shapefile path missing {shp_component_file}')
 
     def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=None, shape_field='OBJECTID'):
         """
@@ -94,4 +94,10 @@ class ShapefileRasterizer:
         write_array_to_geotiff(filename, data_set, self.ds_ref.GetGeoTransform(), self.ds_ref.GetProjection(),
                                no_data=self.no_data)
 
+    def rasterize_shapefile_to_disk(self, out_dir, side_multiple=1):
 
+        raster_path = self.reproject_and_mask()
+        final_mask = self.add_bbox_to_mask(raster_path, side_length_multiple=side_multiple)
+
+        self.write_to_tif(filename=".".join([os.path.join(out_dir, self.shapefile_name), "tif"]),
+                                data_set=final_mask)
