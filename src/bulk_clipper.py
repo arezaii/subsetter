@@ -71,7 +71,7 @@ def main():
     # setup logging
     logging.basicConfig(filename='bulk_clipper.log', filemode='w', level=logging.INFO)
     start_date = datetime.utcnow()
-    logging.info(f'start process at {start_date}')
+    logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
     ref_ds = None
     if args.write_tifs:

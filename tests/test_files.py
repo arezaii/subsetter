@@ -4,12 +4,14 @@ conus1_mask = 'test_inputs/Domain_Blank_Mask.tif'
 conus2_mask = 'test_inputs/conus_1km_PFmask2.tif'
 forcings_pfb = 'test_inputs/NLDAS.Temp.000001_to_000024.pfb'
 forcings_sa = 'test_inputs/NLDAS.Temp.000001_to_000024.sa'
+clm_naigbpl_tif = 'test_inputs/naigbpl20_conus1.tif'
 
-huc10190004 = {'conus1_mask':'test_inputs/WBDHU8_conus1_mask.tif',
-                'conus1_sol': 'test_inputs/WBDHU8_conus1.pfsol',
-               'conus1_vtk' : 'test_inputs/WBDHU8_conus1_ref.vtk',
-                'conus2_mask' : 'test_inputs/WBDHU8_conus2_mask.tif',
-               'conus2_sol' : 'test_inputs/WBDHU8_conus2.pfsol',
+
+huc10190004 = {'conus1_mask': 'test_inputs/WBDHU8_conus1_mask.tif',
+               'conus1_sol': 'test_inputs/WBDHU8_conus1.pfsol',
+               'conus1_vtk': 'test_inputs/WBDHU8_conus1_ref.vtk',
+               'conus2_mask': 'test_inputs/WBDHU8_conus2_mask.tif',
+               'conus2_sol': 'test_inputs/WBDHU8_conus2.pfsol',
                'conus2_vtk': 'test_inputs/WBDHU8_conus2_ref.vtk',
                'conus1_dem': 'test_inputs/WBDHU8_conus1_dem.tif',
                'conus1_inset': 'test_inputs/WBDHU8_conus1_mask_crop.tif',
@@ -20,7 +22,3 @@ huc10190004 = {'conus1_mask':'test_inputs/WBDHU8_conus1_mask.tif',
                'shapefile': 'test_inputs/WBDHU8.shp',
                'conus1_mask_-9999999': 'test_inputs/WBDHU8_conus1_mask_-9999999.tif'
                }
-
-
-
-

@@ -44,8 +44,6 @@ class FileIOToolBasicTestCase(unittest.TestCase):
                           'writing and reading a tif gives back the same array values')
         os.remove('test_write_tif_out.tif')
 
-
-
     def test_write_pfb(self):
         forcings_data = file_reader.read_file(test_files.forcings_pfb)
         file_reader.write_pfb(forcings_data, 'test_pfb_out.pfb')

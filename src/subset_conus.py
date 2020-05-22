@@ -55,7 +55,7 @@ def main():
     # setup logging
     start_date = datetime.utcnow()
     logging.basicConfig(filename='subset_conus.log', filemode='w', level=logging.INFO)
-    logging.info(f'start process at {start_date}')
+    logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     # parse the command line arguments
     args = parse_args(sys.argv[1:])
     conus = Conus(args.conus_version, args.conus_files)
