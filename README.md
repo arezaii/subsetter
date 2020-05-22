@@ -49,18 +49,20 @@ chmod +x run_tests.sh
 
 #### Rasterize a shapefile for use as a mask, based on a reference dataset
 ```
-python src/rasterize_shape.py -s <shapefile> -r <reference_dataset> -o [output_dir=.]
+python -m src.rasterize_shape -s <shapefile> -r <reference_dataset> -o [output_dir=.]
 ```
 
 #### Create subset from CONUS models from a shapefile
 ```
-python src/subset_conus.py -s <shapefile> -v -c <path to conus input files> [conus version=1]  -o [path_to_write_outputs=.]
+python -m src.subset_conus -s <shapefile> -v -c <path to conus input files> [conus version=1]  -o [path_to_write_outputs=.]
 ```
 
-#### Use a tif mask to clip multiple files to PFB or TIF
+#### Use a mask to clip multiple files to PFB or TIF
 
-assumes all files are identically gridded and same as the mask file
+assumes all files are identically gridded and same as the mask file, if write_tifs=1 then you
+must supply at least one tif with correct projection and transform information as either the mask file, 
+as a reference dataset with the -r option, or in the list of datafiles to clip
 ```
-python src/bulk_clipper.py -m <mask_file> -d <list_of_datafiles_to_clip> -t [write_tifs=0] -o [output_directory=.]
+python src.bulk_clipper -m <mask_file> -d <list_of_datafiles_to_clip> -t [write_tifs=0] -o [output_directory=.]
 ```
 
