@@ -4,7 +4,7 @@ import os
 import sys
 from src.argparse_utils import is_valid_path, is_positive_integer, is_valid_file
 import gdal
-import file_io_tools
+import src.file_io_tools as file_io_tools
 from src.tcl_builder import build_tcl
 from src.clipper import Clipper
 from src.conus import Conus
