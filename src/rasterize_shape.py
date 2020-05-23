@@ -10,9 +10,12 @@ from datetime import datetime
 def parse_args(args):
     parser = argparse.ArgumentParser('Generate a Raster From a Shapefile')
 
+    parser.add_argument("--input_path", "-i", dest="input_path", required=True,
+                        type=lambda x: is_valid_path(parser, x),
+                        help="the input path to the shapefile file set")
+
     parser.add_argument("--shapefile", "-s", dest="shapefile", required=True,
-                        type=lambda x: is_valid_file(parser, x),
-                        help="the input shapefile")
+                        help="the name of the shapefile file set")
 
     parser.add_argument("--ref_file", "-r", dest="ref_file", required=True,
                         type=lambda x: is_valid_file(parser, x),
@@ -38,9 +41,9 @@ def main():
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
     reference_dataset = file_io_tools.read_geotiff(args.ref_file)
-    rasterizer = ShapefileRasterizer(None, shapefile_name=args.shapefile, reference_dataset=reference_dataset,
+    rasterizer = ShapefileRasterizer(args.input_path, shapefile_name=args.shapefile, reference_dataset=reference_dataset,
                                      output_path=args.out_dir)
-    rasterizer.rasterize_shapefile_to_disk(args.out_dir, args.side_multiple)
+    rasterizer.rasterize_shapefile_to_disk(args.out_dir, side_multiple=args.side_multiple)
     end_date = datetime.utcnow()
     logging.info(f'finish process at {end_date} for a runtime of {end_date-start_date}')
 

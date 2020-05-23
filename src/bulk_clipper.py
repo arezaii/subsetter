@@ -84,8 +84,10 @@ def main():
                 ref_ds = file_io_tools.read_geotiff(args.mask_file)
         else:
             ref_ds = file_io_tools.read_geotiff(args.ref_file)
-    clipper = Clipper(mask_array=args.mask_file, reference_dataset=ref_ds, no_data_threshold=-1)
-    clip_inputs(clipper, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+    mask = file_io_tools.read_file(args.mask_file)
+    clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
+    clip_inputs(clipper, input_list=args.data_files, out_dir=args.out_dir, pfb_outs=args.write_pfbs,
+                tif_outs=args.write_tifs)
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
 
