@@ -23,6 +23,8 @@ def calculate_buffer_edges(min_x, min_y, max_x, max_y, padding):
     logging.info(f'calculated new mask edges original (top,bot,left,right)='
                  f'{",".join([str(i) for i in [min_y, max_y, min_x, max_x]])} padding={padding}, '
                  f'new edges={",".join([str(i) for i in [top_edge, bottom_edge, left_edge, right_edge]])}')
+    if left_edge < 0 or top_edge < 0:
+        logging.warning(f'found a negative minimum edge! Unxpected behavior ahead!')
     return [top_edge, bottom_edge, left_edge, right_edge]
 
 
@@ -51,20 +53,6 @@ class MaskUtils:
         mx = ma.masked_where(self.mask_data_array <= self.bbox_val, self.mask_data_array)
         logging.info(f'located inner mask in mask array')
         return mx
-
-    # def clip_mask(self, side_multiple=1):
-    #     """
-    #     clip the input mask (full extents) to extents of masked data plus an edge buffer
-    #     creates a mask of 1 for valid data and 0 for no_data
-    #     """
-    #     max_x, max_y, min_x, min_y = find_mask_edges(self.inner_crop)
-    #     len_y = max_y - min_y + 1
-    #     len_x = max_x - min_x + 1
-    #     # add grid cell to make dimensions as multiple of 32 (nicer PxQxR)
-    #     top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y = self.calculate_new_dimensions(len_x, len_y,
-    #                                                                                                    side_multiple)
-    #     clipped_mask = self.inner_crop[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
-    #     return clipped_mask.filled(fill_value=0), min_x, min_y, max_x, max_y, top_pad, bottom_pad, left_pad, right_pad
 
     def calculate_new_geom(self, min_x, min_y, old_geom):
         # TODO: Why old code had (min_x +1) ? Seemed to shift the tif geo location by 1 in each direction?

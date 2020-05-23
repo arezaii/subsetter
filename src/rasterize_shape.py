@@ -38,8 +38,7 @@ def main():
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
     reference_dataset = file_io_tools.read_geotiff(args.ref_file)
-    rasterizer = ShapefileRasterizer(shapefile_path=args.shapefile,
-                                     reference_dataset=reference_dataset,
+    rasterizer = ShapefileRasterizer(None, shapefile_name=args.shapefile, reference_dataset=reference_dataset,
                                      output_path=args.out_dir)
     rasterizer.rasterize_shapefile_to_disk(args.out_dir, args.side_multiple)
     end_date = datetime.utcnow()
