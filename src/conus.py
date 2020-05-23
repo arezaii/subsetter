@@ -1,4 +1,6 @@
 import os
+import logging
+import src.file_io_tools as file_io_tools
 
 
 class Conus:
@@ -35,7 +37,14 @@ class Conus:
             }
             self.cyverse_path = '/iplant/home/shared/avra/CONUS2.0/Inputs/domain/'
             self.local_path = local_path
-        self.check_destination
+        self.conus_mask_tif = file_io_tools.read_geotiff(os.path.join(self.local_path, self.files.get("CONUS_MASK")))
+        self.conus_mask_array = self.conus_mask_tif.ReadAsArray()
+        # had to do this because conus1 mask is all 0's
+        if self.version == 1:
+            self.conus_mask_array += 1
+
+        self.check_inputs_exist()
+        self.check_destination()
 
     def check_inputs_exist(self):
         """
@@ -43,12 +52,12 @@ class Conus:
         :return: the list of missing input files
         """
         missing = []
-        for file in self.files.values():
+        for name, file in self.files.items():
             if not os.path.isfile(os.path.join(self.local_path, file)):
                 missing.append(file)
+                logging.error(f'CONUS sources did not find {name} at {os.path.join(self.local_path, file)}')
         return missing
 
-    @property
     def check_destination(self):
         """
         make sure the local folder to store inputs exists

@@ -1,10 +1,12 @@
+import logging
 import os
 import subprocess
-import numpy.ma as ma
+from shutil import which
 import numpy as np
+import numpy.ma as ma
 from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 from src.mask_utils import MaskUtils
-import logging
+import src.file_io_tools as file_io_tools
 
 
 class Clipper:
@@ -20,17 +22,20 @@ class Clipper:
         self.inverted_zero_one_mask = mask_utils.bbox_crop
         max_x, max_y, min_x, min_y = mask_utils.bbox_crop_edges
         self.bbox = [min_y, max_y+1, min_x, max_x+1]
-        self.new_geom = mask_utils.calculate_new_geom(min_x, min_y, self.ds_ref.GetGeoTransform())
-        self.new_mask = (self.inverted_zero_one_mask.filled(fill_value=no_data_threshold) == 1)[:,
+        self.clipped_geom = mask_utils.calculate_new_geom(min_x, min_y, self.ds_ref.GetGeoTransform())
+        self.clipped_mask = (self.inverted_zero_one_mask.filled(fill_value=no_data_threshold) == 1)[:,
                         min_y:max_y+1, min_x:max_x+1]
+
+    def write_bbox_file(self, bbox_path):
+        file_io_tools.write_bbox(self.bbox, bbox_path)
 
     def subset(self, data_array, no_data=NO_DATA):
         """
         clip the data from data_array in the shape and extents of the clipper's clipped mask
         """
         full_mask = self.inverted_zero_one_mask.mask
-        clip_mask = ~self.new_mask
-        # Handle multi-layered files, such as subsurface or forcings or pme
+        clip_mask = ~self.clipped_mask
+        # Handle multi-layered files, such as subsurface or forcings
         if data_array.shape[0] > 1:
             full_mask = np.broadcast_to(full_mask, data_array.shape)
             clip_mask = np.broadcast_to(clip_mask, (data_array.shape[0], clip_mask.shape[1], clip_mask.shape[2]))
@@ -44,10 +49,18 @@ class Clipper:
                      self.bbox[2]: self.bbox[3]].filled(fill_value=no_data),
                                      mask=clip_mask).filled(fill_value=no_data)
 
-        return return_arr, self.new_geom, self.new_mask, self.bbox
+        return return_arr, self.clipped_geom, self.clipped_mask, self.bbox
 
+    # TODO: move solid file generation to somewhere else...maybe it's own class
     def make_solid_file(self, out_name, dx=1000, dz=1000):
-        mask_mat = self.new_mask
+        pf_mask_to_sol_path = self.find_mask_to_sol_exe()
+        if pf_mask_to_sol_path is None:
+            msg = 'Could not locate pfmask-to-pfsol utility needed to generate solid file (.pfsol)' \
+                  ' ensure PARFLOW_DIR environment variable is set'
+            logging.exception(msg)
+            raise Exception(msg)
+
+        mask_mat = self.clipped_mask
         if len(mask_mat.shape) == 3:
             mask_mat = np.squeeze(mask_mat, axis=0)
         # create back borders
@@ -112,15 +125,18 @@ class Clipper:
         if os.path.isfile(out_pfsol):
             os.remove(out_pfsol)
 
-        create_sub = subprocess.run(['pf-mask-utilities/mask-to-pfsol', '--mask-back', list_patches[0],
-                                     '--mask-front', list_patches[1],
-                                     '--mask-right', list_patches[2],
-                                     '--mask-left ' + list_patches[3],
-                                     '--mask-bottom ' + list_patches[4],
-                                     '--mask-top ' + list_patches[5],
-                                     '--vtk', out_vtk,
-                                     '--pfsol', out_pfsol,
-                                     '--depth', str(dz)], stdout=subprocess.PIPE)
+        sub_cmd_str = [pf_mask_to_sol_path[0],
+                       '--mask-back', list_patches[0],
+                       '--mask-front', list_patches[1],
+                       '--mask-right', list_patches[2],
+                       '--mask-left ' + list_patches[3],
+                       '--mask-bottom ' + list_patches[4],
+                       '--mask-top ' + list_patches[5],
+                       '--vtk', out_vtk,
+                       '--pfsol', out_pfsol,
+                       pf_mask_to_sol_path[1], str(dz)]
+        logging.info(f'begin mask_to_sol subprocess, command executed: {sub_cmd_str}')
+        create_sub = subprocess.run(sub_cmd_str, stdout=subprocess.PIPE)
         temp_list = create_sub.stdout.decode('utf-8').split('\n')
         batches = ''
         for line in temp_list:
@@ -129,3 +145,16 @@ class Clipper:
                 batches += line.split()[-3] + ' '
         logging.info(f'identified batches in domain {batches}')
         return batches
+
+    def find_mask_to_sol_exe(self):
+        pf_mask_to_sol_path = None
+        possible_paths = {('mask-to-pfsol', '--depth'): [os.environ.get('PFMASKUTILS'), which('mask-to-pfsol')],
+                          ('pfmask-to-pfsol', '--z-bottom'):
+                              [f'{os.environ["PARFLOW_DIR"]}/bin', which('pfmask-to-pfsol')]}
+        for executable, possible_paths in possible_paths.items():
+            executable_path = next((path for path in possible_paths if path is not None), None)
+            if executable_path is not None:
+                pf_mask_to_sol_path = (os.path.join(executable_path, executable[0]), executable[1])
+                break
+        logging.info(f'searching for mask_to_sol executable resulted in: {pf_mask_to_sol_path[0]}')
+        return pf_mask_to_sol_path

@@ -1,8 +1,8 @@
 from src.shapefile_utils import ShapefileRasterizer
 from src.argparse_utils import is_valid_file, is_valid_path, is_positive_integer
+import src.file_io_tools as file_io_tools
 import argparse
 import sys
-import gdal
 import logging
 from datetime import datetime
 
@@ -37,7 +37,7 @@ def main():
     logging.basicConfig(filename='rasterize_shape.log', filemode='w', level=logging.INFO)
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
-    reference_dataset = gdal.Open(args.ref_file)
+    reference_dataset = file_io_tools.read_geotiff(args.ref_file)
     rasterizer = ShapefileRasterizer(shapefile_path=args.shapefile,
                                      reference_dataset=reference_dataset,
                                      output_path=args.out_dir)

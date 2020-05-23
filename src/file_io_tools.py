@@ -12,7 +12,6 @@ import logging
 Common disk I/O operations
 """
 
-
 def read_file(infile):
     """
     read an input file and return a 3d numpy array
@@ -36,6 +35,10 @@ def read_file(infile):
         print('can not read file type ' + ext)
         sys.exit()
     return res_arr
+
+
+def read_geotiff(infile):
+    return gdal.Open(infile)
 
 
 def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
