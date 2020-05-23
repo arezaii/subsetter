@@ -1,6 +1,5 @@
 import gdal
 import ogr
-from pathlib import Path
 import os
 import logging
 from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
@@ -11,21 +10,22 @@ import src.file_io_tools as file_io_tools
 
 class ShapefileRasterizer:
 
-    def __init__(self, shapefile_path, reference_dataset, no_data=NO_DATA, output_path='.'):
+    def __init__(self, input_path, shapefile_name, reference_dataset, no_data=NO_DATA, output_path='.'):
         if no_data in [0, 1]:
             raise Exception(f'ShapfileRasterizer: '
                             f'Do not used reserved values 1 or 0 for no_data value: got no_data={no_data}')
-        self.shapefile_path = shapefile_path
-        self.check_shapefile_parts()
+        self.shapefile_path = input_path
         self.output_path = output_path
-        self.shapefile_name = Path(shapefile_path).stem
+        self.shapefile_name = shapefile_name
         self.ds_ref = reference_dataset
         self.no_data = no_data
+        self.full_shapefile_path = os.path.join(self.shapefile_path, '.'.join((self.shapefile_name, 'shp')))
+        self.check_shapefile_parts()
 
     def check_shapefile_parts(self):
-        shape_parts = [Path(self.shapefile_path).stem + x for x in ['.shp', '.dbf', '.prj', '.shx', '.sbx', '.sbn']]
+        shape_parts = [".".join((self.shapefile_name, ext)) for ext in ['shp', 'dbf', 'prj', 'shx', 'sbx', 'sbn']]
         for shp_component_file in shape_parts:
-            if not os.path.isfile(os.path.join(Path(self.shapefile_path).parent, shp_component_file)):
+            if not os.path.isfile(os.path.join(self.shapefile_path, shp_component_file)):
                 logging.warning(f'Shapefile path missing {shp_component_file}')
 
     def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=None, shape_field='OBJECTID'):
@@ -39,8 +39,7 @@ class ShapefileRasterizer:
         if no_data is None:
             no_data = self.no_data
         geom_ref = self.ds_ref.GetGeoTransform()
-        shape_name = self.shapefile_name
-        tif_path = f'/vsimem/{shape_name}.tif'
+        tif_path = f'/vsimem/{self.shapefile_name}.tif'
         target_ds = gdal.GetDriverByName('GTiff').Create(tif_path,
                                                          self.ds_ref.RasterXSize,
                                                          self.ds_ref.RasterYSize,
@@ -50,7 +49,7 @@ class ShapefileRasterizer:
         # TODO: Fix the no_data here to be from the class
         target_ds.GetRasterBand(1).SetNoDataValue(no_data)
         # shapefile
-        shp_source = ogr.Open(self.shapefile_path)
+        shp_source = ogr.Open(self.full_shapefile_path)
         shp_layer = shp_source.GetLayer()
         # Rasterize layer
         if gdal.RasterizeLayer(target_ds, [1],
@@ -88,7 +87,7 @@ class ShapefileRasterizer:
         logging.info(f'added bbox to mask: mask_va=1, bbox_val=0, no_data_val={self.no_data}, '
                      f'slice_data(top,bot,left,right)='
                      f'{",".join([str(i) for i in [top_edge, bottom_edge, left_edge, right_edge]])}')
-        return new_mask
+        return new_mask, new_edges
 
     def write_to_tif(self, data_set, filename):
         file_io_tools.write_array_to_geotiff(filename, data_set, self.ds_ref.GetGeoTransform(),
@@ -100,6 +99,9 @@ class ShapefileRasterizer:
         if out_dir is None:
             out_dir = self.output_path
         raster_path = self.reproject_and_mask()
-        final_mask = self.add_bbox_to_mask(raster_path, side_length_multiple=side_multiple)
+        final_mask, bbox = self.add_bbox_to_mask(raster_path, side_length_multiple=side_multiple)
         self.write_to_tif(filename=os.path.join(out_dir, out_name), data_set=final_mask)
+        file_io_tools.write_bbox(bbox, os.path.join(out_dir, 'bbox.txt'))
+        return final_mask
+
 
