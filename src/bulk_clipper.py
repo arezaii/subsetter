@@ -2,11 +2,10 @@ from src.clipper import Clipper
 import sys
 import argparse
 from src.argparse_utils import is_valid_file, is_valid_path
-from src.file_io_tools import read_file, write_pfb, write_array_to_geotiff
 from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 import os
 from pathlib import Path
-import gdal
+import src.file_io_tools as file_io_tools
 import logging
 from datetime import datetime
 
@@ -49,22 +48,21 @@ def locate_tifs(file_list):
     return [s for s in file_list if 'tif' in s.lower()]
 
 
-def clip_inputs(mask, ref_ds, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=NO_DATA):
-    # create the clipper
-    clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
+def clip_inputs(clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=NO_DATA):
+    ref_proj = None
     if tif_outs:
         # identify projection
-        ref_proj = ref_ds.GetProjection()
+        ref_proj = clipper.ds_ref.GetProjection()
 
     # loop over and clip
     for data_file in input_list:
         filename = Path(data_file).stem
-        return_arr, new_geom, new_mask, bbox = clipper.subset(read_file(data_file))
+        return_arr, new_geom, new_mask, bbox = clipper.subset(file_io_tools.read_file(data_file))
         if pfb_outs:
-            write_pfb(return_arr, os.path.join(out_dir, f'{filename}_clip.pfb'))
+            file_io_tools.write_pfb(return_arr, os.path.join(out_dir, f'{filename}_clip.pfb'))
         if tif_outs:
-            write_array_to_geotiff(os.path.join(out_dir, f'{filename}_clip.tif'),
-                                   return_arr, new_geom, ref_proj, no_data=no_data)
+            file_io_tools.write_array_to_geotiff(os.path.join(out_dir, f'{filename}_clip.tif'),
+                                                 return_arr, new_geom, ref_proj, no_data=no_data)
 
 
 def main():
@@ -81,13 +79,13 @@ def main():
                 if len(input_tifs) < 1:
                     raise Exception('Must include at least one geotif input or a ref_file when tif_outs is selected')
                 else:
-                    ref_ds = gdal.Open(input_tifs[0])
+                    ref_ds = file_io_tools.read_geotiff(input_tifs[0])
             else:
-                ref_ds = gdal.Open(args.mask_file)
+                ref_ds = file_io_tools.read_geotiff(args.mask_file)
         else:
-            ref_ds = gdal.Open(args.ref_file)
-
-    clip_inputs(read_file(args.mask_file), ref_ds, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+            ref_ds = file_io_tools.read_geotiff(args.ref_file)
+    clipper = Clipper(mask_array=args.mask_file, reference_dataset=ref_ds, no_data_threshold=-1)
+    clip_inputs(clipper, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
 

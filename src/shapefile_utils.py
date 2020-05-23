@@ -6,7 +6,7 @@ import logging
 from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
 from src.mask_utils import MaskUtils, calculate_buffer_edges
 import numpy as np
-from src.file_io_tools import write_array_to_geotiff
+import src.file_io_tools as file_io_tools
 
 
 class ShapefileRasterizer:
@@ -66,7 +66,7 @@ class ShapefileRasterizer:
         return tif_path
 
     def add_bbox_to_mask(self, tiff_path, side_length_multiple=1):
-        dataset = gdal.Open(tiff_path)
+        dataset = file_io_tools.read_geotiff(tiff_path)
         mask_array = dataset.ReadAsArray()
         mask_shape = mask_array.shape
         if len(mask_shape) == 2:
@@ -74,7 +74,7 @@ class ShapefileRasterizer:
             logging.info(f'added z-axis to 2d mask_array, old dims={mask_shape}, new dims={mask_array.shape}')
         mask_utils = MaskUtils(mask_array)
         numpy_mask = mask_utils.inner_crop
-        max_x, max_y, min_x, min_y = mask_utils.inner_crop_edges #find_mask_edges(numpy_mask)
+        max_x, max_y, min_x, min_y = mask_utils.inner_crop_edges
         new_dims = mask_utils.calculate_new_dimensions(len_x=(max_x - min_x) + 1,
                                                        len_y=(max_y - min_y) + 1,
                                                        side_multiple=side_length_multiple)
@@ -91,13 +91,15 @@ class ShapefileRasterizer:
         return new_mask
 
     def write_to_tif(self, data_set, filename):
-        write_array_to_geotiff(filename, data_set, self.ds_ref.GetGeoTransform(), self.ds_ref.GetProjection(),
-                               no_data=self.no_data)
+        file_io_tools.write_array_to_geotiff(filename, data_set, self.ds_ref.GetGeoTransform(),
+                                             self.ds_ref.GetProjection(), no_data=self.no_data)
 
-    def rasterize_shapefile_to_disk(self, out_dir, side_multiple=1):
-
+    def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, side_multiple=1):
+        if out_name is None:
+            out_name = f'{self.shapefile_name}.tif'
+        if out_dir is None:
+            out_dir = self.output_path
         raster_path = self.reproject_and_mask()
         final_mask = self.add_bbox_to_mask(raster_path, side_length_multiple=side_multiple)
+        self.write_to_tif(filename=os.path.join(out_dir, out_name), data_set=final_mask)
 
-        self.write_to_tif(filename=".".join([os.path.join(out_dir, self.shapefile_name), "tif"]),
-                                data_set=final_mask)

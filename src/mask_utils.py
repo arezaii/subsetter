@@ -44,7 +44,7 @@ class MaskUtils:
 
     def _find_bbox(self):
         mx = ma.masked_where(self.mask_data_array < self.bbox_val, self.mask_data_array)
-        logging.info(f'located bbox in mask array')
+        logging.info(f'located outer bbox in mask array')
         return mx
 
     def _find_inner_object(self):
@@ -63,8 +63,8 @@ class MaskUtils:
     #     # add grid cell to make dimensions as multiple of 32 (nicer PxQxR)
     #     top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y = self.calculate_new_dimensions(len_x, len_y,
     #                                                                                                    side_multiple)
-    #     new_mask = self.inner_crop[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
-    #     return new_mask.filled(fill_value=0), min_x, min_y, max_x, max_y, top_pad, bottom_pad, left_pad, right_pad
+    #     clipped_mask = self.inner_crop[:, min_y - top_pad:max_y + bottom_pad + 1, min_x - left_pad:max_x + right_pad + 1]
+    #     return clipped_mask.filled(fill_value=0), min_x, min_y, max_x, max_y, top_pad, bottom_pad, left_pad, right_pad
 
     def calculate_new_geom(self, min_x, min_y, old_geom):
         # TODO: Why old code had (min_x +1) ? Seemed to shift the tif geo location by 1 in each direction?
