@@ -21,10 +21,10 @@ class Clipper:
         mask_utils = MaskUtils(mask_array, bbox_val=0, no_data_threshold=no_data_threshold)
         self.inverted_zero_one_mask = mask_utils.bbox_crop
         max_x, max_y, min_x, min_y = mask_utils.bbox_crop_edges
-        self.bbox = [min_y, max_y+1, min_x, max_x+1]
+        self.bbox = [min_y, max_y + 1, min_x, max_x + 1]
         self.clipped_geom = mask_utils.calculate_new_geom(min_x, min_y, self.ds_ref.GetGeoTransform())
         self.clipped_mask = (self.inverted_zero_one_mask.filled(fill_value=no_data_threshold) == 1)[:,
-                        min_y:max_y+1, min_x:max_x+1]
+                            min_y:max_y + 1, min_x:max_x + 1]
 
     def write_bbox_file(self, bbox_path):
         file_io_tools.write_bbox(self.bbox, bbox_path)
@@ -45,8 +45,8 @@ class Clipper:
 
         # return an array that includes all of the z data, and x and y no_data outside of the mask area
         return_arr = ma.masked_array(masked_data[:,
-                     self.bbox[0]: self.bbox[1],
-                     self.bbox[2]: self.bbox[3]].filled(fill_value=no_data),
+                                     self.bbox[0]: self.bbox[1],
+                                     self.bbox[2]: self.bbox[3]].filled(fill_value=no_data),
                                      mask=clip_mask).filled(fill_value=no_data)
 
         return return_arr, self.clipped_geom, self.clipped_mask, self.bbox
@@ -115,7 +115,7 @@ class Clipper:
                 np.savetxt(fo, patches[patch].reshape([-1, 1]), '%.3f', ' ')
 
         # Create solid domain file
-        # This part assumes that you have installed pf-mask-utilities
+        # This part assumes that you have installed pf-mask-utilities or ParFlow with PARFLOW_DIR set
         out_vtk = out_name + '.vtk'
         out_pfsol = out_name + '.pfsol'
 
@@ -147,6 +147,9 @@ class Clipper:
         return batches
 
     def find_mask_to_sol_exe(self):
+        """
+        look for the pf_mask_to_pfsol utility on the system, then verify the file we think exists does exist
+        """
         pf_mask_to_sol_path = None
         possible_paths = {('mask-to-pfsol', '--depth'): [os.environ.get('PFMASKUTILS'), which('mask-to-pfsol')],
                           ('pfmask-to-pfsol', '--z-bottom'):
@@ -154,7 +157,8 @@ class Clipper:
         for executable, possible_paths in possible_paths.items():
             executable_path = next((path for path in possible_paths if path is not None), None)
             if executable_path is not None:
-                pf_mask_to_sol_path = (os.path.join(executable_path, executable[0]), executable[1])
-                break
+                if os.path.isfile(os.path.join(executable_path, executable[0])):
+                    pf_mask_to_sol_path = (os.path.join(executable_path, executable[0]), executable[1])
+                    break
         logging.info(f'searching for mask_to_sol executable resulted in: {pf_mask_to_sol_path[0]}')
         return pf_mask_to_sol_path

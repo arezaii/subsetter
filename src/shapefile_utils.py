@@ -46,7 +46,6 @@ class ShapefileRasterizer:
                                                          1, dtype)
         target_ds.SetProjection(self.ds_ref.GetProjection())
         target_ds.SetGeoTransform(geom_ref)
-        # TODO: Fix the no_data here to be from the class
         target_ds.GetRasterBand(1).SetNoDataValue(no_data)
         # shapefile
         shp_source = ogr.Open(self.full_shapefile_path)
@@ -103,5 +102,3 @@ class ShapefileRasterizer:
         self.write_to_tif(filename=os.path.join(out_dir, out_name), data_set=final_mask)
         file_io_tools.write_bbox(bbox, os.path.join(out_dir, 'bbox.txt'))
         return final_mask
-
-

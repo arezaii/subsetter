@@ -10,11 +10,15 @@ from pathlib import Path
 
 class ShapefileReprojectCase(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.conus1_mask_datset = gdal.Open(test_files.conus1_mask)
+        cls.conus2_mask_dataset = gdal.Open(test_files.conus2_mask)
+        cls.shape_path = Path(test_files.huc10190004.get('shapefile')).parent
+        cls.shape_name = Path(test_files.huc10190004.get('shapefile')).stem
+
     def test_reproject_conus1(self):
-        reference_dataset = gdal.Open(test_files.conus1_mask)
-        shape_path = Path(test_files.huc10190004.get('shapefile')).parent
-        shape_name = Path(test_files.huc10190004.get('shapefile')).stem
-        utils = ShapefileRasterizer(shape_path, shape_name, reference_dataset)
+        utils = ShapefileRasterizer(self.shape_path, self.shape_name, self.conus1_mask_datset)
         tif_path = utils.reproject_and_mask()
         mask_array, bbox = utils.add_bbox_to_mask(tif_path, side_length_multiple=32)
         utils.write_to_tif(data_set=mask_array, filename='testout.tif')
@@ -24,10 +28,7 @@ class ShapefileReprojectCase(unittest.TestCase):
         os.remove('testout.tif')
 
     def test_reproject_conus2(self):
-        reference_dataset = gdal.Open(test_files.conus2_mask)
-        shape_path = Path(test_files.huc10190004.get('shapefile')).parent
-        shape_name = Path(test_files.huc10190004.get('shapefile')).stem
-        utils = ShapefileRasterizer(shape_path, shape_name, reference_dataset)
+        utils = ShapefileRasterizer(self.shape_path, self.shape_name, self.conus2_mask_dataset)
         tif_path = utils.reproject_and_mask()
         mask_array, bbox = utils.add_bbox_to_mask(tif_path, side_length_multiple=32)
         utils.write_to_tif(data_set=mask_array, filename='testout.tif')
@@ -37,11 +38,8 @@ class ShapefileReprojectCase(unittest.TestCase):
         os.remove('testout.tif')
 
     def test_rasterize_no_data_values(self):
-        reference_dataset = gdal.Open(test_files.conus1_mask)
-        shape_path = Path(test_files.huc10190004.get('shapefile')).parent
-        shape_name = Path(test_files.huc10190004.get('shapefile')).stem
-        rasterizer = ShapefileRasterizer(shape_path, shapefile_name=shape_name, reference_dataset=reference_dataset,
-                                         no_data=-9999999)
+        rasterizer = ShapefileRasterizer(self.shape_path, shapefile_name=self.shape_name,
+                                         reference_dataset=self.conus1_mask_datset, no_data=-9999999)
         raster_path = rasterizer.reproject_and_mask()
         rasterizer.write_to_tif(data_set=read_file(raster_path), filename='testout.tif')
         self.assertIsNone(
