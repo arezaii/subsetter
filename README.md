@@ -2,17 +2,13 @@
 
 ## Prerequisites
 
-### CyVerse account 
-* access to avra
-
 ### Environment
 * miniconda or anaconda
-* CYVERSE_USERNAME environment variable set
-* CYVERSE_PASSWORD environment variable set
+* CONUS1 and or CONUS2 source files for clipping
 
 ### Packages
-* [pf-mask-utilities](https://github.com/smithsg84/pf-mask-utilities.git)
 * [pfio-tools](https://github.com/hydroframe/tools)
+* pfmask-to-pfsol or mask-to-pfsol 
 
 ## Setup
 
@@ -21,40 +17,28 @@ git clone https://github.com/arezaii/subsetter
 cd subsetter
 conda env create -f=environment.yml
 conda activate pf_subsetter
-git clone https://github.com/smithsg84/pf-mask-utilities.git
-cd pf-mask-utilities
-make
-cd ..
 git clone https://github.com/hydroframe/tools
 cd tools/pfio
 python setup.py install
 cd ../..
 ```
 
-### Troubleshooting
-
-Known issue: When makOn Ubuntu systems, the tcl.h file is located in /usr/include/tcl, so you may need to modify
-the Makefile in pf-mask-utilities to add -I/usr/include/tcl to line 49 like this:
-```
-g++ -Ithird-party -I/usr/include/tcl -g -Wno-write-strings -std=c++11 $(SRC) -o mask-to-pfsol
-```
-
 ## Testing
 ```
 chmod +x run_tests.sh
-./run_tests.sh [cyverse_account] [cyverse_password]
+./run_tests.sh
 ```
 
 ## Usage
 
 #### Rasterize a shapefile for use as a mask, based on a reference dataset
 ```
-python -m src.rasterize_shape -s <shapefile> -r <reference_dataset> -o [output_dir=.]
+python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -r <reference_dataset> -o [output_dir=.]
 ```
 
 #### Create subset from CONUS models from a shapefile
 ```
-python -m src.subset_conus -s <shapefile> -v -c <path to conus input files> [conus version=1]  -o [path_to_write_outputs=.]
+python -m src.subset_conus -i <path to shapefile parts> -s <shapefile name> -c <path to conus input files>  -v [conus verson=1] -o [path_to_write_outputs=.]
 ```
 
 #### Use a mask to clip multiple files to PFB or TIF
