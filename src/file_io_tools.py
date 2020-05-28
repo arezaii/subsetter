@@ -87,3 +87,7 @@ def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dty
         data_set.GetRasterBand(i).SetNoDataValue(no_data)
     logging.info(f'wrote geotif {out_raster_path}, (bands,rows,cols)=({no_bands}, {rows}, {cols})')
     data_set = None
+
+
+def write_array_to_simple_ascii(data, out_file, header, fmt, delimiter=' ', comments=''):
+    np.savetxt(fname=out_file, X=data, delimiter=delimiter, comments=comments, header=header, fmt=fmt)

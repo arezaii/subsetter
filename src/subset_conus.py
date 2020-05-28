@@ -8,6 +8,7 @@ from src.conus import Conus
 from src.shapefile_utils import ShapefileRasterizer
 from datetime import datetime
 import src.bulk_clipper as bulk_clipper
+import src.solidfile_generator as solidfile_generator
 
 
 def parse_args(args):
@@ -45,7 +46,7 @@ def main():
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     # parse the command line arguments
     args = parse_args(sys.argv[1:])
-    conus = Conus(args.conus_version, args.conus_files)
+    conus = Conus(version=args.conus_version, local_path=args.conus_files)
 
     # Step 1, rasterize shapefile
     rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.conus_mask_tif,
@@ -55,15 +56,16 @@ def main():
 
     # Step 2, Generate solid file
     clip = Clipper(shape_raster_array, conus.conus_mask_tif, no_data_threshold=-1)
-    batches = clip.make_solid_file(os.path.join(args.out_dir, rasterizer.shapefile_name))
+    batches = solidfile_generator.make_solid_file(clipped_mask=clip.clipped_mask,
+                                                  out_name=os.path.join(args.out_dir, rasterizer.shapefile_name))
     if len(batches) == 0:
         raise Exception("Did not make solid file correctly")
 
-    # Step 3. Clip all the other data inputs
+    # Step 3. Clip all the domain data inputs
     bulk_clipper.clip_inputs(clip,
                              [os.path.join(conus.local_path, value) for key, value in conus.files.items()
                               if key not in ['CONUS_MASK', 'CHANNELS']],
-                             out_dir=args.out_dir)
+                             out_dir=args.out_dir, tif_outs=1)
 
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')

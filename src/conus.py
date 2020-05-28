@@ -7,7 +7,7 @@ class Conus:
     """
     Information about the CONUS dataset we are working with
     """
-    def __init__(self, version, local_path):
+    def __init__(self, local_path, version=1):
         self.version = version
         if self.version == 1:
             self.files = {
@@ -18,6 +18,9 @@ class Conus:
                 'SLOPE_Y': 'slopey.pfb',
                 'DEM': 'CONUS2.0_RawDEM_CONUS1clip.tif'
             }
+            self.clm = {'LAND_COVER': 'conus1_landcover.sa',
+                'LAT_LON': 'conus1_Grid_Centers_Short_Deg.format.sa'}
+
             self.cyverse_path = '/iplant/home/shared/avra/CONUS_1.0/SteadyState_Final/Other_Domain_Files/'
             self.local_path = local_path
         elif self.version == 2:
@@ -35,6 +38,9 @@ class Conus:
                 'CELL_TYPES': '1km_PF_BorderCellType.tif',
                 'DEM': 'CONUS2.0_RawDEM.tif'
             }
+            self.clm = {'LAND_COVER': '1km_CONUS2_landcover_IGBP.tif',
+                        'LAT_LON': 'conus1_Grid_Centers_Short_Deg.format.sa'}
+            # TODO: Remove cyverse path?
             self.cyverse_path = '/iplant/home/shared/avra/CONUS2.0/Inputs/domain/'
             self.local_path = local_path
         self.conus_mask_tif = file_io_tools.read_geotiff(os.path.join(self.local_path, self.files.get("CONUS_MASK")))
@@ -64,5 +70,7 @@ class Conus:
         :return: True if folder exists, raises Exception if local destination folder not found
         """
         if not os.path.isdir(self.local_path):
-            raise Exception(f'Destination {self.local_path} for CONUS{self.version} input file does not exist')
+            msg = f'Destination {self.local_path} for CONUS{self.version} input file does not exist'
+            logging.exception(msg)
+            raise Exception(msg)
         return True
