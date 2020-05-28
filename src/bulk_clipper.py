@@ -71,6 +71,7 @@ def main():
     start_date = datetime.utcnow()
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
+    # If tif out specified, look for a reference tif
     ref_ds = None
     if args.write_tifs:
         if not args.ref_file:
@@ -84,8 +85,11 @@ def main():
                 ref_ds = file_io_tools.read_geotiff(args.mask_file)
         else:
             ref_ds = file_io_tools.read_geotiff(args.ref_file)
+    # read the mask file
     mask = file_io_tools.read_file(args.mask_file)
+    # create clipper with mask
     clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
+    # clip all inputs and write outputs
     clip_inputs(clipper, input_list=args.data_files, out_dir=args.out_dir, pfb_outs=args.write_pfbs,
                 tif_outs=args.write_tifs)
     end_date = datetime.utcnow()

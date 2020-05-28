@@ -3,14 +3,25 @@ import ogr
 import os
 import logging
 from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
-from src.mask_utils import MaskUtils, calculate_buffer_edges
+from src.mask_utils import MaskUtils, calculate_buffer_edges, get_human_bbox
 import numpy as np
 import src.file_io_tools as file_io_tools
+
+# TODO: Do we start with 0,0 or 1,1?
+# TODO: Invert BBOX output values for Y axis so that 0,0 is lower left instead of upper left.
 
 
 class ShapefileRasterizer:
 
     def __init__(self, input_path, shapefile_name, reference_dataset, no_data=NO_DATA, output_path='.'):
+        """
+
+        @param input_path: path to input files
+        @param shapefile_name: name of shapefile dataset
+        @param reference_dataset: gdal dataset
+        @param no_data: value to write for no_data cells
+        @param output_path: where to write the outputs
+        """
         if no_data in [0, 1]:
             raise Exception(f'ShapfileRasterizer: '
                             f'Do not used reserved values 1 or 0 for no_data value: got no_data={no_data}')
@@ -23,18 +34,17 @@ class ShapefileRasterizer:
         self.check_shapefile_parts()
 
     def check_shapefile_parts(self):
-        shape_parts = [".".join((self.shapefile_name, ext)) for ext in ['shp', 'dbf', 'prj', 'shx', 'sbx', 'sbn']]
+        shape_parts = [".".join((self.shapefile_name, ext)) for ext in ['shp', 'dbf', 'prj', 'shx']]
         for shp_component_file in shape_parts:
             if not os.path.isfile(os.path.join(self.shapefile_path, shp_component_file)):
                 logging.warning(f'Shapefile path missing {shp_component_file}')
 
     def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=None, shape_field='OBJECTID'):
         """
-        Given an input shapefile, convert to an array in the same projection as the reference datasource
-        :param dtype: datatype for gdal
-        :param no_data: no data value for cells
-        :param shape_field: attribute name to extract from shapefile
-        :return: the path (virtual) to the tif file
+        @param dtype: the datatype to write
+        @param no_data: no_data value to use
+        @param shape_field: field in the shapefile to trace
+        @return:
         """
         if no_data is None:
             no_data = self.no_data
@@ -54,22 +64,31 @@ class ShapefileRasterizer:
         if gdal.RasterizeLayer(target_ds, [1],
                                shp_layer,
                                options=[f'ATTRIBUTE={shape_field}'],
-                               burn_values=[1.0]) != 0:
-            raise Exception("error rasterizing layer: %s" % shp_layer)
-        else:
+                               burn_values=[1.0]) == 0:
             target_ds.FlushCache()
-            logging.info(f'reprojected shapefile from {str(shp_layer.GetSpatialRef()).replace(chr(10),"")} '
+            logging.info(f'reprojected shapefile from {str(shp_layer.GetSpatialRef()).replace(chr(10), "")} '
                          f'with extents {shp_layer.GetExtent()} '
                          f'to {self.ds_ref.GetProjectionRef()} with transform {self.ds_ref.GetGeoTransform()}')
+        else:
+            msg = f'error rasterizing layer: {shp_layer}'
+            logging.exception(msg)
+            raise Exception(msg)
         return tif_path
 
     def add_bbox_to_mask(self, tiff_path, side_length_multiple=1):
+        """
+
+        @param tiff_path:
+        @param side_length_multiple:
+        @return:
+        """
         dataset = file_io_tools.read_geotiff(tiff_path)
         mask_array = dataset.ReadAsArray()
         mask_shape = mask_array.shape
         if len(mask_shape) == 2:
             mask_array = mask_array[np.newaxis, ...]
-            logging.info(f'added z-axis to 2d mask_array, old dims={mask_shape}, new dims={mask_array.shape}')
+            logging.info(f'added z-axis to 2d mask_array, old shape (y,x)={mask_shape}, '
+                         f'new shape (z,y,x)={mask_array.shape}')
         mask_utils = MaskUtils(mask_array)
         numpy_mask = mask_utils.inner_crop
         max_x, max_y, min_x, min_y = mask_utils.inner_crop_edges
@@ -85,7 +104,7 @@ class ShapefileRasterizer:
 
         logging.info(f'added bbox to mask: mask_va=1, bbox_val=0, no_data_val={self.no_data}, '
                      f'slice_data(top,bot,left,right)='
-                     f'{",".join([str(i) for i in [top_edge, bottom_edge, left_edge, right_edge]])}')
+                     f'{",".join([str(i) for i in get_human_bbox(new_edges, new_mask.shape)])}')
         return new_mask, new_edges
 
     def write_to_tif(self, data_set, filename):
@@ -100,5 +119,5 @@ class ShapefileRasterizer:
         raster_path = self.reproject_and_mask()
         final_mask, bbox = self.add_bbox_to_mask(raster_path, side_length_multiple=side_multiple)
         self.write_to_tif(filename=os.path.join(out_dir, out_name), data_set=final_mask)
-        file_io_tools.write_bbox(bbox, os.path.join(out_dir, 'bbox.txt'))
+        file_io_tools.write_bbox(get_human_bbox(bbox, final_mask.shape), os.path.join(out_dir, 'bbox.txt'))
         return final_mask
