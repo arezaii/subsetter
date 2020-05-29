@@ -20,11 +20,11 @@ install:
   - cd pf_tools/pfio
   - python setup.py install
   - cd ../..
-  - git clone https://github.com/smithsg84/pf-mask-utilities.git $HOME/
-  - cd pf-mask-utilities
+  - git clone https://github.com/smithsg84/pf-mask-utilities.git $HOME/pf-mask-utilities
+  - cd $HOME/pf-mask-utilities
   - sed -i 's|-Ithird-party|-Ithird-party -I/usr/include/tcl|' Makefile
   - make
-  - cd ..
+  - cd -
   - chmod +x run_tests.sh
 # environment variable
 env:
