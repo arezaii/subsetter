@@ -107,7 +107,7 @@ def find_mask_to_sol_exe():
     pf_mask_to_sol_path = None
     possible_paths = {('mask-to-pfsol', '--depth'): [os.environ.get('PFMASKUTILS'), which('mask-to-pfsol')],
                       ('pfmask-to-pfsol', '--z-bottom'):
-                          [f'{os.environ["PARFLOW_DIR"]}/bin', which('pfmask-to-pfsol')]}
+                          [f'{os.environ.get("PARFLOW_DIR")}/bin', which('pfmask-to-pfsol')]}
     for executable, possible_paths in possible_paths.items():
         executable_path = next((path for path in possible_paths if path is not None), None)
         if executable_path is not None:
