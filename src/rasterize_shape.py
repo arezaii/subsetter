@@ -26,10 +26,25 @@ def parse_args(args):
                         help="the directory to write outputs to",
                         type=lambda x: is_valid_path(parser, x))
 
+    parser.add_argument("--out_file", "-f", dest="out_file", required=False,
+                        default=None,
+                        help="the filename to give the output",
+                        type=str)
+
     parser.add_argument("--side_multiple", "-m", dest="side_multiple", required=False,
                         default=1,
                         help="integer multiple for bounding box side",
                         type=lambda x: is_positive_integer(parser, x))
+
+    parser.add_argument("--attribute_ids", "-a", dest="attribute_ids", required=False,
+                        default=[1], nargs='+',
+                        help="list of attribute ID's to clip",
+                        type=lambda x: is_positive_integer(parser, x))
+
+    parser.add_argument("--attribute_name", "-n", dest="attribute_name", required=False,
+                        default="OBJECTID",
+                        help="name of the attribute field to query for attribute ids",
+                        type=str)
 
     return parser.parse_args(args)
 
@@ -41,9 +56,11 @@ def main():
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
     reference_dataset = file_io_tools.read_geotiff(args.ref_file)
-    rasterizer = ShapefileRasterizer(args.input_path, shapefile_name=args.shapefile, reference_dataset=reference_dataset,
-                                     output_path=args.out_dir)
-    rasterizer.rasterize_shapefile_to_disk(args.out_dir, side_multiple=args.side_multiple)
+    rasterizer = ShapefileRasterizer(args.input_path, shapefile_name=args.shapefile,
+                                     reference_dataset=reference_dataset, output_path=args.out_dir)
+    rasterizer.rasterize_shapefile_to_disk(out_dir=args.out_dir, out_name=args.out_file,
+                                           side_multiple=args.side_multiple, attribute_ids=args.attribute_ids,
+                                           attribute_name=args.attribute_name)
     end_date = datetime.utcnow()
     logging.info(f'finish process at {end_date} for a runtime of {end_date-start_date}')
 
