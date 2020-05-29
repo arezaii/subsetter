@@ -86,6 +86,7 @@ def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dty
         data_set.GetRasterBand(i).WriteArray(image)
         data_set.GetRasterBand(i).SetNoDataValue(no_data)
     logging.info(f'wrote geotif {out_raster_path}, (bands,rows,cols)=({no_bands}, {rows}, {cols})')
+    # noinspection PyUnusedLocal
     data_set = None
 
 

@@ -39,7 +39,7 @@ class ShapefileRasterizer:
             if not os.path.isfile(os.path.join(self.shapefile_path, shp_component_file)):
                 logging.warning(f'Shapefile path missing {shp_component_file}')
 
-    def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=None, attribute_name='OBJECTID', attribute_ids=[1]):
+    def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=None, attribute_name='OBJECTID', attribute_ids=None):
         """
         @param attribute_ids: list of attribute ID values to select
         @param dtype: the datatype to write
@@ -47,6 +47,8 @@ class ShapefileRasterizer:
         @param attribute_name: field in the shapefile to trace
         @return:
         """
+        if attribute_ids is None:
+            attribute_ids = [1]
         if no_data is None:
             no_data = self.no_data
         geom_ref = self.ds_ref.GetGeoTransform()
@@ -117,7 +119,9 @@ class ShapefileRasterizer:
                                              self.ds_ref.GetProjection(), no_data=self.no_data)
 
     def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, side_multiple=1, attribute_name='OBJECTID',
-                                    attribute_ids=[1]):
+                                    attribute_ids=None):
+        if attribute_ids is None:
+            attribute_ids = [1]
         if out_name is None:
             out_name = f'{self.shapefile_name}.tif'
         if out_dir is None:

@@ -21,8 +21,8 @@ class Clipper:
         self.bbox = [min_y, max_y + 1, min_x, max_x + 1]
         self.printable_bbox = mask_utils.get_bbox_print()
         self.clipped_geom = mask_utils.calculate_new_geom(min_x, min_y, self.ds_ref.GetGeoTransform())
-        self.clipped_mask = (self.inverted_zero_one_mask.filled(fill_value=no_data_threshold) == 1)[:,
-                            min_y:max_y + 1, min_x:max_x + 1]
+        self.clipped_mask = (self.inverted_zero_one_mask.filled(fill_value=no_data_threshold) == 1)[:, min_y:max_y + 1,
+                            min_x:max_x + 1]
 
     def write_bbox_file(self, bbox_path):
         file_io_tools.write_bbox(self.bbox, bbox_path)
@@ -57,6 +57,5 @@ class Clipper:
                                          mask=np.zeros(clip_mask.shape)).filled()
             logging.info(f'clipped data with (z,y,x) shape {data_array.shape} to {return_arr.shape}'
                          f'using bbox (top, bot, left, right) {self.printable_bbox}')
-
 
         return return_arr, self.clipped_geom, self.clipped_mask, self.bbox

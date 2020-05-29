@@ -1,7 +1,4 @@
-import os
-
 import numpy as np
-
 import src.file_io_tools as file_io_tools
 from src.clipper import Clipper
 
@@ -29,7 +26,7 @@ class ClmClipper:
         color = 2
         # get value of land cover for each coordinate
         npoints = sa_formatted.shape[0]
-        ## make output matrix
+        # make output matrix
         output = np.zeros((npoints, 25))
         output[:, 4] = sand
         output[:, 5] = clay
@@ -55,7 +52,7 @@ class ClmClipper:
                      '12', '13', '14', '15', '16', '17', '18']
         header = '\n'.join([heading, ' '.join(col_names)])
         file_io_tools.write_array_to_simple_ascii(out_file=out_file, data=land_cover_data, header=header,
-                   fmt=['%d'] * 2 + ['%.6f'] * 2 + ['%.2f'] * 2 + ['%d'] * 19)
+                                                  fmt=['%d'] * 2 + ['%.6f'] * 2 + ['%.2f'] * 2 + ['%d'] * 19)
 
     def write_lat_lon(self, lat_lon_data, out_file, x=0, y=0, z=0):
         file_io_tools.write_array_to_simple_ascii(out_file=out_file, data=lat_lon_data, fmt='%s', header=f'{x} {y} {z}')
