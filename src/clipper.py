@@ -9,10 +9,13 @@ import src.file_io_tools as file_io_tools
 class Clipper:
 
     def __init__(self, mask_array, reference_dataset, no_data_threshold=NO_DATA):
-        """
-        Assumes input mask_array has 1's written to valid data, 0's for bounding box,
+        """ Assumes input mask_array has 1's written to valid data, 0's for bounding box,
          and <=no_data_threshold for no_data val, no_data_threshold must be < 0 or bounding box will
          not be identifiable
+
+        @param mask_array: mask array to full extents of domain
+        @param reference_dataset: full domain reference as a gdal dataset
+        @param no_data_threshold: value which all values less than are treated as no data
         """
         self.ds_ref = reference_dataset
         mask_utils = MaskUtils(mask_array, bbox_val=0, no_data_threshold=no_data_threshold)
@@ -25,11 +28,20 @@ class Clipper:
                             min_x:max_x + 1]
 
     def write_bbox_file(self, bbox_path):
+        """write the bbox data to a text output
+
+        @param bbox_path: path with filename to write the output file
+        @return: None
+        """
         file_io_tools.write_bbox(self.bbox, bbox_path)
 
     def subset(self, data_array, no_data=NO_DATA, crop_inner=1):
-        """
-        clip the data from data_array in the shape and extents of the clipper's clipped mask
+        """subset the data from data_array in the shape and extents of the clipper's clipped mask
+
+        @param data_array: 3d array of data to subset
+        @param no_data: no data value for outputs
+        @param crop_inner: crop the data to the inner mask (1) or the outer bounding box (0) *option for CLM clips
+        @return: the subset data as a 3d array, gdal geometry for the clip, mask of 1/0 of clipped area, bounding box
         """
         full_mask = self.inverted_zero_one_mask.mask
         clip_mask = ~self.clipped_mask
