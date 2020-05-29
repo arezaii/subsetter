@@ -1,7 +1,6 @@
 import unittest
+
 from src.conus import Conus
-import os
-import shutil
 
 
 class ConusClassTests(unittest.TestCase):

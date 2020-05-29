@@ -1,11 +1,12 @@
-conus1_dem = 'test_inputs/CONUS2.0_RawDEM_CONUS1clip.tif'
-conus2_dem = 'test_inputs/CONUS2.0_RawDEM.tif'
-conus1_mask = 'test_inputs/Domain_Blank_Mask.tif'
-conus2_mask = 'test_inputs/conus_1km_PFmask2.tif'
+conus1_dem = 'test_inputs/CONUS1_Inputs/CONUS2.0_RawDEM_CONUS1clip.tif'
+conus2_dem = 'test_inputs/CONUS2_Inputs/CONUS2.0_RawDEM.tif'
+conus1_mask = 'test_inputs/CONUS1_Inputs/Domain_Blank_Mask.tif'
+conus2_mask = 'test_inputs/CONUS2_Inputs/conus_1km_PFmask2.tif'
 forcings_pfb = 'test_inputs/NLDAS.Temp.000001_to_000024.pfb'
 forcings_sa = 'test_inputs/NLDAS.Temp.000001_to_000024.sa'
-clm_naigbpl_tif = 'test_inputs/naigbpl20_conus1.tif'
-
+conus1_latlon = 'test_inputs/CONUS1_Inputs/conus1_Grid_Centers_Short_Deg.format.sa'
+conus1_landcover = 'test_inputs/CONUS1_Inputs/conus1_landcover.sa'
+conus2_landcover = 'test_inputs/CONUS2_Inputs/1km_CONUS2_landcover_IGBP.tif'
 
 huc10190004 = {'conus1_mask': 'test_inputs/WBDHU8_conus1_mask.tif',
                'conus1_sol': 'test_inputs/WBDHU8_conus1.pfsol',

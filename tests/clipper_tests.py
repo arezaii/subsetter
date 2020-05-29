@@ -20,18 +20,21 @@ class RegressionClipTests(unittest.TestCase):
         clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         return_arr, new_geom, new_mask, bbox = clipper.subset(data_array)
         file_io_tools.write_array_to_geotiff("conus_1_clip_dem_test.tif",
-                               return_arr, new_geom, ref_ds.GetProjection())
+                                             return_arr, new_geom, ref_ds.GetProjection())
 
-        self.assertIsNone(np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_dem')),
-                                file_io_tools.read_file('conus_1_clip_dem_test.tif')), 'Clipping DEM matches reference')
+        self.assertIsNone(
+            np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_dem')),
+                                          file_io_tools.read_file('conus_1_clip_dem_test.tif')),
+            'Clipping DEM matches reference')
         os.remove('conus_1_clip_dem_test.tif')
 
         file_io_tools.write_array_to_geotiff("conus1_mask_crop.tif",
-                               new_mask, new_geom, ref_ds.GetProjection())
+                                             new_mask, new_geom, ref_ds.GetProjection())
 
-        self.assertIsNone(np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_inset')),
-                                file_io_tools.read_file('conus1_mask_crop.tif')),
-                          'Subset results in reference inset mask')
+        self.assertIsNone(
+            np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_inset')),
+                                          file_io_tools.read_file('conus1_mask_crop.tif')),
+            'Subset results in reference inset mask')
         os.remove('conus1_mask_crop.tif')
 
         file_io_tools.write_bbox(bbox, 'bbox_conus1.txt')
@@ -47,17 +50,19 @@ class RegressionClipTests(unittest.TestCase):
         clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
         return_arr, new_geom, new_mask, bbox = clipper.subset(data_array)
         file_io_tools.write_array_to_geotiff("conus_2_clip_dem_test.tif",
-                               return_arr, new_geom, ref_ds.GetProjection())
-        self.assertIsNone(np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus2_dem')),
-                                                        file_io_tools.read_file('conus_2_clip_dem_test.tif')),
-                          'Clipping DEM matches reference')
+                                             return_arr, new_geom, ref_ds.GetProjection())
+        self.assertIsNone(
+            np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus2_dem')),
+                                          file_io_tools.read_file('conus_2_clip_dem_test.tif')),
+            'Clipping DEM matches reference')
         os.remove('conus_2_clip_dem_test.tif')
 
         file_io_tools.write_array_to_geotiff("conus2_mask_crop.tif",
-                               new_mask, new_geom, ref_ds.GetProjection())
-        self.assertIsNone(np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus2_inset')),
-                             file_io_tools.read_file('conus2_mask_crop.tif')),
-                          'Subset results in reference inset mask')
+                                             new_mask, new_geom, ref_ds.GetProjection())
+        self.assertIsNone(
+            np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus2_inset')),
+                                          file_io_tools.read_file('conus2_mask_crop.tif')),
+            'Subset results in reference inset mask')
         os.remove('conus2_mask_crop.tif')
         file_io_tools.write_bbox(bbox, 'bbox_conus2_full.txt')
         self.assertListEqual(file_io_tools.read_bbox('bbox_conus2_full.txt'), test_files.huc10190004.get('conus2_bbox'),
