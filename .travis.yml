@@ -23,6 +23,7 @@ install:
   - cd ../..
   - git clone https://github.com/smithsg84/pf-mask-utilities.git
   - cd pf-mask-utilities
+  - sed -i 's/^g++ -Ithird-party -g -Wno-write-strings -std=c++11 $(SRC) -o mask-to-pfsol/g++ -Ithird-party -I/usr/include/tcl -g -Wno-write-strings -std=c++11 $(SRC) -o mask-to-pfsol/' Makefile
   - make
   - cd ..
   - export PFMASKUTILS=$HOME/pf-mask-utilities
