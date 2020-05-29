@@ -6,17 +6,33 @@ from src.clipper import Clipper
 class ClmClipper:
 
     def __init__(self, mask_array, ds_ref):
+        """Clip CLM datafiles lat/lon and land cover
+
+        @param mask_array: full extent mask array of no_data/0/1
+        @param ds_ref: domain reference as a gdal dataset
+        """
         self.mask_array = mask_array
         self.ds_ref = ds_ref
         self.clipper = Clipper(mask_array, ds_ref)
 
     def clip_latlon(self, lat_lon_file):
+        """ Clip the domain lat/lon data to the bounding box of the mask
+
+        @param lat_lon_file: lat/lon data for the domain
+        @return: the formatted output (1d) and the raw clipped data array (3d)
+        """
         data = file_io_tools.read_file(lat_lon_file)
         clipped_data, clipped_geom, clipped_mask, bbox = self.clipper.subset(data_array=data, crop_inner=0)
         sa_formatted = np.flip(clipped_data, axis=1).flatten()
         return sa_formatted, clipped_data
 
     def clip_land_cover(self, lat_lon_array, land_cover_file):
+        """ Clip the domain land cover data to the bounding box of the mask
+
+        @param lat_lon_array: clipped lat/lon data for the masked area
+        @param land_cover_file: land cover file for the domain
+        @return: simple ascii representation (1d) of the data, vegm formatted representation of the data (2d)
+        """
         lat_lon_proper = np.char.split(lat_lon_array.astype(str), ' ')
         data = file_io_tools.read_file(land_cover_file)
         clipped_data, clipped_geom, clipped_mask, bbox = self.clipper.subset(data_array=data, crop_inner=0)
@@ -45,6 +61,12 @@ class ClmClipper:
         return sa_formatted, output
 
     def write_land_cover(self, land_cover_data, out_file):
+        """ Write the land cover file in vegm format
+
+        @param land_cover_data: formatted vegm data (2d array)
+        @param out_file: path and name to write output
+        @return: None
+        """
         heading = "x y lat lon sand clay color fractional coverage of grid, by vegetation class (Must/Should Add to " \
                   "1.0) "
         col_names = ['', '', '(Deg)', '(Deg)', '(%/100)', '', 'index', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -55,4 +77,13 @@ class ClmClipper:
                                                   fmt=['%d'] * 2 + ['%.6f'] * 2 + ['%.2f'] * 2 + ['%d'] * 19)
 
     def write_lat_lon(self, lat_lon_data, out_file, x=0, y=0, z=0):
+        """ Write the lat/lon data to a ParFlow simple ascii formatted file
+
+        @param lat_lon_data: lat/lon data in formatted 1d array
+        @param out_file: path and name for output file
+        @param x: size of x dimension
+        @param y: size of y dimension
+        @param z: size of z dimension
+        @return: None
+        """
         file_io_tools.write_array_to_simple_ascii(out_file=out_file, data=lat_lon_data, fmt='%s', header=f'{x} {y} {z}')

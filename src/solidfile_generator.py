@@ -6,6 +6,14 @@ import numpy as np
 
 
 def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
+    """ Make a solid file and vtk file from a clipped mask, write to out_name
+
+    @param clipped_mask: the mask array cropped to the bounding box size with 1's in the mask, 0's outside
+    @param out_name: name for the output .vtk and .pfsol files
+    @param dx: horizontal cell size
+    @param dz: vertical cell size
+    @return:
+    """
     pf_mask_to_sol_path = find_mask_to_sol_exe()
     if pf_mask_to_sol_path is None:
         msg = 'Could not locate pfmask-to-pfsol utility needed to generate solid file (.pfsol)' \
@@ -101,8 +109,9 @@ def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
 
 
 def find_mask_to_sol_exe():
-    """
-    look for the pf_mask_to_pfsol utility on the system, then verify the file we think exists does exist
+    """  look for the pf_mask_to_pfsol utility on the system, then verify the file exists
+
+    @return: tuple of (path to executable, depth/z-bottom flag for argument) or None if no executable was found
     """
     pf_mask_to_sol_path = None
     possible_paths = {('mask-to-pfsol', '--depth'): [os.environ.get('PFMASKUTILS'), which('mask-to-pfsol')],

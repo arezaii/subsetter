@@ -14,11 +14,11 @@ import src.file_io_tools as file_io_tools
 class ShapefileRasterizer:
 
     def __init__(self, input_path, shapefile_name, reference_dataset, no_data=NO_DATA, output_path='.'):
-        """
+        """ Class for converting shapefiles to rasters for use as masks
 
-        @param input_path: path to input files
+        @param input_path: path to input files (shapefile set)
         @param shapefile_name: name of shapefile dataset
-        @param reference_dataset: gdal dataset
+        @param reference_dataset: gdal dataset defining the overall domain
         @param no_data: value to write for no_data cells
         @param output_path: where to write the outputs
         """
@@ -45,7 +45,7 @@ class ShapefileRasterizer:
         @param dtype: the datatype to write
         @param no_data: no_data value to use
         @param attribute_name: field in the shapefile to trace
-        @return:
+        @return: path (virtual mem) to the reprojected mask
         """
         if attribute_ids is None:
             attribute_ids = [1]
@@ -81,11 +81,11 @@ class ShapefileRasterizer:
         return tif_path
 
     def add_bbox_to_mask(self, tiff_path, side_length_multiple=1):
-        """
+        """ add the inner bounding box of 0's to the reprojected mask
 
-        @param tiff_path:
-        @param side_length_multiple:
-        @return:
+        @param tiff_path: path to the tiff file that defines the mask with no_data and 1
+        @param side_length_multiple: optional multiple to expand bounding box to
+        @return: 3d array with no data outside the bbox, 0 inside bbox, and 1 in mask area, bounding box values
         """
         dataset = file_io_tools.read_geotiff(tiff_path)
         mask_array = dataset.ReadAsArray()
@@ -115,11 +115,26 @@ class ShapefileRasterizer:
         return new_mask, new_edges
 
     def write_to_tif(self, data_set, filename):
+        """ write the mask data to geotif
+
+        @param data_set: mask data to write
+        @param filename: output path and filename
+        @return: None
+        """
         file_io_tools.write_array_to_geotiff(filename, data_set, self.ds_ref.GetGeoTransform(),
                                              self.ds_ref.GetProjection(), no_data=self.no_data)
 
     def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, side_multiple=1, attribute_name='OBJECTID',
                                     attribute_ids=None):
+        """ rasterize a shapefile to disk in the projection and extents of the reference dataset
+
+        @param out_dir: directory to write outputs
+        @param out_name: filename for outputs
+        @param side_multiple: optional side length multiple to expand bounding box to
+        @param attribute_name: optional name of shapefile attribute to select on
+        @param attribute_ids: optional list of attribute ids in shapefile to select for mask
+        @return: 3d array with no_data to extents, 0 in bounding box, 1 in mask region
+        """
         if attribute_ids is None:
             attribute_ids = [1]
         if out_name is None:

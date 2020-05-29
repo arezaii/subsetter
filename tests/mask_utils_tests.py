@@ -1,12 +1,12 @@
 import unittest
 from src.file_io_tools import read_file
-from src.mask_utils import MaskUtils
+import src.mask_utils as mask_utils
 
 
 class MaskUtilsCalculationUnitTests(unittest.TestCase):
     def test_calculate_new_dims(self):
         mask = read_file('test_inputs/test_truth.tif')
-        utils = MaskUtils(mask)
+        utils = mask_utils.MaskUtils(mask)
         """
         Test Odd Split
         """
@@ -86,7 +86,7 @@ class MaskUtilsCalculationUnitTests(unittest.TestCase):
 
     def test_create_new_geometry(self):
         mask = read_file('test_inputs/test_truth.tif')
-        utils = MaskUtils(mask)
+        utils = mask_utils.MaskUtils(mask)
         old_geom = (1000.0, 0.0, -22.0, 0.0, -1000.0, 15.0)
         new_geom = utils.calculate_new_geom(0, 0, old_geom)
         self.assertEqual((1000.0, 0.0, -22.0, 0.0, -1000.0, 15.0), new_geom,
@@ -96,6 +96,19 @@ class MaskUtilsCalculationUnitTests(unittest.TestCase):
         new_geom = utils.calculate_new_geom(1039, 1142, old_geom)
         self.assertEqual((-845563.75453, 1000.0, 0.0, 140344.99762000004, 0.0, -1000.0), new_geom,
                          'Extracted values from CONUS1 tests match')
+
+    def test_calculate_human_bbox(self):
+        bbox_in = [1600, 1700, 300, 400]
+        shape = (1, 1888, 3342)
+        new_bbox = mask_utils.get_human_bbox(bbox_in, shape)
+        self.assertListEqual(new_bbox, [288, 188, 300, 400],
+                             'Converting from system bbox to human bbox when fully contained')
+
+        bbox_edge = [0, 1500, 300, 400]
+        shape = (1, 1888, 3342)
+        edge_bbox = mask_utils.get_human_bbox(bbox_edge, shape)
+        self.assertListEqual(edge_bbox, [1888, 388, 300, 400],
+                             'Converting from system bbox to human bbox when fully contained')
 
 
 if __name__ == '__main__':

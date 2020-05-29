@@ -10,6 +10,7 @@ from datetime import datetime
 import src.bulk_clipper as bulk_clipper
 import src.solidfile_generator as solidfile_generator
 from src.tcl_builder import build_tcl
+from src.clm_utils import ClmClipper
 
 
 def parse_args(args):
@@ -69,7 +70,19 @@ def main():
                               if key not in ['CONUS_MASK', 'CHANNELS']],
                              out_dir=args.out_dir, tif_outs=1)
 
-    # Step 4. Generate TCL File
+    # Step 4. Clip CLM inputs
+
+    clm_clipper = ClmClipper(shape_raster_array, conus.conus_mask_tif)
+    latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path, conus.clm.get('LAT_LON')))
+    clm_clipper.write_lat_lon(latlon_formatted, os.path.join(args.out_dir, 'WBDHU8_latlon_test.sa'),
+                              x=latlon_data.shape[2], y=latlon_data.shape[1], z=latlon_data.shape[0])
+
+    land_cover_data, vegm_data = clm_clipper.clip_land_cover(lat_lon_array=latlon_formatted,
+                                                             land_cover_file=os.path.join(conus.local_path,conus.clm.get('LAND_COVER')))
+
+    clm_clipper.write_land_cover(vegm_data, 'WBDHU8_vegm_test.dat')
+
+    # Step 5. Generate TCL File
     # TODO: Fix the arguments
     os.path.join(args.out_dir, 'runname.tcl')
     build_tcl(os.path.join(args.out_dir, 'runname.tcl'),

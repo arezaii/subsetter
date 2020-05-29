@@ -4,11 +4,13 @@ import src.file_io_tools as file_io_tools
 
 
 class Conus:
-    """
-    Information about the CONUS dataset we are working with
-    """
 
     def __init__(self, local_path, version=1):
+        """ Information about the CONUS dataset we are working with
+
+        @param local_path: path on system where conus inputs live
+        @param version: the conus version to create
+        """
         self.version = version
         if self.version == 1:
             self.files = {
@@ -54,9 +56,9 @@ class Conus:
         self.check_destination()
 
     def check_inputs_exist(self):
-        """
-        Look for each input file to see if it exists
-        :return: the list of missing input files
+        """ Look for each input file to see if it exists
+
+        @return: the list of missing input files
         """
         missing = []
         for name, file in self.files.items():
@@ -66,9 +68,9 @@ class Conus:
         return missing
 
     def check_destination(self):
-        """
-        make sure the local folder to store inputs exists
-        :return: True if folder exists, raises Exception if local destination folder not found
+        """ make sure the local folder to store inputs exists
+
+        @return: True if folder exists, raises Exception if local destination folder not found
         """
         if not os.path.isdir(self.local_path):
             msg = f'Destination {self.local_path} for CONUS{self.version} input file does not exist'

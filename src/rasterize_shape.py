@@ -54,15 +54,33 @@ def main():
     start_date = datetime.utcnow()
     logging.basicConfig(filename='rasterize_shape.log', filemode='w', level=logging.INFO)
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
+
+    # Parse the command line arguments
     args = parse_args(sys.argv[1:])
+
+    # Convert the shape to raster
     rasterize_shape(args.input_path, args.shapefile, args.ref_file, args.out_dir, args.out_file, args.side_multiple,
                     args.attribute_name, args.attribute_ids)
+
+    # log finish time
     end_date = datetime.utcnow()
     logging.info(f'finish process at {end_date} for a runtime of {end_date - start_date}')
 
 
 def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None, side_multiple=1, attribute_name=None,
                     attribute_ids=None):
+    """ rasterize a shapefile to disk in the projection and extents of the reference file
+
+    @param input_path: path to input files (shapefile set)
+    @param shapefile: name of shapefile dataset
+    @param ref_file: tif file describing the domain
+    @param out_dir: directory to write output to (optional)
+    @param out_file: filename to give output (optional)
+    @param side_multiple: side length multiple to expand bounding box to (optional)
+    @param attribute_name: name of shapefile attribute to select on (optional)
+    @param attribute_ids: list of attribute ids in shapefile to select for mask (optional)
+    @return: None
+    """
     reference_dataset = file_io_tools.read_geotiff(ref_file)
     rasterizer = ShapefileRasterizer(input_path, shapefile_name=shapefile,
                                      reference_dataset=reference_dataset, output_path=out_dir)
