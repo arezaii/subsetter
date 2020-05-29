@@ -134,8 +134,14 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
     if 'slope_x' in slope_file:
         slope_file_y = slope_file.replace('slope_x', 'slope_y')
         slope_file_x = slope_file
+    elif 'slopex' in slope_file:
+        slope_file_y = slope_file.replace('slopex', 'slopey')
+        slope_file_x = slope_file
     elif 'slope_y' in slope_file:
         slope_file_x = slope_file.replace('slope_y', 'slope_x')
+        slope_file_y = slope_file
+    elif 'slopey' in slope_file:
+        slope_file_x = slope_file.replace('slopey', 'slopex')
         slope_file_y = slope_file
     else:
         print('please check slopefile names')

@@ -55,14 +55,20 @@ def main():
     logging.basicConfig(filename='rasterize_shape.log', filemode='w', level=logging.INFO)
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
-    reference_dataset = file_io_tools.read_geotiff(args.ref_file)
-    rasterizer = ShapefileRasterizer(args.input_path, shapefile_name=args.shapefile,
-                                     reference_dataset=reference_dataset, output_path=args.out_dir)
-    rasterizer.rasterize_shapefile_to_disk(out_dir=args.out_dir, out_name=args.out_file,
-                                           side_multiple=args.side_multiple, attribute_ids=args.attribute_ids,
-                                           attribute_name=args.attribute_name)
+    rasterize_shape(args.input_path, args.shapefile, args.ref_file, args.out_dir, args.out_file, args.side_multiple,
+                    args.attribute_name, args.attribute_ids)
     end_date = datetime.utcnow()
-    logging.info(f'finish process at {end_date} for a runtime of {end_date-start_date}')
+    logging.info(f'finish process at {end_date} for a runtime of {end_date - start_date}')
+
+
+def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None, side_multiple=1, attribute_name=None,
+                    attribute_ids=None):
+    reference_dataset = file_io_tools.read_geotiff(ref_file)
+    rasterizer = ShapefileRasterizer(input_path, shapefile_name=shapefile,
+                                     reference_dataset=reference_dataset, output_path=out_dir)
+    rasterizer.rasterize_shapefile_to_disk(out_dir=out_dir, out_name=out_file,
+                                           side_multiple=side_multiple, attribute_ids=attribute_ids,
+                                           attribute_name=attribute_name)
 
 
 if __name__ == '__main__':
