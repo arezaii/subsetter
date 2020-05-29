@@ -28,7 +28,7 @@ install:
   - chmod +x run_tests.sh
 # environment variable
 env:
-  - PFMASKUTILS=$HOME/pf-mask-utilities
+  - PFMASKUTILS=/home/travis/build/pf-mask-utilities
 # command to run tests
 script:
   - python -m unittest discover tests -p '*_tests.py'
