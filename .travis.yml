@@ -6,7 +6,6 @@ python:
 # command to install dependencies
 install:
   - sudo apt update
-  - sudo apt-get install tcl-dev
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - source "$HOME/miniconda/etc/profile.d/conda.sh"
@@ -23,7 +22,7 @@ install:
   - cd ../..
   - git clone https://github.com/smithsg84/pf-mask-utilities.git
   - cd pf-mask-utilities
-  - sed -i 's/^g++ -Ithird-party -g -Wno-write-strings -std=c++11 $(SRC) -o mask-to-pfsol/g++ -Ithird-party -I/usr/include/tcl -g -Wno-write-strings -std=c++11 $(SRC) -o mask-to-pfsol/' Makefile
+  - sed -i 's|-Ithird-party|-Ithird-party -I/usr/include/tcl|' Makefile
   - make
   - cd ..
   - export PFMASKUTILS=$HOME/pf-mask-utilities
