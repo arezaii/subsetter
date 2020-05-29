@@ -9,6 +9,7 @@ from src.shapefile_utils import ShapefileRasterizer
 from datetime import datetime
 import src.bulk_clipper as bulk_clipper
 import src.solidfile_generator as solidfile_generator
+from src.tcl_builder import build_tcl
 
 
 def parse_args(args):
@@ -49,6 +50,7 @@ def main():
     conus = Conus(version=args.conus_version, local_path=args.conus_files)
 
     # Step 1, rasterize shapefile
+
     rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.conus_mask_tif,
                                      no_data=-999, output_path=args.out_dir)
     shape_raster_array = rasterizer.rasterize_shapefile_to_disk(out_name='WBDHU8_raster_from_shapefile.tif',
@@ -66,6 +68,17 @@ def main():
                              [os.path.join(conus.local_path, value) for key, value in conus.files.items()
                               if key not in ['CONUS_MASK', 'CHANNELS']],
                              out_dir=args.out_dir, tif_outs=1)
+
+    # Step 4. Generate TCL File
+    # TODO: Fix the arguments
+    os.path.join(args.out_dir, 'runname.tcl')
+    build_tcl(os.path.join(args.out_dir, 'runname.tcl'),
+              'parking_lot_template.tcl',
+              'runname',
+              os.path.join(args.out_dir, 'slopex_clip.pfb'),
+              os.path.join(args.out_dir, 'WBDHU8.pfsol'),
+              os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
+              p=2, q=1, r=1, timestep=1)
 
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')

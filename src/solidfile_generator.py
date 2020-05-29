@@ -114,5 +114,8 @@ def find_mask_to_sol_exe():
             if os.path.isfile(os.path.join(executable_path, executable[0])):
                 pf_mask_to_sol_path = (os.path.join(executable_path, executable[0]), executable[1])
                 break
-    logging.info(f'searching for mask_to_sol executable resulted in: {pf_mask_to_sol_path[0]}')
+    if pf_mask_to_sol_path is None:
+        logging.exception('Could not locate mask to solid utility!')
+    else:
+        logging.info(f'searching for mask_to_sol executable resulted in: {pf_mask_to_sol_path[0]}')
     return pf_mask_to_sol_path

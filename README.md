@@ -1,6 +1,18 @@
 # Subsetter
 
 ## Prerequisites
+To build solid files, one of the following tools is required:
+pfmask-to-pfsol (included of ParFlow) 
+or
+[mask-to-pfsol](https://github.com/smithsg84/pf-mask-utilities.git)
+
+For the solidfile generator to work, it must be able to locate one of the above tools.
+The generator will search the following places, in this order.
+* PFMASKUTILS environment variable
+* mask-to-pfsol directory in PATH variable
+* PARFLOW_DIR environment variable 
+* ParFlow bin directory in PATH variable
+
 
 ### Environment
 * miniconda or anaconda
@@ -8,7 +20,7 @@
 
 ### Packages
 * [pfio-tools](https://github.com/hydroframe/tools)
-* pfmask-to-pfsol or mask-to-pfsol 
+
 
 ## Setup
 
@@ -33,7 +45,7 @@ chmod +x run_tests.sh
 
 #### Rasterize a shapefile for use as a mask, based on a reference dataset
 ```
-python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -r <reference_dataset> -o [output_dir=.]
+python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -r <reference_dataset> -o [output_dir=.] -f [output filename] -s [pad to side multiple] -n [shapefile attribute name] -a [shapefile attribute values]
 ```
 
 #### Create subset from CONUS models from a shapefile
