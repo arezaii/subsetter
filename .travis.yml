@@ -20,7 +20,7 @@ install:
   - cd pf_tools/pfio
   - python setup.py install
   - cd ../..
-  - git clone https://github.com/smithsg84/pf-mask-utilities.git
+  - git clone https://github.com/smithsg84/pf-mask-utilities.git $HOME/pf-mask-utilities
   - cd pf-mask-utilities
   - sed -i 's|-Ithird-party|-Ithird-party -I/usr/include/tcl|' Makefile
   - make
@@ -28,7 +28,7 @@ install:
   - chmod +x run_tests.sh
 # environment variable
 env:
-  - PFMASKUTILS=/home/travis/build/pf-mask-utilities
+  - PFMASKUTILS=$HOME/pf-mask-utilities
 # command to run tests
 script:
   - python -m unittest discover tests -p '*_tests.py'
