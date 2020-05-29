@@ -39,11 +39,12 @@ class ShapefileRasterizer:
             if not os.path.isfile(os.path.join(self.shapefile_path, shp_component_file)):
                 logging.warning(f'Shapefile path missing {shp_component_file}')
 
-    def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=None, shape_field='OBJECTID'):
+    def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=None, attribute_name='OBJECTID', attribute_ids=[1]):
         """
+        @param attribute_ids: list of attribute ID values to select
         @param dtype: the datatype to write
         @param no_data: no_data value to use
-        @param shape_field: field in the shapefile to trace
+        @param attribute_name: field in the shapefile to trace
         @return:
         """
         if no_data is None:
@@ -57,20 +58,22 @@ class ShapefileRasterizer:
         target_ds.SetProjection(self.ds_ref.GetProjection())
         target_ds.SetGeoTransform(geom_ref)
         target_ds.GetRasterBand(1).SetNoDataValue(no_data)
+        target_ds.GetRasterBand(1).Fill(no_data)
         # shapefile
         shp_source = ogr.Open(self.full_shapefile_path)
         shp_layer = shp_source.GetLayer()
+        # TODO: How to detect if the shape geometries extend beyond our reference bounds?
+        # Filter by the shapefile attribute IDs we want
+        shp_layer.SetAttributeFilter(f'{attribute_name} in ({",".join([str(i) for i in attribute_ids])})')
         # Rasterize layer
-        if gdal.RasterizeLayer(target_ds, [1],
-                               shp_layer,
-                               options=[f'ATTRIBUTE={shape_field}'],
-                               burn_values=[1.0]) == 0:
+        rtn_code = gdal.RasterizeLayer(target_ds, [1], shp_layer, burn_values=[1])
+        if rtn_code == 0:
             target_ds.FlushCache()
             logging.info(f'reprojected shapefile from {str(shp_layer.GetSpatialRef()).replace(chr(10), "")} '
                          f'with extents {shp_layer.GetExtent()} '
                          f'to {self.ds_ref.GetProjectionRef()} with transform {self.ds_ref.GetGeoTransform()}')
         else:
-            msg = f'error rasterizing layer: {shp_layer}'
+            msg = f'error rasterizing layer: {shp_layer}, gdal returned non-zero value: {rtn_code}'
             logging.exception(msg)
             raise Exception(msg)
         return tif_path
@@ -101,7 +104,9 @@ class ShapefileRasterizer:
         top_edge, bottom_edge, left_edge, right_edge = new_edges
         new_mask[:, top_edge: bottom_edge, left_edge: right_edge] =\
             numpy_mask[:, top_edge: bottom_edge, left_edge: right_edge].filled(fill_value=0.0)
-
+        # Check if shape bbox aligns with any of our reference dataset edges
+        if 0 in new_edges or mask_array.shape[1] - 1 == [bottom_edge] or mask_array.shape[2] - 1 == right_edge:
+            logging.warning(f'edge of bounding box aligns with edge of reference dataset! Check extents!')
         logging.info(f'added bbox to mask: mask_va=1, bbox_val=0, no_data_val={self.no_data}, '
                      f'slice_data(top,bot,left,right)='
                      f'{",".join([str(i) for i in get_human_bbox(new_edges, new_mask.shape)])}')
@@ -111,12 +116,13 @@ class ShapefileRasterizer:
         file_io_tools.write_array_to_geotiff(filename, data_set, self.ds_ref.GetGeoTransform(),
                                              self.ds_ref.GetProjection(), no_data=self.no_data)
 
-    def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, side_multiple=1):
+    def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, side_multiple=1, attribute_name='OBJECTID',
+                                    attribute_ids=[1]):
         if out_name is None:
             out_name = f'{self.shapefile_name}.tif'
         if out_dir is None:
             out_dir = self.output_path
-        raster_path = self.reproject_and_mask()
+        raster_path = self.reproject_and_mask(attribute_ids=attribute_ids, attribute_name=attribute_name)
         final_mask, bbox = self.add_bbox_to_mask(raster_path, side_length_multiple=side_multiple)
         self.write_to_tif(filename=os.path.join(out_dir, out_name), data_set=final_mask)
         file_io_tools.write_bbox(get_human_bbox(bbox, final_mask.shape), os.path.join(out_dir, 'bbox.txt'))
