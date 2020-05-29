@@ -7,6 +7,7 @@ class Conus:
     """
     Information about the CONUS dataset we are working with
     """
+
     def __init__(self, local_path, version=1):
         self.version = version
         if self.version == 1:
@@ -19,7 +20,7 @@ class Conus:
                 'DEM': 'CONUS2.0_RawDEM_CONUS1clip.tif'
             }
             self.clm = {'LAND_COVER': 'conus1_landcover.sa',
-                'LAT_LON': 'conus1_Grid_Centers_Short_Deg.format.sa'}
+                        'LAT_LON': 'conus1_Grid_Centers_Short_Deg.format.sa'}
 
             self.cyverse_path = '/iplant/home/shared/avra/CONUS_1.0/SteadyState_Final/Other_Domain_Files/'
             self.local_path = local_path

@@ -114,9 +114,11 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
               evap_choice=0, k=0.02849, poros=0.39738, rain=-0.05,
               rec=0.0, constant=0, init=0.0, initw=0, flow='OverlandFlow', start_time=0.0, baseu=.1, timestep=.1,
               dump=-1, dx=1000., dy=1000., dz=1000., nz=1,
-              dz_scales=[.5]):
+              dz_scales=None):
 
     # read input file
+    if dz_scales is None:
+        dz_scales = [.5]
     results, content = read_infile(temp_file)
 
     # change the content step by step

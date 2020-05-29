@@ -15,7 +15,8 @@ def find_mask_edges(mask, mask_val=1):
     max_x = max(xx)
     max_y = max(yy)
     logging.info(
-        f'located mask edges at (top,bot,left,right)={",".join([str(i) for i in get_human_bbox([min_y, max_y, min_x, max_x], mask.shape)])}')
+        f'located mask edges at (top,bot,left,right)='
+        f'{",".join([str(i) for i in get_human_bbox([min_y, max_y, min_x, max_x], mask.shape)])}')
     return max_x, max_y, min_x, min_y
 
 
@@ -69,8 +70,6 @@ class MaskUtils:
         return mx
 
     def calculate_new_geom(self, min_x, min_y, old_geom):
-
-
         # TODO: Why old code had (min_x +1) ? Seemed to shift the tif geo location by 1 in each direction?
         new_x = old_geom[0] + (old_geom[1] * min_x)
         new_y = old_geom[3] + (old_geom[5] * min_y)
