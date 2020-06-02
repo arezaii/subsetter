@@ -44,11 +44,59 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
+def bulk_clip(mask_file, data_files, ref_file, out_dir='.', pfb_outs=1, tif_outs=0):
+    """ clip a list of files using a mask and a domain reference tif
+
+    @param mask_file: mask file generated from shapefile to mask utility no_data,0's=bbox,1's=mask
+    @param data_files: list of data files (tif, pfb) to clip from
+    @param ref_file: reference geotif file with proper projection and transform information
+    @param out_dir: output directory (optional)
+    @param pfb_outs: write pfb files as outputs (optional)
+    @param tif_outs: write tif files as outputs (optional)
+    @return: None
+    """
+    ref_ds = None
+    if tif_outs:
+        if not ref_file:
+            if 'tif' not in mask_file.lower():
+                input_tifs = locate_tifs(data_files)
+                if len(input_tifs) < 1:
+                    raise Exception('Must include at least one geotif input or a ref_file when tif_outs is selected')
+                else:
+                    ref_ds = file_io_tools.read_geotiff(input_tifs[0])
+            else:
+                ref_ds = file_io_tools.read_geotiff(mask_file)
+        else:
+            ref_ds = file_io_tools.read_geotiff(ref_file)
+    # read the mask file
+    mask = file_io_tools.read_file(mask_file)
+    # create clipper with mask
+    clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
+    # clip all inputs and write outputs
+    clip_inputs(clipper, input_list=data_files, out_dir=out_dir, pfb_outs=pfb_outs,
+                tif_outs=tif_outs)
+
+
 def locate_tifs(file_list):
-    return [s for s in file_list if 'tif' in s.lower()]
+    """ identify the .tif files in a list of files
+
+    @param file_list: list of files to parse
+    @return: array of files where the extension is .tif
+    """
+    return [s for s in file_list if '.tif' in s.lower()]
 
 
 def clip_inputs(clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=NO_DATA):
+    """ clip a list of files using a clipper object
+
+    @param clipper: clipper object loaded prepared with mask and reference dataset
+    @param input_list: list of data files (tif, pfb) to clip from
+    @param out_dir: output directory (optional)
+    @param pfb_outs: write pfb files as outputs (optional)
+    @param tif_outs: write tif files as outputs (optional)
+    @param no_data: no_data value for tifs (optional)
+    @return:
+    """
     ref_proj = None
     if tif_outs:
         # identify projection
@@ -72,26 +120,7 @@ def main():
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
     # If tif out specified, look for a reference tif
-    ref_ds = None
-    if args.write_tifs:
-        if not args.ref_file:
-            if 'tif' not in args.mask_file.lower():
-                input_tifs = locate_tifs(args.data_files)
-                if len(input_tifs) < 1:
-                    raise Exception('Must include at least one geotif input or a ref_file when tif_outs is selected')
-                else:
-                    ref_ds = file_io_tools.read_geotiff(input_tifs[0])
-            else:
-                ref_ds = file_io_tools.read_geotiff(args.mask_file)
-        else:
-            ref_ds = file_io_tools.read_geotiff(args.ref_file)
-    # read the mask file
-    mask = file_io_tools.read_file(args.mask_file)
-    # create clipper with mask
-    clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
-    # clip all inputs and write outputs
-    clip_inputs(clipper, input_list=args.data_files, out_dir=args.out_dir, pfb_outs=args.write_pfbs,
-                tif_outs=args.write_tifs)
+    bulk_clip(args.mask_file, args.data_files, args.ref_file, args.out_dir, args.write_pfbs, args.write_tifs)
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
 

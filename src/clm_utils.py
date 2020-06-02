@@ -55,7 +55,7 @@ class ClmClipper:
         output[:, 2] = [latlon[0] for latlon in lat_lon_proper]
         # assign lon values
         output[:, 3] = [latlon[1] for latlon in lat_lon_proper]
-        cols = sa_formatted + 6
+        cols = [int(i) + 6 for i in sa_formatted]
         rows = list(range(npoints))
         output[rows, cols] = 1
         return sa_formatted, output
