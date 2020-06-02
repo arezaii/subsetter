@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+from pathlib import Path
 from src.argparse_utils import is_valid_path, is_positive_integer
 from src.clipper import Clipper
 from src.conus import Conus
@@ -88,7 +89,7 @@ def main():
     build_tcl(os.path.join(args.out_dir, 'runname.tcl'),
               'parking_lot_template.tcl',
               'runname',
-              os.path.join(args.out_dir, 'slopex_clip.pfb'),
+              os.path.join(args.out_dir, f'{Path(conus.files.get("SLOPE_X")).stem}_clip.pfb'),
               os.path.join(args.out_dir, 'WBDHU8.pfsol'),
               os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
               p=2, q=1, r=1, timestep=1)

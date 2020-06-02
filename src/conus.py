@@ -42,7 +42,7 @@ class Conus:
                 'DEM': 'CONUS2.0_RawDEM.tif'
             }
             self.clm = {'LAND_COVER': '1km_CONUS2_landcover_IGBP.tif',
-                        'LAT_LON': 'conus1_Grid_Centers_Short_Deg.format.sa'}
+                        'LAT_LON': 'latlonCONUS2.sa'}
             # TODO: Remove cyverse path?
             self.cyverse_path = '/iplant/home/shared/avra/CONUS2.0/Inputs/domain/'
             self.local_path = local_path
