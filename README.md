@@ -1,5 +1,5 @@
 # Subsetter
-[![Build Status](https://travis-ci.com/arezaii/subsetter.svg?branch=master)](https://travis-ci.com/arezaii/subsetter)
+[![Build Status](http://travis-ci.com/arezaii/subsetter.svg?branch=master)](http://travis-ci.com/arezaii/subsetter)
 ## Prerequisites
 To build solid files, one of the following tools is required:
 pfmask-to-pfsol (included of ParFlow) 
