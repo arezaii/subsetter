@@ -83,7 +83,7 @@ chmod +x run_tests.sh
 
 #### Rasterize a shapefile for use as a mask, based on a reference dataset
 ```
-python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -r <reference_dataset> -o [output_dir=.] -f [output filename] -s [pad to side multiple] -n [shapefile attribute name] -a [shapefile attribute values]
+python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -r <reference_dataset> -o [output_dir=.] -f [output filename] -s [pad side to multiple] -n [shapefile attribute name] -a [shapefile attribute values]
 ```
 
 
