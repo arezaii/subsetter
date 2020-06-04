@@ -29,7 +29,7 @@ def parse_args(args):
                         type=lambda x: is_positive_integer(parser, x),
                         help="the version of CONUS to subset from")
 
-    parser.add_argument("--conus_files", "-c", dest="conus_files", required=False,
+    parser.add_argument("--conus_files", "-f", dest="conus_files", required=False,
                         default='CONUS1_Inputs',
                         help="local path to the CONUS inputs to subset",
                         type=lambda x: is_valid_path(parser, x))
@@ -38,6 +38,16 @@ def parse_args(args):
                         default='.',
                         help="the directory to write outputs to",
                         type=lambda x: is_valid_path(parser, x))
+
+    parser.add_argument("--clip_clm", "-c", dest="clip_clm", required=False,
+                        default=0,
+                        help="also clip inputs for CLM",
+                        type=bool)
+
+    parser.add_argument("--write_tcl", "-t", dest="write_tcl", required=False,
+                        default=0,
+                        help="generate the .tcl script for this subset",
+                        type=bool)
 
     return parser.parse_args(args)
 
@@ -72,27 +82,27 @@ def main():
                              out_dir=args.out_dir, tif_outs=1)
 
     # Step 4. Clip CLM inputs
+    if args.clip_clm:
+        clm_clipper = ClmClipper(shape_raster_array, conus.conus_mask_tif)
+        latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path, conus.clm.get('LAT_LON')))
+        clm_clipper.write_lat_lon(latlon_formatted, os.path.join(args.out_dir, 'WBDHU8_latlon_test.sa'),
+                                  x=latlon_data.shape[2], y=latlon_data.shape[1], z=latlon_data.shape[0])
 
-    clm_clipper = ClmClipper(shape_raster_array, conus.conus_mask_tif)
-    latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path, conus.clm.get('LAT_LON')))
-    clm_clipper.write_lat_lon(latlon_formatted, os.path.join(args.out_dir, 'WBDHU8_latlon_test.sa'),
-                              x=latlon_data.shape[2], y=latlon_data.shape[1], z=latlon_data.shape[0])
+        land_cover_data, vegm_data = clm_clipper.clip_land_cover(lat_lon_array=latlon_formatted,
+                                                                 land_cover_file=os.path.join(conus.local_path,conus.clm.get('LAND_COVER')))
 
-    land_cover_data, vegm_data = clm_clipper.clip_land_cover(lat_lon_array=latlon_formatted,
-                                                             land_cover_file=os.path.join(conus.local_path,conus.clm.get('LAND_COVER')))
-
-    clm_clipper.write_land_cover(vegm_data, 'WBDHU8_vegm_test.dat')
+        clm_clipper.write_land_cover(vegm_data, 'WBDHU8_vegm_test.dat')
 
     # Step 5. Generate TCL File
     # TODO: Fix the arguments
-    os.path.join(args.out_dir, 'runname.tcl')
-    build_tcl(os.path.join(args.out_dir, 'runname.tcl'),
-              'parking_lot_template.tcl',
-              'runname',
-              os.path.join(args.out_dir, f'{Path(conus.files.get("SLOPE_X")).stem}_clip.pfb'),
-              os.path.join(args.out_dir, 'WBDHU8.pfsol'),
-              os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
-              p=2, q=1, r=1, timestep=1)
+    if args.write_tcl:
+        build_tcl(os.path.join(args.out_dir, 'runname.tcl'),
+                  'parking_lot_template.tcl',
+                  'runname',
+                  os.path.join(args.out_dir, f'{Path(conus.files.get("SLOPE_X")).stem}_clip.pfb'),
+                  os.path.join(args.out_dir, 'WBDHU8.pfsol'),
+                  os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
+                  p=2, q=1, r=1, timestep=1)
 
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
