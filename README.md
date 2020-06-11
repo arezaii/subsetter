@@ -89,7 +89,7 @@ python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -
 
 #### Create subset from CONUS models from a shapefile
 ```
-python -m src.subset_conus -i <path to shapefile parts> -s <shapefile name> -c <path to conus input files>  -v [conus verson=1] -o [path_to_write_outputs=.]
+python -m src.subset_conus -i <path to shapefile parts> -s <shapefile name> -f <path to conus input files>  -v [conus verson=1] -o [path_to_write_outputs=.] -c [clip_clim] -t [write_tcl]
 ```
 
 #### Use a mask to clip multiple files to PFB or TIF
