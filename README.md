@@ -100,7 +100,7 @@ python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/co
 
 #### Rasterize a shapefile for use as a mask, based on a reference dataset
 ```
-python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -r <reference_dataset> -o [output_dir=.] -f [output filename] -s [pad side to multiple] -n [shapefile attribute name] -a [shapefile attribute values]
+python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -r <reference_dataset> -o [output_dir=.] -f [output filename] -m [pad side to multiple] -n [shapefile attribute name] -a [shapefile attribute values]
 ```
 
 
