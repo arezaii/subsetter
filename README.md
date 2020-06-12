@@ -87,9 +87,22 @@ python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -
 ```
 
 
+example usage:
+
+Reproject the shapefile at ~/downloads/shapfiles/WBDHU8.shp to the CONUS1 projection and extent
+```
+python -m src.rasterize_shape -i ~/downloads/shapefiles -s WBDHU8 -r ~/downloads/conus1/Domain_Blank_Mask.tif
+```
+
 #### Create subset from CONUS models from a shapefile
 ```
-python -m src.subset_conus -i <path to shapefile parts> -s <shapefile name> -f <path to conus input files>  -v [conus verson=1] -o [path_to_write_outputs=.] -c [clip_clim] -t [write_tcl]
+python -m src.subset_conus -i <path to shapefile parts> -s <shapefile name> -f <path to conus input files> -n [name for output files] -v [conus verson=1] -o [path_to_write_outputs=.] -c [clip_clim] -t [write_tcl]
+```
+example usage:
+
+Create a subset of the CONUS1 domain with CLM inputs based on the shapefile at ~/downloads/shapfiles/WBDHU8.shp and generate the .tcl file to run the model
+```
+python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/conus1 -c 1 -t 1 -n watershedA_conus1_clip
 ```
 
 #### Use a mask to clip multiple files to PFB or TIF
@@ -98,6 +111,12 @@ assumes all files are identically gridded and same as the mask file, if write_ti
 must supply at least one tif with correct projection and transform information as either the mask file, 
 as a reference dataset with the -r option, or in the list of datafiles to clip
 ```
-python src.bulk_clipper -m <mask_file> -d <list_of_datafiles_to_clip> -t [write_tifs=0] -o [output_directory=.]
+python -m src.bulk_clipper -m <mask_file> -d <list_of_datafiles_to_clip> -t [write_tifs=0] -o [output_directory=.]
+```
+example usage:
+
+Clip the model outputs to the bounds of a mask generated from rasterize_shape or subset_conus
+```
+python -m src.bulk_clipper -m ~/outputs/WBDHU8.tif -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
 ```
 

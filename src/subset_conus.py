@@ -39,6 +39,10 @@ def parse_args(args):
                         help="the directory to write outputs to",
                         type=lambda x: is_valid_path(parser, x))
 
+    parser.add_argument("--out_name", "-n", dest="out_name", required=False,
+                        default=None,
+                        help="the name to give the outputs")
+
     parser.add_argument("--clip_clm", "-c", dest="clip_clm", required=False,
                         default=0,
                         help="also clip inputs for CLM",
@@ -59,19 +63,21 @@ def main():
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     # parse the command line arguments
     args = parse_args(sys.argv[1:])
+    if args.out_name is None:
+        args.out_name = args.shapefile
     conus = Conus(version=args.conus_version, local_path=args.conus_files)
 
     # Step 1, rasterize shapefile
 
     rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.conus_mask_tif,
                                      no_data=-999, output_path=args.out_dir)
-    shape_raster_array = rasterizer.rasterize_shapefile_to_disk(out_name='WBDHU8_raster_from_shapefile.tif',
+    shape_raster_array = rasterizer.rasterize_shapefile_to_disk(out_name=f'{args.out_name}_raster_from_shapefile.tif',
                                                                 side_multiple=32)
 
     # Step 2, Generate solid file
     clip = Clipper(shape_raster_array, conus.conus_mask_tif, no_data_threshold=-1)
     batches = solidfile_generator.make_solid_file(clipped_mask=clip.clipped_mask,
-                                                  out_name=os.path.join(args.out_dir, rasterizer.shapefile_name))
+                                                  out_name=os.path.join(args.out_dir, args.out_name))
     if len(batches) == 0:
         raise Exception("Did not make solid file correctly")
 
@@ -85,22 +91,23 @@ def main():
     if args.clip_clm:
         clm_clipper = ClmClipper(shape_raster_array, conus.conus_mask_tif)
         latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path, conus.clm.get('LAT_LON')))
-        clm_clipper.write_lat_lon(latlon_formatted, os.path.join(args.out_dir, 'WBDHU8_latlon_test.sa'),
+        clm_clipper.write_lat_lon(latlon_formatted, os.path.join(args.out_dir, f'{args.out_name}_latlon.sa'),
                                   x=latlon_data.shape[2], y=latlon_data.shape[1], z=latlon_data.shape[0])
 
         land_cover_data, vegm_data = clm_clipper.clip_land_cover(lat_lon_array=latlon_formatted,
-                                                                 land_cover_file=os.path.join(conus.local_path,conus.clm.get('LAND_COVER')))
+                                                                 land_cover_file=os.path.join(conus.local_path,
+                                                                                              conus.clm.get('LAND_COVER')))
 
-        clm_clipper.write_land_cover(vegm_data, 'WBDHU8_vegm_test.dat')
+        clm_clipper.write_land_cover(vegm_data, os.path.join(args.out_dir, f'{args.out_name}_vegm.dat'))
 
     # Step 5. Generate TCL File
     # TODO: Fix the arguments
     if args.write_tcl:
-        build_tcl(os.path.join(args.out_dir, 'runname.tcl'),
+        build_tcl(os.path.join(args.out_dir, f'{args.out_name}.tcl'),
                   'parking_lot_template.tcl',
-                  'runname',
+                  args.out_name,
                   os.path.join(args.out_dir, f'{Path(conus.files.get("SLOPE_X")).stem}_clip.pfb'),
-                  os.path.join(args.out_dir, 'WBDHU8.pfsol'),
+                  os.path.join(args.out_dir, f'{args.out_name}.pfsol'),
                   os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
                   p=2, q=1, r=1, timestep=1)
 
