@@ -6,6 +6,8 @@ pfmask-to-pfsol (included of ParFlow)
 or
 [mask-to-pfsol](https://github.com/smithsg84/pf-mask-utilities.git)
 
+*If using mask-to-pfsol, be sure to follow [instructions](https://github.com/smithsg84/pf-mask-utilities.git) for building the utilities.*
+
 For the solidfile generator to work, it must be able to locate one of the above tools.
 The generator will search the following places, in this order.
 * PFMASKUTILS environment variable
@@ -74,12 +76,27 @@ CLM Files:
 * LAT_LON: latlonCONUS2.sa
 
 ## Testing
+
+Run these tests to do some basic checks to make sure the tools are working correctly after install or update.
+
 ```
 chmod +x run_tests.sh
 ./run_tests.sh
 ```
 
 ## Usage
+
+
+#### Create subset from CONUS models from a shapefile
+```
+python -m src.subset_conus -i <path to shapefile parts> -s <shapefile name> -f <path to conus input files> -n [name for output files] -v [conus verson=1] -o [path_to_write_outputs=.] -c [clip_clim] -t [write_tcl]
+```
+example usage:
+
+Create a subset of the CONUS1 domain with CLM inputs based on the shapefile at ~/downloads/shapfiles/WBDHU8.shp and generate the .tcl file to run the model
+```
+python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/conus1 -c 1 -t 1 -n watershedA_conus1_clip
+```
 
 #### Rasterize a shapefile for use as a mask, based on a reference dataset
 ```
@@ -94,16 +111,6 @@ Reproject the shapefile at ~/downloads/shapfiles/WBDHU8.shp to the CONUS1 projec
 python -m src.rasterize_shape -i ~/downloads/shapefiles -s WBDHU8 -r ~/downloads/conus1/Domain_Blank_Mask.tif
 ```
 
-#### Create subset from CONUS models from a shapefile
-```
-python -m src.subset_conus -i <path to shapefile parts> -s <shapefile name> -f <path to conus input files> -n [name for output files] -v [conus verson=1] -o [path_to_write_outputs=.] -c [clip_clim] -t [write_tcl]
-```
-example usage:
-
-Create a subset of the CONUS1 domain with CLM inputs based on the shapefile at ~/downloads/shapfiles/WBDHU8.shp and generate the .tcl file to run the model
-```
-python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/conus1 -c 1 -t 1 -n watershedA_conus1_clip
-```
 
 #### Use a mask to clip multiple files to PFB or TIF
 
