@@ -89,18 +89,33 @@ chmod +x run_tests.sh
 
 #### Create subset from CONUS models from a shapefile
 ```
-python -m src.subset_conus -i <path to shapefile parts> -s <shapefile name> -f <path to conus input files> -n [name for output files] -v [conus verson=1] -o [path_to_write_outputs=.] -c [clip_clim] -t [write_tcl]
+python -m src.subset_conus -i <path_to_shapefile_parts> -s <shapefile_name> -f <path_to_conus_input_files> 
+                            -n [name_for_output_files=shapfile_name] 
+                            -v [conus_verson=1] 
+                            -o [path_to_write_outputs=.] 
+                            -c [clip_clim=0]
+                            -w [write_tcl=0]
+                            -m [side_length_multiple=1]
+                            -e [shapefile_attribute_name='OBJECTID']
+                            -a [shapefile_attribute_ids=[1]]
+                            -t [tif_outs=0]
+
 ```
 example usage:
 
-Create a subset of the CONUS1 domain with CLM inputs based on the shapefile at ~/downloads/shapfiles/WBDHU8.shp and generate the .tcl file to run the model
+Create a subset of the CONUS1 domain with CLM inputs based on the shapefile at ~/downloads/shapfiles/WBDHU8.shp and write the .tcl file to run the model
 ```
-python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/conus1 -c 1 -t 1 -n watershedA_conus1_clip
+python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/conus1 -c 1 -w 1 -n watershedA_conus1_clip
 ```
 
 #### Rasterize a shapefile for use as a mask, based on a reference dataset
 ```
-python -m src.rasterize_shape -i <path to shapefile parts> -s <shapefile name> -r <reference_dataset> -o [output_dir=.] -f [output filename] -m [pad side to multiple] -n [shapefile attribute name] -a [shapefile attribute values]
+python -m src.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -r <reference_dataset> 
+                              -o [path_to_write_outputs=.] 
+                              -n [output_filename=shapfile_name] 
+                              -m [pad_side_to_multiple=1] 
+                              -e [shapefile_attribute_name='OBJECTID'] 
+                              -a [shapefile_attribute_ids=[1]]
 ```
 
 
@@ -118,7 +133,9 @@ assumes all files are identically gridded and same as the mask file, if write_ti
 must supply at least one tif with correct projection and transform information as either the mask file, 
 as a reference dataset with the -r option, or in the list of datafiles to clip
 ```
-python -m src.bulk_clipper -m <mask_file> -d <list_of_datafiles_to_clip> -t [write_tifs=0] -o [output_directory=.]
+python -m src.bulk_clipper -m <mask_file> -d <list_of_datafiles_to_clip> 
+                           -t [write_tifs=0] 
+                           -o [output_directory=.]
 ```
 example usage:
 
@@ -127,3 +144,17 @@ Clip the model outputs to the bounds of a mask generated from rasterize_shape or
 python -m src.bulk_clipper -m ~/outputs/WBDHU8.tif -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
 ```
 
+### Optional Arguments Explanation
+
+Many optional arguments are available for the subset_conus and rasterize_shape. Below is an explanationo of the options.
+```
+-n [name for output files=shapfile_name] The name to give the output raster, defaults to shapefile name
+-v [conus verson=1] The version of the ParFlow CONUS model to subset from (1 or 2), defaults to version 1
+-o [path_to_write_outputs=.] The path to write the output files, defaults to current directory
+-c [clip_clim=0] Whether or not to clip the CLM lat/lon and vegm data. Defaults to False.
+-w [write_tcl=0] Whether or not to write the .tcl file to run the ParFlow model. Defaults to False
+-m [side_length_multiple=1] Add padding to side lengths of outputs. 1=no pad, 2= even length sides. Default 1 
+-e [shapefile_attribute_name='OBJECTID'] The name of the attribute table column to uniquely ID objects. Default 'OBJECTID' 
+-a [shapefile_attribute_ids=[1]] The list of objects in the shapefile to rasterize. Default [1]
+-t [tif_outs=0] Whether or not to write outputs as .tif files. Defaults to False.
+```

@@ -64,7 +64,9 @@ class Conus:
         for name, file in self.files.items():
             if not os.path.isfile(os.path.join(self.local_path, file)):
                 missing.append(file)
-                logging.error(f'CONUS sources did not find {name} at {os.path.join(self.local_path, file)}')
+                msg = f'CONUS sources did not find {name} at {os.path.join(self.local_path, file)}'
+                logging.error(msg)
+                #raise Exception(msg)
         return missing
 
     def check_destination(self):
