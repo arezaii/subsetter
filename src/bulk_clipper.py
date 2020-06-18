@@ -34,12 +34,12 @@ def parse_args(args):
     parser.add_argument("--pfb_outs", "-p", dest="write_pfbs", required=False,
                         default=1,
                         help="write pfb output files",
-                        type=bool)
+                        type=int)
 
     parser.add_argument("--tif_outs", "-t", dest="write_tifs", required=False,
                         default=0,
                         help="write tif output files",
-                        type=bool)
+                        type=int)
 
     return parser.parse_args(args)
 
@@ -56,7 +56,7 @@ def bulk_clip(mask_file, data_files, ref_file, out_dir='.', pfb_outs=1, tif_outs
     @return: None
     """
     ref_ds = None
-    if tif_outs:
+    if tif_outs == 1:
         if not ref_file:
             if 'tif' not in mask_file.lower():
                 input_tifs = locate_tifs(data_files)

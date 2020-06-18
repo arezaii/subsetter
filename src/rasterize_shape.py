@@ -26,7 +26,7 @@ def parse_args(args):
                         help="the directory to write outputs to",
                         type=lambda x: is_valid_path(parser, x))
 
-    parser.add_argument("--out_file", "-f", dest="out_file", required=False,
+    parser.add_argument("--out_file", "-n", dest="out_file", required=False,
                         default=None,
                         help="the filename to give the output",
                         type=str)
@@ -41,7 +41,7 @@ def parse_args(args):
                         help="list of attribute ID's to clip",
                         type=lambda x: is_positive_integer(parser, x))
 
-    parser.add_argument("--attribute_name", "-n", dest="attribute_name", required=False,
+    parser.add_argument("--attribute_name", "-e", dest="attribute_name", required=False,
                         default="OBJECTID",
                         help="name of the attribute field to query for attribute ids",
                         type=str)

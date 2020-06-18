@@ -46,12 +46,32 @@ def parse_args(args):
     parser.add_argument("--clip_clm", "-c", dest="clip_clm", required=False,
                         default=0,
                         help="also clip inputs for CLM",
-                        type=bool)
+                        type=int)
 
-    parser.add_argument("--write_tcl", "-t", dest="write_tcl", required=False,
+    parser.add_argument("--write_tcl", "-w", dest="write_tcl", required=False,
                         default=0,
                         help="generate the .tcl script for this subset",
-                        type=bool)
+                        type=int)
+
+    parser.add_argument("--side_multiple", "-m", dest="side_multiple", required=False,
+                        default=1,
+                        help="integer multiple for bounding box side",
+                        type=lambda x: is_positive_integer(parser, x))
+
+    parser.add_argument("--attribute_ids", "-a", dest="attribute_ids", required=False,
+                        default=[1], nargs='+',
+                        help="list of attribute ID's to clip",
+                        type=lambda x: is_positive_integer(parser, x))
+
+    parser.add_argument("--attribute_name", "-e", dest="attribute_name", required=False,
+                        default="OBJECTID",
+                        help="name of the attribute field to query for attribute ids",
+                        type=str)
+
+    parser.add_argument("--tif_outs", "-t", dest="write_tifs", required=False,
+                        default=0,
+                        help="write tif output files",
+                        type=int)
 
     return parser.parse_args(args)
 
@@ -67,12 +87,15 @@ def main():
         args.out_name = args.shapefile
     conus = Conus(version=args.conus_version, local_path=args.conus_files)
 
+
     # Step 1, rasterize shapefile
 
     rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.conus_mask_tif,
-                                     no_data=-999, output_path=args.out_dir)
+                                     no_data=-999, output_path=args.out_dir,)
     shape_raster_array = rasterizer.rasterize_shapefile_to_disk(out_name=f'{args.out_name}_raster_from_shapefile.tif',
-                                                                side_multiple=32)
+                                                                side_multiple=args.side_multiple,
+                                                                attribute_name=args.attribute_name,
+                                                                attribute_ids=args.attribute_ids)
 
     # Step 2, Generate solid file
     clip = Clipper(shape_raster_array, conus.conus_mask_tif, no_data_threshold=-1)
@@ -85,10 +108,10 @@ def main():
     bulk_clipper.clip_inputs(clip,
                              [os.path.join(conus.local_path, value) for key, value in conus.files.items()
                               if key not in ['CONUS_MASK', 'CHANNELS']],
-                             out_dir=args.out_dir, tif_outs=1)
+                             out_dir=args.out_dir, tif_outs=args.write_tifs)
 
     # Step 4. Clip CLM inputs
-    if args.clip_clm:
+    if args.clip_clm == 1:
         clm_clipper = ClmClipper(shape_raster_array, conus.conus_mask_tif)
         latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path, conus.clm.get('LAT_LON')))
         clm_clipper.write_lat_lon(latlon_formatted, os.path.join(args.out_dir, f'{args.out_name}_latlon.sa'),
@@ -102,7 +125,8 @@ def main():
 
     # Step 5. Generate TCL File
     # TODO: Fix the arguments
-    if args.write_tcl:
+    if args.write_tcl == 1:
+        print('write_tcl')
         build_tcl(os.path.join(args.out_dir, f'{args.out_name}.tcl'),
                   'parking_lot_template.tcl',
                   args.out_name,
