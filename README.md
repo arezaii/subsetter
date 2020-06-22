@@ -10,10 +10,10 @@ or
 
 For the solidfile generator to work, it must be able to locate one of the above tools.
 The generator will search the following places, in this order.
-* PFMASKUTILS environment variable
-* mask-to-pfsol directory in PATH variable
-* PARFLOW_DIR environment variable 
-* ParFlow bin directory in PATH variable
+1. PFMASKUTILS environment variable
+2. mask-to-pfsol directory in PATH variable
+3. PARFLOW_DIR environment variable 
+4. ParFlow bin directory in PATH variable
 
 
 ### Environment
@@ -93,7 +93,7 @@ python -m src.subset_conus -i <path_to_shapefile_parts> -s <shapefile_name> -f <
                             -n [name_for_output_files=shapfile_name] 
                             -v [conus_verson=1] 
                             -o [path_to_write_outputs=.] 
-                            -c [clip_clim=0]
+                            -c [clip_clm=0]
                             -w [write_tcl=0]
                             -m [side_length_multiple=1]
                             -e [shapefile_attribute_name='OBJECTID']
@@ -113,7 +113,7 @@ python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/co
 python -m src.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -r <reference_dataset> 
                               -o [path_to_write_outputs=.] 
                               -n [output_filename=shapfile_name] 
-                              -m [pad_side_to_multiple=1] 
+                              -m [side_length_multiple=1] 
                               -e [shapefile_attribute_name='OBJECTID'] 
                               -a [shapefile_attribute_ids=[1]]
 ```
