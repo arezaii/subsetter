@@ -132,7 +132,7 @@ def main():
                   os.path.join(args.out_dir, f'{Path(conus.files.get("SLOPE_X")).stem}_clip.pfb'),
                   os.path.join(args.out_dir, f'{args.out_name}.pfsol'),
                   os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
-                  p=2, q=1, r=1, timestep=1)
+                  p=2, q=1, r=1, timestep=1, constant=1)
 
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
