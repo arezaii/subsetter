@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-import pfio
+import src.file_io_tools as file_io_tools
 from datetime import datetime
 import logging
 
@@ -222,7 +222,7 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
         results['pfdist']['vals'][2][0] = '#' + results['pfdist']['vals'][2][0]
 
     # read slope file x into array
-    slope_x = pfio.pfread(slope_file_x)
+    slope_x = file_io_tools.read_file(slope_file_x)
     nz0, ny0, nx0 = slope_x.shape
 
     results['ComputationalGrid.NX']['vals'][0][-1] = str(nx0)
