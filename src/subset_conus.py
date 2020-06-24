@@ -126,7 +126,6 @@ def main():
     # Step 5. Generate TCL File
     # TODO: Fix the arguments
     if args.write_tcl == 1:
-        print('write_tcl')
         build_tcl(os.path.join(args.out_dir, f'{args.out_name}.tcl'),
                   'parking_lot_template.tcl',
                   args.out_name,

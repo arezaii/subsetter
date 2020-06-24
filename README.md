@@ -33,7 +33,7 @@ conda env create -f=environment.yml
 conda activate pf_subsetter
 git clone https://github.com/hydroframe/tools
 cd tools/pfio
-python setup.py install
+pip install .
 cd ../..
 ```
 

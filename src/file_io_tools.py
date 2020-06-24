@@ -32,7 +32,6 @@ def read_file(infile):
         res_arr = np.reshape(arr, (nz, ny, nx))[:, ::-1, :]
     elif ext == '.pfb':  # parflow binary file
         res_arr = pfio.pfread(infile)
-        res_arr = np.flip(res_arr, axis=1)
     else:
         print('can not read file type ' + ext)
         sys.exit()

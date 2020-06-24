@@ -47,10 +47,16 @@ class FileIOToolBasicTestCase(unittest.TestCase):
     def test_write_pfb(self):
         forcings_data = file_io_tools.read_file(test_files.forcings_pfb)
         file_io_tools.write_pfb(forcings_data, 'test_pfb_out.pfb')
-        self.assertIsNone(np.testing.assert_array_equal(forcings_data,
-                                                        file_io_tools.read_file(test_files.forcings_pfb)),
+        read_data = file_io_tools.read_file('test_pfb_out.pfb')
+        self.assertIsNone(np.testing.assert_array_equal(forcings_data, read_data),
                           'writing and reading a pfb gives back the same array values')
         os.remove('test_pfb_out.pfb')
+
+    def test_read_sa(self):
+        sa_array = file_io_tools.read_file(test_files.forcings_sa)
+        pfb_array = file_io_tools.read_file(test_files.forcings_pfb)
+        self.assertIsNone(np.testing.assert_array_almost_equal(sa_array, pfb_array, decimal=3),
+                          'reading a .sa file and a .pfb file result in same array values')
 
 
 if __name__ == '__main__':
