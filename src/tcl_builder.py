@@ -91,9 +91,9 @@ def parse_args(args):
     parser.add_argument('-s', '--start', type=float, default=0.0, help='Start time(optional). Default is 0.0',
                         required=False)
     parser.add_argument('-e', '--end', type=float, help='End time (required)', required=True)
-    parser.add_argument('--baseu', type=float, default=0.1, help='Base unit(optional). Default is 0.1', required=False)
-    parser.add_argument('-ts', '--timestep', type=float, default=0.1,
-                        help='Constant time step (optional). Default is 0.1',
+    parser.add_argument('--baseu', type=float, default=1, help='Base unit(optional). Default is 1', required=False)
+    parser.add_argument('-ts', '--timestep', type=float, default=1,
+                        help='Constant time step (optional). Default is 1',
                         required=False)
     parser.add_argument('--dump', type=float, default=-1.0, help='Dump interval (optional). Default is -1',
                         required=False)
@@ -112,8 +112,8 @@ def parse_args(args):
 
 def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, end_time, batches, p=2, q=1, r=1,
               evap_choice=0, k=0.02849, poros=0.39738, rain=-0.05,
-              rec=0.0, constant=0, init=0.0, initw=0, flow='OverlandFlow', start_time=0.0, baseu=.1, timestep=.1,
-              dump=-1, dx=1000., dy=1000., dz=1000., nz=1,
+              rec=0.0, constant=0, init=0.0, initw='bottom', flow='OverlandFlow', start_time=0.0, baseu=1, timestep=1,
+              dump=1, dx=1000., dy=1000., dz=1000., nz=1,
               dz_scales=None):
 
     # read input file
@@ -177,7 +177,7 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
                                                                           0]
             # set constant input
             results['Patch.top.BCPressure.Cycle']['vals'][1][-1] = '\"constant\"'
-            results['Patch.top.BCPressure.alltime.Value']['vals'][0][-1] = str(0.0)
+            results['Patch.top.BCPressure.alltime.Value']['vals'][0][-1] = str(rain)
             # set flow type for top layer
             results['Patch.top.BCPressure.Type']['vals'][0][-1] = flow
         else:
