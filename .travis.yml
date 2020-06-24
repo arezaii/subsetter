@@ -1,24 +1,19 @@
 language: python
+dist: bionic
 python:
   - "3.6"      # current default Python on Travis CI
   - "3.7"
   - "3.8"
 # command to install dependencies
 install:
+  - sudo add-apt-repository ppa:ubuntugis/ppa -y && sudo apt-get update -y
   - sudo apt update
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - source "$HOME/miniconda/etc/profile.d/conda.sh"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
-  - conda env create -f=environment.yml
-  - conda activate pf_subsetter
+  - sudo apt-get install gdal-bin
+  - sudo apt-get install libgdal-dev
+  - pip install -r requirements.txt
   - git clone https://github.com/arezaii/pf_tools
   - cd pf_tools/pfio
-  - python setup.py install
+  - pip install .
   - cd ../..
   - git clone https://github.com/smithsg84/pf-mask-utilities.git $HOME/pf-mask-utilities
   - cd $HOME/pf-mask-utilities
@@ -28,7 +23,7 @@ install:
   - chmod +x run_tests.sh
 # environment variable
 env:
-  - PFMASKUTILS=$HOME/pf-mask-utilities
+  - PFMASKUTILS=$HOME/pf-mask-utilities CPLUS_INLCUDE_PATH=/usr/include/gdal C_INCLUDE_PATH=/usr/include/gdal
 # command to run tests
 script:
   - python -m unittest discover tests -p '*_tests.py'
