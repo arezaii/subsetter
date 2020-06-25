@@ -19,7 +19,7 @@ def find_mask_edges(mask, mask_val=1):
     logging.info(
         f'located mask edges at (top,bot,left,right)='
         f'{",".join([str(i) for i in get_human_bbox([min_y, max_y, min_x, max_x], mask.shape)])}')
-    return max_x, max_y, min_x, min_y
+    return min_y, max_y, min_x, max_x
 
 
 def calculate_buffer_edges(min_x, min_y, max_x, max_y, padding):
