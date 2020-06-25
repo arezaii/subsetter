@@ -96,7 +96,7 @@ class ShapefileRasterizer:
                          f'new shape (z,y,x)={mask_array.shape}')
         mask_utils = MaskUtils(mask_array)
         numpy_mask = mask_utils.inner_crop
-        max_x, max_y, min_x, min_y = mask_utils.inner_crop_edges
+        min_y, max_y, min_x, max_x = mask_utils.inner_crop_edges
         new_dims = mask_utils.calculate_new_dimensions(len_x=(max_x - min_x) + 1,
                                                        len_y=(max_y - min_y) + 1,
                                                        side_multiple=side_length_multiple)

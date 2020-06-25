@@ -20,7 +20,7 @@ class Clipper:
         self.ds_ref = reference_dataset
         mask_utils = MaskUtils(mask_array, bbox_val=0, no_data_threshold=no_data_threshold)
         self.inverted_zero_one_mask = mask_utils.bbox_crop
-        max_x, max_y, min_x, min_y = mask_utils.bbox_crop_edges
+        min_y, max_y, min_x, max_x = mask_utils.bbox_crop_edges
         self.bbox = [min_y, max_y + 1, min_x, max_x + 1]
         self.printable_bbox = mask_utils.get_bbox_print()
         self.clipped_geom = mask_utils.calculate_new_geom(min_x, min_y, self.ds_ref.GetGeoTransform())
@@ -59,7 +59,7 @@ class Clipper:
                                          self.bbox[0]: self.bbox[1],
                                          self.bbox[2]: self.bbox[3]].filled(fill_value=no_data),
                                          mask=clip_mask).filled(fill_value=no_data)
-            logging.info(f'clipped data with (z,y,x) shape {data_array.shape} to {return_arr.shape}'
+            logging.info(f'clipped data with (z,y,x) shape {data_array.shape} to {return_arr.shape} '
                          f'using bbox (top, bot, left, right) {self.printable_bbox}')
         else:
             # return an array that includes all of the z data, and x and y inside the bounding box
@@ -67,7 +67,7 @@ class Clipper:
                                          self.bbox[0]: self.bbox[1],
                                          self.bbox[2]: self.bbox[3]],
                                          mask=np.zeros(clip_mask.shape)).filled()
-            logging.info(f'clipped data with (z,y,x) shape {data_array.shape} to {return_arr.shape}'
+            logging.info(f'clipped data with (z,y,x) shape {data_array.shape} to {return_arr.shape} '
                          f'using bbox (top, bot, left, right) {self.printable_bbox}')
 
         return return_arr, self.clipped_geom, self.clipped_mask, self.bbox
