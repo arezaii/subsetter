@@ -55,19 +55,17 @@ def bulk_clip(mask_file, data_files, ref_file, out_dir='.', pfb_outs=1, tif_outs
     @param tif_outs: write tif files as outputs (optional)
     @return: None
     """
-    ref_ds = None
-    if tif_outs == 1:
-        if not ref_file:
-            if 'tif' not in mask_file.lower():
-                input_tifs = locate_tifs(data_files)
-                if len(input_tifs) < 1:
-                    raise Exception('Must include at least one geotif input or a ref_file when tif_outs is selected')
-                else:
-                    ref_ds = file_io_tools.read_geotiff(input_tifs[0])
+    if not ref_file:
+        if 'tif' not in mask_file.lower():
+            input_tifs = locate_tifs(data_files)
+            if len(input_tifs) < 1:
+                raise Exception('Must include at least one geotif input or a ref_file when tif_outs is selected')
             else:
-                ref_ds = file_io_tools.read_geotiff(mask_file)
+                ref_ds = file_io_tools.read_geotiff(input_tifs[0])
         else:
-            ref_ds = file_io_tools.read_geotiff(ref_file)
+            ref_ds = file_io_tools.read_geotiff(mask_file)
+    else:
+        ref_ds = file_io_tools.read_geotiff(ref_file)
     # read the mask file
     mask = file_io_tools.read_file(mask_file)
     # create clipper with mask
