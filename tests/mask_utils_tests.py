@@ -1,7 +1,7 @@
 import unittest
 from src.file_io_tools import read_file
 import src.mask_utils as mask_utils
-
+import tests.test_files as test_files
 
 class MaskUtilsCalculationUnitTests(unittest.TestCase):
     def test_calculate_new_dims(self):
@@ -109,6 +109,15 @@ class MaskUtilsCalculationUnitTests(unittest.TestCase):
         edge_bbox = mask_utils.get_human_bbox(bbox_edge, shape)
         self.assertListEqual(edge_bbox, [1888, 388, 300, 400],
                              'Converting from system bbox to human bbox when fully contained')
+
+    def test_mask_crop_edges(self):
+        mask_file = test_files.huc10190004.get('conus1_mask')
+        mask_data = read_file(mask_file)
+        utils = mask_utils.MaskUtils(mask_data)
+        self.assertEqual(utils.bbox_crop_edges, (1141, 1172, 1034, 1129),
+                         'should locate outer bounds (bbox) of mask file')
+        self.assertEqual(utils.inner_crop_edges, (1142, 1171, 1039, 1123),
+                         'should locate inner bounds of mask file')
 
 
 if __name__ == '__main__':
