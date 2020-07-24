@@ -3,6 +3,7 @@ from src.file_io_tools import read_file
 import src.mask_utils as mask_utils
 import tests.test_files as test_files
 
+
 class MaskUtilsCalculationUnitTests(unittest.TestCase):
     def test_calculate_new_dims(self):
         mask = read_file('test_inputs/test_truth.tif')
@@ -101,13 +102,13 @@ class MaskUtilsCalculationUnitTests(unittest.TestCase):
         bbox_in = [1600, 1700, 300, 400]
         shape = (1, 1888, 3342)
         new_bbox = mask_utils.get_human_bbox(bbox_in, shape)
-        self.assertListEqual(new_bbox, [288, 188, 300, 400],
+        self.assertListEqual(new_bbox, [188, 288, 300, 400],
                              'Converting from system bbox to human bbox when fully contained')
 
         bbox_edge = [0, 1500, 300, 400]
         shape = (1, 1888, 3342)
         edge_bbox = mask_utils.get_human_bbox(bbox_edge, shape)
-        self.assertListEqual(edge_bbox, [1888, 388, 300, 400],
+        self.assertListEqual(edge_bbox, [388, 1888, 300, 400],
                              'Converting from system bbox to human bbox when fully contained')
 
     def test_mask_crop_edges(self):

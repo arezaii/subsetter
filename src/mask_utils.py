@@ -40,7 +40,7 @@ def calculate_buffer_edges(min_x, min_y, max_x, max_y, padding):
                  f'{",".join([str(i) for i in [min_y, max_y, min_x, max_x]])} padding={padding}, '
                  f'new edges={",".join([str(i) for i in [top_edge, bottom_edge, left_edge, right_edge]])}')
     if left_edge < 0 or top_edge < 0:
-        logging.warning(f'found a negative minimum edge! Unxpected behavior ahead!')
+        logging.warning(f'found a negative minimum edge! Undefined behavior ahead!')
     return [top_edge, bottom_edge, left_edge, right_edge]
 
 
@@ -52,6 +52,7 @@ def get_human_bbox(bbox, shape):
     @return: array of edges [top, bot, left, right]
     """
     human_bbox = [shape[1] - bbox[0], shape[1] - bbox[1], bbox[2], bbox[3]]
+    human_bbox = [human_bbox[1],human_bbox[0],human_bbox[2],human_bbox[3]]
     logging.info(f'converted system bbox {bbox} inside shape {shape} to human bbox {human_bbox}')
     return human_bbox
 
