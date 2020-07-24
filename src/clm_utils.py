@@ -22,7 +22,7 @@ class ClmClipper:
         @return: the formatted output (1d) and the raw clipped data array (3d)
         """
         data = file_io_tools.read_file(lat_lon_file)
-        clipped_data, clipped_geom, clipped_mask, bbox = self.clipper.subset(data_array=data, crop_inner=0)
+        clipped_data, _, clipped_mask, bbox = self.clipper.subset(data_array=data, crop_inner=0)
         sa_formatted = np.flip(clipped_data, axis=1).flatten()
         return sa_formatted, clipped_data
 
@@ -35,7 +35,7 @@ class ClmClipper:
         """
         lat_lon_proper = np.char.split(lat_lon_array.astype(str), ' ')
         data = file_io_tools.read_file(land_cover_file)
-        clipped_data, clipped_geom, clipped_mask, bbox = self.clipper.subset(data_array=data, crop_inner=0)
+        clipped_data, _, clipped_mask, bbox = self.clipper.subset(data_array=data, crop_inner=0)
         sa_formatted = np.flip(clipped_data, axis=1).flatten()
         sand = 0.16
         clay = 0.26
