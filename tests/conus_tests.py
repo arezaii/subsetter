@@ -1,12 +1,12 @@
 import unittest
-
+import data
+import os
 from src.conus import Conus
 
 
 class ConusClassTests(unittest.TestCase):
     testDir = 'TestDirectory'
-
-    # Can't perform this positive test case without all the files present
+    # Can't perform this positive test case without all the required_files present
     # def test_folder_exists(self):
     #     os.mkdir(self.testDir)
     #     try:
@@ -16,8 +16,12 @@ class ConusClassTests(unittest.TestCase):
     #     shutil.rmtree(self.testDir)
 
     def test_folder_not_exists(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(FileNotFoundError):
             Conus(1, self.testDir)
+
+    def test_manifest_provided(self):
+        with self.assertRaises(FileNotFoundError):
+            Conus(os.path.join('test_inputs','CONUS1_Inputs'), data.conus_manifest, 1)
 
 
 if __name__ == '__main__':

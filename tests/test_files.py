@@ -23,3 +23,5 @@ huc10190004 = {'conus1_mask': 'test_inputs/WBDHU8_conus1_mask.tif',
                'shapefile': 'test_inputs/WBDHU8.shp',
                'conus1_mask_-9999999': 'test_inputs/WBDHU8_conus1_mask_-9999999.tif'
                }
+
+test_domain_manifest = 'test_inputs/test_domain_manifest.yaml'

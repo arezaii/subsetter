@@ -1,6 +1,7 @@
 .idea/
 *.tif
 *.pfb
+*.xml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

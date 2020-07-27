@@ -90,15 +90,15 @@ def main():
 
     # Step 1, rasterize shapefile
 
-    rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.conus_mask_tif,
-                                     no_data=-999, output_path=args.out_dir,)
+    rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.mask_tif,
+                                     no_data=-999, output_path=args.out_dir, )
     shape_raster_array = rasterizer.rasterize_shapefile_to_disk(out_name=f'{args.out_name}_raster_from_shapefile.tif',
                                                                 side_multiple=args.side_multiple,
                                                                 attribute_name=args.attribute_name,
                                                                 attribute_ids=args.attribute_ids)
 
     # Step 2, Generate solid file
-    clip = Clipper(shape_raster_array, conus.conus_mask_tif, no_data_threshold=-1)
+    clip = Clipper(shape_raster_array, conus.mask_tif, no_data_threshold=-1)
     batches = solidfile_generator.make_solid_file(clipped_mask=clip.clipped_mask,
                                                   out_name=os.path.join(args.out_dir, args.out_name))
     if len(batches) == 0:
@@ -106,20 +106,22 @@ def main():
 
     # Step 3. Clip all the domain data inputs
     bulk_clipper.clip_inputs(clip,
-                             [os.path.join(conus.local_path, value) for key, value in conus.files.items()
+                             [os.path.join(conus.local_path, value) for key, value in conus.required_files.items()
                               if key not in ['CONUS_MASK', 'CHANNELS']],
                              out_dir=args.out_dir, tif_outs=args.write_tifs)
 
     # Step 4. Clip CLM inputs
     if args.clip_clm == 1:
-        clm_clipper = ClmClipper(shape_raster_array, conus.conus_mask_tif)
-        latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path, conus.clm.get('LAT_LON')))
+        clm_clipper = ClmClipper(shape_raster_array, conus.mask_tif)
+        latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path,
+                                                                             conus.optional_files.get('LAT_LON')))
+
         clm_clipper.write_lat_lon(latlon_formatted, os.path.join(args.out_dir, f'{args.out_name}_latlon.sa'),
                                   x=latlon_data.shape[2], y=latlon_data.shape[1], z=latlon_data.shape[0])
 
         land_cover_data, vegm_data = clm_clipper.clip_land_cover(lat_lon_array=latlon_formatted,
                                                                  land_cover_file=os.path.join(conus.local_path,
-                                                                                              conus.clm.get('LAND_COVER')))
+                                                                                              conus.optional_files.get('LAND_COVER')))
 
         clm_clipper.write_land_cover(vegm_data, os.path.join(args.out_dir, f'{args.out_name}_vegm.dat'))
 
@@ -128,7 +130,7 @@ def main():
         build_tcl(os.path.join(args.out_dir, f'{args.out_name}.tcl'),
                   'parking_lot_template.tcl',
                   args.out_name,
-                  os.path.join(args.out_dir, f'{Path(conus.files.get("SLOPE_X")).stem}_clip.pfb'),
+                  os.path.join(args.out_dir, f'{Path(conus.required_files.get("SLOPE_X")).stem}_clip.pfb'),
                   os.path.join(args.out_dir, f'{args.out_name}.pfsol'),
                   os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
                   p=2, q=1, r=1, timestep=1, constant=1)
