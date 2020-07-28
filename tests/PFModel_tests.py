@@ -48,5 +48,3 @@ class PFModelClassTests(unittest.TestCase):
         self.assertEqual(mask_tif, model.mask_tif)
         mask_array = model.get_domain_mask()
         self.assertIsNone(np.testing.assert_array_equal(mask_array, model.mask_array))
-        print(model)
-

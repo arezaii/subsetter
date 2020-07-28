@@ -29,6 +29,11 @@ class PFModel:
         self.mask_array = None
 
     def get_domain_mask(self, domain_mask_key='DOMAIN_MASK'):
+        """ get the domain mask array
+
+        @param domain_mask_key: key in yaml file which defines the domain mask
+        @return: numpy array for the domain mask
+        """
         if self.mask_array is None:
             # check if mask is none, read and assign if so
             self.mask_tif = file_io_tools.read_geotiff(os.path.join(self.local_path,
@@ -39,6 +44,11 @@ class PFModel:
             return self.mask_array
 
     def get_domain_tif(self, domain_mask_key='DOMAIN_MASK'):
+        """ get the domain mask tif as a gdal geotif object
+
+        @param domain_mask_key: key in yaml file which defines the domain mask
+        @return: gdal object for the domain mask
+        """
         if self.mask_tif is None:
             # check if mask is none, read and assign if so
             self.mask_tif = file_io_tools.read_geotiff(os.path.join(self.local_path,
@@ -63,7 +73,6 @@ class PFModel:
         if len(optional_missing) > 0:
             logging.warning(f'could not locate optional model input file(s) {optional_missing}')
 
-
     def __identify_missing_inputs(self, file_dict):
         """ Identify any missing files from the file dictionary
 
@@ -76,8 +85,6 @@ class PFModel:
             if not os.path.isfile(file_path):
                 missing.append(file_path)
         return missing
-
-
 
     def check_destination(self):
         """ make sure the local folder to store inputs exists

@@ -8,7 +8,7 @@ class ConusClassTests(unittest.TestCase):
 
     # Can't perform positive test case without all the required_files present
     def test_normal_startup(self):
-        if os.environ.get('TRAVIS'):
+        if os.getenv('TRAVIS', default=False):
             pass
         else:
             conus1 = Conus(local_path='../subset_1/CONUS1_inputs')
