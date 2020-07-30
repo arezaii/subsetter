@@ -90,7 +90,7 @@ def main():
 
     # Step 1, rasterize shapefile
 
-    rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.mask_tif,
+    rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.get_domain_tif(),
                                      no_data=-999, output_path=args.out_dir, )
     shape_raster_array = rasterizer.rasterize_shapefile_to_disk(out_name=f'{args.out_name}_raster_from_shapefile.tif',
                                                                 side_multiple=args.side_multiple,
@@ -98,7 +98,7 @@ def main():
                                                                 attribute_ids=args.attribute_ids)
 
     # Step 2, Generate solid file
-    clip = Clipper(shape_raster_array, conus.mask_tif, no_data_threshold=-1)
+    clip = Clipper(shape_raster_array, conus.get_domain_tif(), no_data_threshold=-1)
     batches = solidfile_generator.make_solid_file(clipped_mask=clip.clipped_mask,
                                                   out_name=os.path.join(args.out_dir, args.out_name))
     if len(batches) == 0:
@@ -107,12 +107,12 @@ def main():
     # Step 3. Clip all the domain data inputs
     bulk_clipper.clip_inputs(clip,
                              [os.path.join(conus.local_path, value) for key, value in conus.required_files.items()
-                              if key not in ['CONUS_MASK', 'CHANNELS']],
+                              if key not in ['DOMAIN_MASK', 'CHANNELS']],
                              out_dir=args.out_dir, tif_outs=args.write_tifs)
 
     # Step 4. Clip CLM inputs
     if args.clip_clm == 1:
-        clm_clipper = ClmClipper(shape_raster_array, conus.mask_tif)
+        clm_clipper = ClmClipper(shape_raster_array, conus.get_domain_tif())
         latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path,
                                                                              conus.optional_files.get('LAT_LON')))
 
