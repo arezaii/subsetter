@@ -32,6 +32,7 @@ def calculate_buffer_edges(min_x, min_y, max_x, max_y, padding):
     @param padding: array of padding values to add to each dimension
     @return: array of expanded bounding box dimensions [top, bot, left, right]
     """
+    # TODO These max_y and max_x +1's, why?
     top_edge = min_y - padding[0]
     bottom_edge = max_y + padding[1] + 1
     left_edge = min_x - padding[2]
@@ -97,7 +98,7 @@ class MaskUtils:
         @return: masked numpy array with mask edges at outer area
         """
         mx = ma.masked_where(self.mask_data_array < self.bbox_val, self.mask_data_array)
-        logging.info(f'located outer bbox in mask array')
+        # logging.info(f'located outer bbox in mask array')
         return mx
 
     def _find_inner_object(self):
@@ -106,7 +107,7 @@ class MaskUtils:
         @return: masked numpy array with tight mask along shape border
         """
         mx = ma.masked_where(self.mask_data_array <= self.bbox_val, self.mask_data_array)
-        logging.info(f'located inner mask in mask array')
+        # logging.info(f'located inner mask in mask array')
         return mx
 
     def calculate_new_geom(self, min_x, min_y, old_geom):
@@ -130,7 +131,7 @@ class MaskUtils:
         """ adjust the dimensions of an existing bbox to make it a multiple of side_multiple
 
         @param len_x: existing length in x direction
-        @param len_y: existion lenght in y direction
+        @param len_y: existing length in y direction
         @param side_multiple: integer that final x,y should be a multiple of
         @return: new padding values and new overall dimensions for the bbox
         """

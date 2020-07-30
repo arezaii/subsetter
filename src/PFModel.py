@@ -22,7 +22,7 @@ class PFModel:
         self.required_files = {}
         self.optional_files = {}
         if self.manifest_path is not None:
-            self.__read_manifest(self.required_files, self.optional_files)
+            self._read_manifest(self.required_files, self.optional_files)
         self.check_inputs_exist()
         self.check_destination()
         self.mask_tif = None
@@ -64,16 +64,16 @@ class PFModel:
         @return:
         """
         # check for required files
-        required_missing = self.__identify_missing_inputs(self.required_files)
+        required_missing = self._identify_missing_inputs(self.required_files)
         if len(required_missing) > 0:
             logging.error(f'could not locate required model input file(s) {required_missing}')
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), required_missing)
         # check for optional files
-        optional_missing = self.__identify_missing_inputs(self.optional_files)
+        optional_missing = self._identify_missing_inputs(self.optional_files)
         if len(optional_missing) > 0:
             logging.warning(f'could not locate optional model input file(s) {optional_missing}')
 
-    def __identify_missing_inputs(self, file_dict):
+    def _identify_missing_inputs(self, file_dict):
         """ Identify any missing files from the file dictionary
 
         @param file_dict: dictionary mapping the input file and filenames for the model
@@ -89,15 +89,15 @@ class PFModel:
     def check_destination(self):
         """ make sure the local folder to store inputs exists
 
-        @return: True if folder exists, raises Exception if local destination folder not found
+        @return: None if folder exists
+        @raise: FileNotFoundError if folder does not exist
         """
         if not os.path.isdir(self.local_path):
             msg = self.local_path
             logging.exception(msg)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), msg)
-        return True
 
-    def __read_manifest(self, required_file_dict, optional_file_dict):
+    def _read_manifest(self, required_file_dict, optional_file_dict):
         """ read a manifest file in yaml format like so:
         <model>:
             <ver>:
