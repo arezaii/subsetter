@@ -20,8 +20,9 @@ class ShapefileReprojectCase(unittest.TestCase):
     def test_reproject_conus1(self):
         utils = ShapefileRasterizer(self.shape_path, self.shape_name, self.conus1_mask_datset)
         tif_path = utils.reproject_and_mask()
-        mask_array, bbox = utils.add_bbox_to_mask(tif_path, side_length_multiple=32)
-        utils.write_to_tif(data_set=mask_array, filename='testout.tif')
+        subset_mask = utils.subset_mask
+        subset_mask.add_bbox_to_mask(side_length_multiple=32)
+        subset_mask.write_mask_to_tif(filename='testout.tif')
         self.assertIsNone(
             np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_mask')),
                                           file_io_tools.read_file('testout.tif')),
@@ -31,8 +32,9 @@ class ShapefileReprojectCase(unittest.TestCase):
     def test_reproject_conus2(self):
         utils = ShapefileRasterizer(self.shape_path, self.shape_name, self.conus2_mask_dataset)
         tif_path = utils.reproject_and_mask()
-        mask_array, bbox = utils.add_bbox_to_mask(tif_path, side_length_multiple=32)
-        utils.write_to_tif(data_set=mask_array, filename='testout.tif')
+        subset_mask = utils.subset_mask
+        subset_mask.add_bbox_to_mask(side_length_multiple=32)
+        subset_mask.write_mask_to_tif(filename='testout.tif')
         self.assertIsNone(
             np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus2_mask')),
                                           file_io_tools.read_file('testout.tif')),
@@ -42,8 +44,8 @@ class ShapefileReprojectCase(unittest.TestCase):
     def test_rasterize_no_data_values(self):
         rasterizer = ShapefileRasterizer(self.shape_path, shapefile_name=self.shape_name,
                                          reference_dataset=self.conus1_mask_datset, no_data=-9999999)
-        raster_path = rasterizer.reproject_and_mask()
-        rasterizer.write_to_tif(data_set=file_io_tools.read_file(raster_path), filename='testout.tif')
+        rasterizer.reproject_and_mask()
+        rasterizer.subset_mask.write_mask_to_tif(filename='testout.tif')
         self.assertIsNone(
             np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_mask_-9999999')),
                                           file_io_tools.read_file('testout.tif')),

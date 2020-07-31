@@ -1,14 +1,14 @@
-from src.PFModel import PFModel
+from src.parflow_model import ParflowModel
 import data
 
 
-class Conus(PFModel):
+class Conus(ParflowModel):
 
     def __init__(self, local_path, manifest_path=None, version=1):
         """ Information about the CONUS dataset we are working with
 
         @param local_path: path on system where conus inputs live
-        @param manifest: a file containing the keys and values for CONUS input required_files
+        @param manifest_path: a file containing the keys and values for CONUS input required_files
         @param version: the conus version to create
         """
         if manifest_path is None:

@@ -5,6 +5,7 @@ import src.file_io_tools as file_io_tools
 import src.solidfile_generator as solidfile_generator
 import tests.test_files as test_files
 from src.clipper import Clipper
+from src.subset_mask import SubsetMask
 
 
 class RegressionSolidFileTests(unittest.TestCase):
@@ -23,9 +24,8 @@ class RegressionSolidFileTests(unittest.TestCase):
                 pass
 
     def test_create_solid_file_conus1(self):
-        mask = file_io_tools.read_file(test_files.huc10190004.get('conus1_mask'))
-        ref_ds = file_io_tools.read_geotiff(test_files.conus1_dem)
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
+        my_mask = SubsetMask(test_files.huc10190004.get('conus1_mask'))
+        clipper = Clipper(subset_mask=my_mask, no_data_threshold=-1)
         batches = solidfile_generator.make_solid_file(clipped_mask=clipper.clipped_mask, out_name='conus1_solid')
         self.assertEqual(batches, '0 3 6 ')
         with open('conus1_solid.pfsol', 'r') as test_file:
@@ -44,9 +44,8 @@ class RegressionSolidFileTests(unittest.TestCase):
         os.remove('conus1_solid.pfsol')
 
     def test_create_solid_file_conus2(self):
-        mask = file_io_tools.read_file(test_files.huc10190004.get('conus2_mask'))
-        ref_ds = gdal.Open(test_files.conus2_dem)
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
+        my_mask = SubsetMask(test_files.huc10190004.get('conus2_mask'))
+        clipper = Clipper(subset_mask=my_mask, no_data_threshold=-1)
         batches = solidfile_generator.make_solid_file(clipper.clipped_mask, 'conus2_solid')
         self.assertEqual(batches, '0 3 6 ')
         with open('conus2_solid.pfsol', 'r') as test_file:

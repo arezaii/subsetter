@@ -5,15 +5,13 @@ from src.clipper import Clipper
 
 class ClmClipper:
 
-    def __init__(self, mask_array, ds_ref):
+    def __init__(self, subset_mask):
         """Clip CLM datafiles lat/lon and land cover
 
-        @param mask_array: full extent mask array of no_data/0/1
-        @param ds_ref: domain reference as a gdal dataset
+        @param subset_mask: SubsetMask object for the mask
         """
-        self.mask_array = mask_array
-        self.ds_ref = ds_ref
-        self.clipper = Clipper(mask_array, ds_ref)
+        self.subset_mask = subset_mask
+        self.clipper = Clipper(subset_mask)
 
     def clip_latlon(self, lat_lon_file):
         """ Clip the domain lat/lon data to the bounding box of the mask

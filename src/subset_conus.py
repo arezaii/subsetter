@@ -92,13 +92,15 @@ def main():
 
     rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.get_domain_tif(),
                                      no_data=-999, output_path=args.out_dir, )
-    shape_raster_array = rasterizer.rasterize_shapefile_to_disk(out_name=f'{args.out_name}_raster_from_shapefile.tif',
+    rasterizer.rasterize_shapefile_to_disk(out_name=f'{args.out_name}_raster_from_shapefile.tif',
                                                                 side_multiple=args.side_multiple,
                                                                 attribute_name=args.attribute_name,
                                                                 attribute_ids=args.attribute_ids)
 
+    subset_mask = rasterizer.subset_mask
+
     # Step 2, Generate solid file
-    clip = Clipper(shape_raster_array, conus.get_domain_tif(), no_data_threshold=-1)
+    clip = Clipper(subset_mask, no_data_threshold=-1)
     batches = solidfile_generator.make_solid_file(clipped_mask=clip.clipped_mask,
                                                   out_name=os.path.join(args.out_dir, args.out_name))
     if len(batches) == 0:
@@ -112,7 +114,7 @@ def main():
 
     # Step 4. Clip CLM inputs
     if args.clip_clm == 1:
-        clm_clipper = ClmClipper(shape_raster_array, conus.get_domain_tif())
+        clm_clipper = ClmClipper(subset_mask)
         latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path,
                                                                              conus.optional_files.get('LAT_LON')))
 

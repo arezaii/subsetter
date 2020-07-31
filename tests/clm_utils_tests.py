@@ -4,6 +4,7 @@ import numpy as np
 import src.file_io_tools as file_io_tools
 import tests.test_files as test_files
 from src.clm_utils import ClmClipper
+from src.subset_mask import SubsetMask
 
 
 class ClmUtilsClipperRegressionTests(unittest.TestCase):
@@ -14,9 +15,8 @@ class ClmUtilsClipperRegressionTests(unittest.TestCase):
         if os.environ.get('TRAVIS'):
             pass
         elif os.path.isfile(test_files.conus1_latlon):
-            mask_array = file_io_tools.read_file(test_files.huc10190004.get('conus1_mask'))
-            ds_ref = file_io_tools.read_geotiff(test_files.conus1_mask)
-            clm_clipper = ClmClipper(mask_array, ds_ref)
+            my_mask = SubsetMask(test_files.huc10190004.get('conus1_mask'))
+            clm_clipper = ClmClipper(subset_mask=my_mask)
             latlon_data, _ = clm_clipper.clip_latlon(test_files.conus1_latlon)
             land_cover_data, vegm_data = clm_clipper.clip_land_cover(lat_lon_array=latlon_data,
                                                                      land_cover_file=test_files.conus1_landcover)
@@ -36,9 +36,8 @@ class ClmUtilsClipperRegressionTests(unittest.TestCase):
         if os.environ.get('TRAVIS'):
             pass
         elif os.path.isfile(test_files.conus1_latlon):
-            mask_array = file_io_tools.read_file(test_files.huc10190004.get('conus1_mask'))
-            ds_ref = file_io_tools.read_geotiff(test_files.conus1_mask)
-            clm_clipper = ClmClipper(mask_array, ds_ref)
+            my_mask = SubsetMask(test_files.huc10190004.get('conus1_mask'))
+            clm_clipper = ClmClipper(subset_mask=my_mask)
             latlon_formatted, latlon_data = clm_clipper.clip_latlon(test_files.conus1_latlon)
             clm_clipper.write_lat_lon(latlon_formatted, 'WBDHU8_latlon_test.sa', x=latlon_data.shape[2],
                                       y=latlon_data.shape[1], z=latlon_data.shape[0])

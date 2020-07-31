@@ -5,14 +5,14 @@ import errno
 import src.file_io_tools as file_io_tools
 
 
-class PFModel:
+class ParflowModel:
 
     def __init__(self, name, local_path, manifest_path=None, version=1):
         """ Information about the ParFlow model and dataset we are working with
 
         @param name: the name of the Model to create
         @param local_path: path on system where ALL model inputs live
-        @param manifest: a file containing the keys and values for Model input required_files
+        @param manifest_path: a file containing the keys and values for Model input required_files
         @param version: the Model version to create (optional)
         """
         self.name = name
@@ -61,7 +61,7 @@ class PFModel:
     def check_inputs_exist(self):
         """ Look for each input file to see if it exists
 
-        @return:
+        @return: None
         """
         # check for required files
         required_missing = self._identify_missing_inputs(self.required_files)
@@ -72,6 +72,7 @@ class PFModel:
         optional_missing = self._identify_missing_inputs(self.optional_files)
         if len(optional_missing) > 0:
             logging.warning(f'could not locate optional model input file(s) {optional_missing}')
+        return None
 
     def _identify_missing_inputs(self, file_dict):
         """ Identify any missing files from the file dictionary
@@ -96,6 +97,7 @@ class PFModel:
             msg = self.local_path
             logging.exception(msg)
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), msg)
+        return None
 
     def _read_manifest(self, required_file_dict, optional_file_dict):
         """ read a manifest file in yaml format like so:
