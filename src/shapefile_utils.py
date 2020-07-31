@@ -3,7 +3,7 @@ import ogr
 import os
 import logging
 from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
-from subset_mask import SubsetMask
+from src.subset_mask import SubsetMask
 
 # TODO: Do we start with 0,0 or 1,1?
 # TODO: Invert BBOX output values for Y axis so that 0,0 is lower left instead of upper left.
