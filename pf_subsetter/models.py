@@ -2,8 +2,7 @@ import os
 import logging
 import yaml
 import errno
-
-import data
+from pf_subsetter import data
 import pf_subsetter.file_io_tools as file_io_tools
 
 
