@@ -1,6 +1,6 @@
-from src.shapefile_utils import ShapefileRasterizer
-from src.argparse_utils import is_valid_file, is_valid_path, is_positive_integer
-import src.file_io_tools as file_io_tools
+from pf_subsetter.shapefile_utils import ShapefileRasterizer
+from pf_subsetter.argparse_utils import is_valid_file, is_valid_path, is_positive_integer
+import pf_subsetter.file_io_tools as file_io_tools
 import argparse
 import sys
 import logging

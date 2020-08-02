@@ -1,6 +1,6 @@
 import unittest
 import data
-from src.conus import Conus
+from pf_subsetter import Conus
 import os
 
 

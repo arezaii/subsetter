@@ -1,6 +1,7 @@
 import unittest
-from src.subset_mask import SubsetMask
+from pf_subsetter.subset_mask import SubsetMask
 from test_files import huc10190004
+
 
 class SubsetMaskClassTests(unittest.TestCase):
 

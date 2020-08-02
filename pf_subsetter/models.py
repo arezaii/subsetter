@@ -2,7 +2,9 @@ import os
 import logging
 import yaml
 import errno
-import src.file_io_tools as file_io_tools
+
+import data
+import pf_subsetter.file_io_tools as file_io_tools
 
 
 class ParflowModel:
@@ -134,3 +136,21 @@ class ParflowModel:
     def __repr__(self):
         return f'{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, ' \
                f'manifest={self.manifest_path}, local_path={self.local_path}, )'
+
+
+class Conus(ParflowModel):
+
+    def __init__(self, local_path, manifest_path=None, version=1):
+        """ Information about the CONUS dataset we are working with
+
+        @param local_path: path on system where conus inputs live
+        @param manifest_path: a file containing the keys and values for CONUS input required_files
+        @param version: the conus version to create
+        """
+        if manifest_path is None:
+            manifest_path = data.conus_manifest
+        super().__init__('conus', local_path, manifest_path, version)
+        # self.mask_array = self.mask_tif.ReadAsArray()
+        # had to do this because conus1 mask is all 0's
+        if self.version == 1:
+            self.mask_array = self.get_domain_mask() + 1

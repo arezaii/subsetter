@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 import numpy.ma as ma
-from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
+from pf_subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
 
 
 class Clipper:

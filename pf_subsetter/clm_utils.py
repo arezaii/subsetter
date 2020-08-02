@@ -1,6 +1,6 @@
 import numpy as np
-import src.file_io_tools as file_io_tools
-from src.clipper import Clipper
+import pf_subsetter.file_io_tools as file_io_tools
+from pf_subsetter.clipper import Clipper
 
 
 class ClmClipper:

@@ -1,5 +1,5 @@
 import unittest
-from src.parflow_model import ParflowModel
+from pf_subsetter.models import ParflowModel
 from tests.test_files import test_domain_manifest
 import numpy as np
 

@@ -1,11 +1,11 @@
 import os
 import unittest
 import gdal
-import src.file_io_tools as file_io_tools
-import src.solidfile_generator as solidfile_generator
+import pf_subsetter.file_io_tools as file_io_tools
+import pf_subsetter.solidfile_generator as solidfile_generator
 import tests.test_files as test_files
-from src.clipper import Clipper
-from src.subset_mask import SubsetMask
+from pf_subsetter.clipper import Clipper
+from pf_subsetter.subset_mask import SubsetMask
 
 
 class RegressionSolidFileTests(unittest.TestCase):

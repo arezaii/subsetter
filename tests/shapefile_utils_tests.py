@@ -3,9 +3,9 @@ import unittest
 from pathlib import Path
 import gdal
 import numpy as np
-import src.file_io_tools as file_io_tools
+import pf_subsetter.file_io_tools as file_io_tools
 import tests.test_files as test_files
-from src.shapefile_utils import ShapefileRasterizer
+from pf_subsetter.shapefile_utils import ShapefileRasterizer
 
 
 class ShapefileReprojectCase(unittest.TestCase):

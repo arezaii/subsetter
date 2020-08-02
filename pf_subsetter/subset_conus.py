@@ -3,15 +3,15 @@ import logging
 import os
 import sys
 from pathlib import Path
-from src.argparse_utils import is_valid_path, is_positive_integer
-from src.clipper import Clipper
-from src.conus import Conus
-from src.shapefile_utils import ShapefileRasterizer
+from pf_subsetter.argparse_utils import is_valid_path, is_positive_integer
+from pf_subsetter.clipper import Clipper
+from pf_subsetter.models import Conus
+from pf_subsetter.shapefile_utils import ShapefileRasterizer
 from datetime import datetime
-import src.bulk_clipper as bulk_clipper
-import src.solidfile_generator as solidfile_generator
-from src.tcl_builder import build_tcl
-from src.clm_utils import ClmClipper
+import pf_subsetter.bulk_clipper as bulk_clipper
+import pf_subsetter.solidfile_generator as solidfile_generator
+from pf_subsetter.tcl_builder import build_tcl
+from pf_subsetter.clm_utils import ClmClipper
 
 
 def parse_args(args):

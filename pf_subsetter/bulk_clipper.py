@@ -1,11 +1,11 @@
-from src.clipper import Clipper
+from pf_subsetter.clipper import Clipper
 import sys
 import argparse
-from src.argparse_utils import is_valid_file, is_valid_path
-from src.global_const import TIF_NO_DATA_VALUE_OUT as NO_DATA
+from pf_subsetter.argparse_utils import is_valid_file, is_valid_path
+from pf_subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
 import os
 from pathlib import Path
-import src.file_io_tools as file_io_tools
+import pf_subsetter.file_io_tools as file_io_tools
 import logging
 from datetime import datetime
 

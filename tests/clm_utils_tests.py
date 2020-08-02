@@ -1,10 +1,10 @@
 import os
 import unittest
 import numpy as np
-import src.file_io_tools as file_io_tools
+import pf_subsetter.file_io_tools as file_io_tools
 import tests.test_files as test_files
-from src.clm_utils import ClmClipper
-from src.subset_mask import SubsetMask
+from pf_subsetter.clm_utils import ClmClipper
+from pf_subsetter.subset_mask import SubsetMask
 
 
 class ClmUtilsClipperRegressionTests(unittest.TestCase):

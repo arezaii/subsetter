@@ -1,7 +1,7 @@
 import unittest
-from src.clipper import Clipper
-import src.file_io_tools as file_io_tools
-from src.subset_mask import SubsetMask
+from pf_subsetter.clipper import Clipper
+import pf_subsetter.file_io_tools as file_io_tools
+from pf_subsetter.subset_mask import SubsetMask
 import numpy as np
 import tests.test_files as test_files
 import os

@@ -6,13 +6,13 @@ import numpy as np
 
 
 def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
-    """ Make a solid file and vtk file from a clipped mask, write to out_name
+    """ Make a solid file and vtk file from a clipped mask, write to out_name, requires pfmask-to-sol from pftools
 
-    @param clipped_mask: the mask array cropped to the bounding box size with 1's in the mask, 0's outside
+    @param clipped_mask: the mask array cropped to the inner shape, with 1's in the mask, 0's outside
     @param out_name: name for the output .vtk and .pfsol files
     @param dx: horizontal cell size
     @param dz: vertical cell size
-    @return:
+    @return: list of batches (patches?) located
     """
     pf_mask_to_sol_path = find_mask_to_sol_exe()
     if pf_mask_to_sol_path is None:

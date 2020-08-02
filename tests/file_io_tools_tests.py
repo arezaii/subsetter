@@ -2,7 +2,7 @@ import unittest
 import os
 import numpy as np
 import gdal
-import src.file_io_tools as file_io_tools
+import pf_subsetter.file_io_tools as file_io_tools
 import tests.test_files as test_files
 
 
