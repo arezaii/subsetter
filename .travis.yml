@@ -8,7 +8,7 @@ python:
 install:
   - sudo add-apt-repository ppa:ubuntugis/ppa -y && sudo apt-get update -y
   - sudo apt update
-  - sudo apt-get install gdal-bin
+  - sudo apt-get install gdal-bin python-gdal
   - sudo apt-get install libgdal-dev
   - pip install -r requirements.txt
   - git clone https://github.com/arezaii/pf_tools
