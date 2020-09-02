@@ -20,6 +20,7 @@ install:
   - sed -i 's|-Ithird-party|-Ithird-party -I/usr/include/tcl|' Makefile
   - make
   - cd -
+  - cd pf_subsetter
   - chmod +x run_tests.sh
 # environment variable
 env:
