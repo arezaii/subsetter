@@ -2,6 +2,7 @@
 *.tif
 *.pfb
 *.xml
+pf_subsetter/tests/test_inputs/CONUS1_Inputs/conus1_Grid_Centers_Short_Deg.format.sa
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
