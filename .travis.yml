@@ -26,4 +26,4 @@ env:
   - PFMASKUTILS=$HOME/pf-mask-utilities CPLUS_INLCUDE_PATH=/usr/include/gdal C_INCLUDE_PATH=/usr/include/gdal
 # command to run tests
 script:
-  - python -m unittest discover tests -p '*_tests.py'
+  - python -m unittest discover pf_subsetter/tests -p '*_tests.py'
