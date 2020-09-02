@@ -21,7 +21,6 @@ install:
   - make
   - cd -
   - chmod +x run_tests.sh
-  - cd pf_subsetter
 # environment variable
 env:
   - PFMASKUTILS=$HOME/pf-mask-utilities CPLUS_INLCUDE_PATH=/usr/include/gdal C_INCLUDE_PATH=/usr/include/gdal
