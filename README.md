@@ -123,7 +123,7 @@ example usage:
 
 Reproject the shapefile at ~/downloads/shapfiles/WBDHU8.shp to the CONUS1 projection and extent
 ```
-python -m src.rasterize_shape -i ~/downloads/shapefiles -s WBDHU8 -r ~/downloads/conus1/Domain_Blank_Mask.tif
+python -m src.rasterize_shape -i ~/downloads/shapefiles -s WBDHU8
 ```
 
 
