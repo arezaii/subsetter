@@ -14,8 +14,6 @@ conus2_landcover = local_dir / 'test_inputs/CONUS2_Inputs/1km_CONUS2_landcover_I
 
 regression_truth_tif = local_dir / 'test_inputs/test_truth.tif'
 
-
-
 huc10190004 = {'conus1_mask': local_dir / 'test_inputs/WBDHU8_conus1_mask.tif',
                'conus1_sol': local_dir / 'test_inputs/WBDHU8_conus1.pfsol',
                'conus1_vtk': local_dir / 'test_inputs/WBDHU8_conus1_ref.vtk',
