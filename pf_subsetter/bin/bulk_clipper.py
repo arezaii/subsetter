@@ -1,4 +1,4 @@
-from pf_subsetter.clipper import Clipper
+from pf_subsetter.clipper import MaskClipper
 import sys
 import argparse
 from utils.arguments import is_valid_file, is_valid_path
@@ -71,7 +71,7 @@ def bulk_clip(mask_file, data_files, ref_file, out_dir='.', pfb_outs=1, tif_outs
     mask = SubsetMask(mask_file)
 
     # create clipper with mask
-    clipper = Clipper(subset_mask=mask, no_data_threshold=-1)
+    clipper = MaskClipper(subset_mask=mask, no_data_threshold=-1)
     # clip all inputs and write outputs
     clip_inputs(clipper, input_list=data_files, out_dir=out_dir, pfb_outs=pfb_outs,
                 tif_outs=tif_outs)

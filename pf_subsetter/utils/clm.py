@@ -1,6 +1,6 @@
 import numpy as np
 import pf_subsetter.utils.io as file_io_tools
-from pf_subsetter.clipper import Clipper
+from pf_subsetter.clipper import MaskClipper
 
 
 class ClmClipper:
@@ -11,7 +11,7 @@ class ClmClipper:
         @param subset_mask: SubsetMask object for the mask
         """
         self.subset_mask = subset_mask
-        self.clipper = Clipper(subset_mask)
+        self.clipper = MaskClipper(subset_mask)
 
     def clip_latlon(self, lat_lon_file):
         """ Clip the domain lat/lon data to the bounding box of the mask

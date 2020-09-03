@@ -4,7 +4,7 @@ import os
 import sys
 from pathlib import Path
 from utils.arguments import is_valid_path, is_positive_integer
-from pf_subsetter.clipper import Clipper
+from pf_subsetter.clipper import MaskClipper
 from pf_subsetter.domains import Conus
 from pf_subsetter.rasterizer import ShapefileRasterizer
 from datetime import datetime
@@ -101,7 +101,7 @@ def main():
     subset_mask = rasterizer.subset_mask
 
     # Step 2, Generate solid file
-    clip = Clipper(subset_mask, no_data_threshold=-1)
+    clip = MaskClipper(subset_mask, no_data_threshold=-1)
     batches = solidfile_generator.make_solid_file(clipped_mask=clip.clipped_mask,
                                                   out_name=os.path.join(args.out_dir, args.out_name))
     if len(batches) == 0:

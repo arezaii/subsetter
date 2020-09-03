@@ -4,7 +4,66 @@ import numpy.ma as ma
 from pf_subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
 
 
-class Clipper:
+class BoxClipper:
+    """
+    @param x: the starting x value (1 based index)
+    @param y: the starting y value (1 based index)
+    @param z:
+    @param nx: the number of x cells to clip
+    @param ny: the number of y cells to clip
+    @param nz:
+    @param no_data:  the no data value to use
+    """
+    def __init__(self, ref_array, x=1, y=1, z=1, nx=None, ny=None, nz=None, no_data=NO_DATA):
+        self.ref_array = ref_array
+        if nx is None:
+            nx = self.ref_array.shape[2]
+        if ny is None:
+            ny = self.ref_array.shape[1]
+        if nz is None:
+            nz = self.ref_array.shape[0]
+        if nx < 1 or ny < 1 or nz < 1 or x < 1 or y < 1 or z < 1:
+            raise Exception("Error: invalid dimension, x,y,z nx, ny, nz must be >=1")
+        self.y_len = self.ref_array.shape[1]
+        self._translate_bbox(x,y,z,nx,ny,nz)
+
+    def _translate_bbox(self, x, y, z, nx, ny, nz):
+        # update the x,y,z, nx, ny, nz values if desired
+        if nx is not None:
+            self.nx = nx
+        if ny is not None:
+            self.ny = ny
+        if nz is not None:
+            self.nz = nz
+        if x is not None:
+            self.x_0 = x - 1
+            self.x_end = self.x_0 + nx
+        if z is not None:
+            self.z_0 = z - 1
+            self.z_end = self.z_0 + nz
+        if y is not None:
+            self.y_0 = self.y_len - ny - y + 1
+            self.y_end = self.y_len - y + 1
+
+    def update_bbox(self, x=None, y=None, z=None, nx=None, ny=None, nz=None):
+        self._translate_bbox(x,y,z,nx,ny,nz)
+
+    def clip_ref_array(self):
+        """
+
+        @return: an ndarray clip of the reference array
+        """
+        return self.ref_array[self.z_0:self.z_end, self.y_0:self.y_end, self.x_0:self.x_end]
+
+    def clip_array(self, data_array):
+        """
+
+        @return: an ndarray clip of the data array
+        """
+        return data_array[self.z_0:self.z_end, self.y_0:self.y_end, self.x_0:self.x_end]
+
+
+class MaskClipper:
 
     def __init__(self, subset_mask, no_data_threshold=NO_DATA):
         """ Assumes input mask_array has 1's written to valid data, 0's for bounding box,

@@ -2,7 +2,7 @@ import os
 import unittest
 import pf_subsetter.builders.solidfile as solidfile_generator
 import pf_subsetter.tests.test_files as test_files
-from pf_subsetter.clipper import Clipper
+from pf_subsetter.clipper import MaskClipper
 from pf_subsetter.mask import SubsetMask
 
 
@@ -23,7 +23,7 @@ class RegressionSolidFileTests(unittest.TestCase):
 
     def test_create_solid_file_conus1(self):
         my_mask = SubsetMask(test_files.huc10190004.get('conus1_mask').as_posix())
-        clipper = Clipper(subset_mask=my_mask, no_data_threshold=-1)
+        clipper = MaskClipper(subset_mask=my_mask, no_data_threshold=-1)
         batches = solidfile_generator.make_solid_file(clipped_mask=clipper.clipped_mask, out_name='conus1_solid')
         self.assertEqual(batches, '0 3 6 ')
         with open('conus1_solid.pfsol', 'r') as test_file:
@@ -43,7 +43,7 @@ class RegressionSolidFileTests(unittest.TestCase):
 
     def test_create_solid_file_conus2(self):
         my_mask = SubsetMask(test_files.huc10190004.get('conus2_mask').as_posix())
-        clipper = Clipper(subset_mask=my_mask, no_data_threshold=-1)
+        clipper = MaskClipper(subset_mask=my_mask, no_data_threshold=-1)
         batches = solidfile_generator.make_solid_file(clipper.clipped_mask, 'conus2_solid')
         self.assertEqual(batches, '0 3 6 ')
         with open('conus2_solid.pfsol', 'r') as test_file:
