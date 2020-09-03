@@ -68,10 +68,22 @@ class RegressionClipTests(unittest.TestCase):
                              'Subset writes correct bounding box file')
         os.remove('bbox_conus2_full.txt')
 
+    def test_compare_box_clips(self):
+        data_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
+        my_mask = SubsetMask(test_files.huc10190004.get('conus1_mask').as_posix())
+        clipper = MaskClipper(subset_mask=my_mask, no_data_threshold=-1)
+        mask_subset, new_geom, new_mask, bbox = clipper.subset(data_array, crop_inner=0)
+
+        box_clipper = BoxClipper(ref_array=data_array,x=1035, y=716, nx=96, ny=32)
+        box_subset = box_clipper.clip_ref_array()
+        self.assertEqual(mask_subset.shape[0], box_subset.shape[0])
+        self.assertEqual(mask_subset.shape[1], box_subset.shape[1])
+        self.assertEqual(mask_subset.shape[2], box_subset.shape[2])
+        self.assertIsNone(np.testing.assert_array_equal(mask_subset, box_subset))
+
     def test_box_clip(self):
         data_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
         box_clipper = BoxClipper(ref_array=data_array)
-        #box_clipper.set_bbox(x=1, y=1, nx=3342, ny=1888)
         subset = box_clipper.clip_ref_array()
         self.assertEqual(1, subset.shape[0])
         self.assertEqual(3342, subset.shape[2])

@@ -56,7 +56,6 @@ class SubsetMask:
     def mask_shape(self):
         return self.mask_array.shape
 
-
     def add_bbox_to_mask(self, side_length_multiple=1):
         """ add the inner bounding box of 0's to the reprojected mask. This will expand the bounding box of the
         clip so that the mask is centered in the bbox and the bbox edges expand proportionally in each direction
@@ -157,8 +156,9 @@ class SubsetMask:
         @return: array of edges [top, bot, left, right]
         """
         human_bbox = [shape[1] - bbox[0], shape[1] - bbox[1], bbox[2], bbox[3]]
-        human_bbox = [human_bbox[1], human_bbox[0], human_bbox[2], human_bbox[3]]
+        human_bbox = [human_bbox[1], human_bbox[0] + 1, human_bbox[2] + 1, human_bbox[3] + 2]
         logging.info(f'converted system bbox {bbox} inside shape {shape} to human bbox {human_bbox}')
+        human_bbox = [human_bbox[3], human_bbox[0], human_bbox[3]-human_bbox[2], human_bbox[1] - human_bbox[0]]
         return human_bbox
 
     def calculate_new_geom(self, min_x, min_y, old_geom):

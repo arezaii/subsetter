@@ -73,7 +73,7 @@ def write_bbox(bbox, outfile):
     """
     logging.info(f'wrote bbox file {outfile}, {bbox}')
     with open(outfile, 'w') as fp:
-        fp.write('y1\ty2\tx1\tx2\n')
+        fp.write('x1\ty1\tnx\tny\n')
         fp.write('\t'.join('%d' % x for x in bbox))
 
 
