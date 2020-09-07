@@ -65,6 +65,7 @@ class FileIOToolBasicTestCase(unittest.TestCase):
         pfb_array = file_io_tools.read_file('conus1_dem_tif_to_pfb_test.pfb')
         self.assertIsNone(np.testing.assert_array_equal(tif_array, pfb_array,
                                                         'Converting from tif to pfb gives back same data'))
+        os.remove('conus1_dem_tif_to_pfb_test.pfb')
 
 
 if __name__ == '__main__':
