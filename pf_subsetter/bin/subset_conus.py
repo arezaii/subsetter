@@ -54,9 +54,14 @@ def parse_args(args):
                         help="generate the .tcl script for this subset",
                         type=int)
 
-    parser.add_argument("--side_multiple", "-m", dest="side_multiple", required=False,
-                        default=1,
-                        help="integer multiple for bounding box side",
+    parser.add_argument("--x_pad", "-x", dest="x_pad", required=False,
+                        default=0,
+                        help="integer padding value for bounding box on x-sides",
+                        type=lambda x: is_positive_integer(parser, x))
+
+    parser.add_argument("--y_pad", "-y", dest="y_pad", required=False,
+                        default=0,
+                        help="integer padding value for bounding box on y-sides",
                         type=lambda x: is_positive_integer(parser, x))
 
     parser.add_argument("--attribute_ids", "-a", dest="attribute_ids", required=False,
@@ -88,15 +93,15 @@ def main():
         args.out_name = args.shapefile
     conus = Conus(version=args.conus_version, local_path=args.conus_files)
 
-
     # Step 1, rasterize shapefile
 
     rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.get_domain_tif(),
                                      no_data=-999, output_path=args.out_dir, )
     rasterizer.rasterize_shapefile_to_disk(out_name=f'{args.out_name}_raster_from_shapefile.tif',
-                                                                side_multiple=args.side_multiple,
-                                                                attribute_name=args.attribute_name,
-                                                                attribute_ids=args.attribute_ids)
+                                           x_pad=args.x_pad,
+                                           y_pad=args.y_pad,
+                                           attribute_name=args.attribute_name,
+                                           attribute_ids=args.attribute_ids)
 
     subset_mask = rasterizer.subset_mask
 
@@ -124,7 +129,8 @@ def main():
 
         land_cover_data, vegm_data = clm_clipper.clip_land_cover(lat_lon_array=latlon_formatted,
                                                                  land_cover_file=os.path.join(conus.local_path,
-                                                                                              conus.optional_files.get('LAND_COVER')))
+                                                                                              conus.optional_files.get(
+                                                                                                  'LAND_COVER')))
 
         clm_clipper.write_land_cover(vegm_data, os.path.join(args.out_dir, f'{args.out_name}_vegm.dat'))
 
@@ -139,7 +145,7 @@ def main():
                   p=2, q=1, r=1, timestep=1, constant=1)
 
     end_date = datetime.utcnow()
-    logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
+    logging.info(f'completed process at {end_date} for a runtime of {end_date - start_date}')
 
 
 if __name__ == '__main__':

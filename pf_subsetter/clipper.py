@@ -2,9 +2,17 @@ import logging
 import numpy as np
 import numpy.ma as ma
 from pf_subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
+from abc import ABC, abstractmethod
 
 
-class BoxClipper:
+class Clipper(ABC):
+
+    @abstractmethod
+    def subset(self, data_array):
+        pass
+
+
+class BoxClipper(Clipper):
     """
     @param x: the starting x value (1 based index)
     @param y: the starting y value (1 based index)
@@ -42,28 +50,23 @@ class BoxClipper:
             self.z_0 = z - 1
             self.z_end = self.z_0 + nz
         if y is not None:
-            self.y_0 = self.y_len - ny - y + 1
-            self.y_end = self.y_len - y + 1
+            self.y_0 = y - 1
+            self.y_end = self.y_0 + ny
 
     def update_bbox(self, x=None, y=None, z=None, nx=None, ny=None, nz=None):
-        self._translate_bbox(x,y,z,nx,ny,nz)
+        self._translate_bbox(x, y, z, nx, ny, nz)
 
-    def clip_ref_array(self):
+    def subset(self, data_array=None):
         """
-
-        @return: an ndarray clip of the reference array
-        """
-        return self.ref_array[self.z_0:self.z_end, self.y_0:self.y_end, self.x_0:self.x_end]
-
-    def clip_array(self, data_array):
-        """
-
+        @param data_array: a 3d ndarray of data to clip, default to ref_array passed at initialization
         @return: an ndarray clip of the data array
         """
-        return data_array[self.z_0:self.z_end, self.y_0:self.y_end, self.x_0:self.x_end]
+        if data_array is None:
+            data_array = self.ref_array
+        return data_array[self.z_0:self.z_end, self.y_0:self.y_end, self.x_0:self.x_end], None, None, None
 
 
-class MaskClipper:
+class MaskClipper(Clipper):
 
     def __init__(self, subset_mask, no_data_threshold=NO_DATA):
         """ Assumes input mask_array has 1's written to valid data, 0's for bounding box,
@@ -77,8 +80,8 @@ class MaskClipper:
         min_y, max_y, min_x, max_x = self.subset_mask.bbox_edges
         self.bbox = [min_y, max_y + 1, min_x, max_x + 1]
         self.clipped_geom = self.subset_mask.calculate_new_geom(min_x, min_y, self.subset_mask.mask_tif.GetGeoTransform())
-        self.clipped_mask = (self.subset_mask.bbox_mask.filled(fill_value=no_data_threshold) == 1)[:, min_y:max_y + 1,
-                            min_x:max_x + 1]
+        self.clipped_mask = (self.subset_mask.bbox_mask.filled(fill_value=no_data_threshold) == 1)[:, self.bbox[0]:self.bbox[1],
+                            self.bbox[2]:self.bbox[3]]
 
     def subset(self, data_array, no_data=NO_DATA, crop_inner=1):
         """subset the data from data_array in the shape and extents of the clipper's clipped subset_mask
@@ -115,4 +118,4 @@ class MaskClipper:
             # logging.info(f'clipped data with (z,y,x) shape {data_array.shape} to {return_arr.shape} '
             #              f'using bbox (top, bot, left, right) {self.printable_bbox}')
 
-        return return_arr, self.clipped_geom, self.clipped_mask, self.bbox
+        return return_arr, self.clipped_geom, self.clipped_mask, self.subset_mask.get_human_bbox()

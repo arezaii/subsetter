@@ -22,14 +22,14 @@ huc10190004 = {'conus1_mask': local_dir / 'test_inputs/WBDHU8_conus1_mask.tif',
                'conus2_vtk': local_dir / 'test_inputs/WBDHU8_conus2_ref.vtk',
                'conus1_dem': local_dir / 'test_inputs/WBDHU8_conus1_dem.tif',
                'conus1_inset': local_dir / 'test_inputs/WBDHU8_conus1_mask_crop.tif',
-               'conus1_bbox': [1141, 1173, 1034, 1130],
+               'conus1_bbox': [1040, 1143, 85, 30],
                'conus2_dem': local_dir / 'test_inputs/WBDHU8_conus2_dem.tif',
                'conus2_inset': local_dir / 'test_inputs/WBDHU8_conus2_mask_crop.tif',
-               'conus2_bbox': [1561, 1593, 1461, 1557],
+               'conus2_bbox': [1469, 1563, 82, 29],
                'shapefile': local_dir / 'test_inputs/WBDHU8.shp',
                'conus1_mask_-9999999': local_dir / 'test_inputs/WBDHU8_conus1_mask_-9999999.tif',
-               'conus1_vegm': local_dir / 'test_inputs/WBDHU8_vegm_test.dat',
-               'conus1_latlon': local_dir / 'test_inputs/WBDHU8_latlon_orig.sa'}
+               'conus1_vegm': local_dir / 'test_inputs/WBDHU8_vegm_conus1.dat',
+               'conus1_latlon': local_dir / 'test_inputs/WBDHU8_latlon_conus1.sa'}
 
 test_domain_manifest = local_dir / 'test_inputs/test_domain_manifest.yaml'
 

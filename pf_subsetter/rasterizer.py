@@ -80,7 +80,7 @@ class ShapefileRasterizer:
         self.subset_mask = SubsetMask(tif_path)
         return tif_path
 
-    def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, side_multiple=1, attribute_name='OBJECTID',
+    def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, x_pad=0, y_pad=0, attribute_name='OBJECTID',
                                     attribute_ids=None):
         """ rasterize a shapefile to disk in the projection and extents of the reference dataset
 
@@ -98,7 +98,7 @@ class ShapefileRasterizer:
         if out_dir is None:
             out_dir = self.output_path
         self.reproject_and_mask(attribute_ids=attribute_ids, attribute_name=attribute_name)
-        self.subset_mask.add_bbox_to_mask(side_multiple)
+        self.subset_mask.add_bbox_to_mask(x_pad=x_pad, y_pad=y_pad)
         self.subset_mask.write_mask_to_tif(filename=os.path.join(out_dir, out_name))
         self.subset_mask.write_bbox(os.path.join(out_dir, 'bbox.txt'))
         return self.subset_mask.mask_array

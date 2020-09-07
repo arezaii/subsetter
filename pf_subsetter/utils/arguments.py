@@ -15,7 +15,7 @@ def is_valid_file(parser, arg):
 
 def is_positive_integer(parser, arg):
     ivalue = int(arg)
-    if ivalue <= 0:
+    if ivalue < 0:
         raise parser.ArgumentTypeError("%s is an invalid positive int value" % arg)
     else:
         return ivalue

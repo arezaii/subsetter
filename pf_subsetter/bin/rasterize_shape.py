@@ -31,9 +31,14 @@ def parse_args(args):
                         help="the filename to give the output",
                         type=str)
 
-    parser.add_argument("--side_multiple", "-m", dest="side_multiple", required=False,
-                        default=1,
-                        help="integer multiple for bounding box side",
+    parser.add_argument("--x_pad", "-x", dest="x_pad", required=False,
+                        default=0,
+                        help="integer padding value for bounding box on x-sides",
+                        type=lambda x: is_positive_integer(parser, x))
+
+    parser.add_argument("--y_pad", "-y", dest="y_pad", required=False,
+                        default=0,
+                        help="integer padding value for bounding box on y-sides",
                         type=lambda x: is_positive_integer(parser, x))
 
     parser.add_argument("--attribute_ids", "-a", dest="attribute_ids", required=False,
@@ -59,7 +64,7 @@ def main():
     args = parse_args(sys.argv[1:])
 
     # Convert the shape to raster
-    rasterize_shape(args.input_path, args.shapefile, args.ref_file, args.out_dir, args.out_file, args.side_multiple,
+    rasterize_shape(args.input_path, args.shapefile, args.ref_file, args.out_dir, args.out_file, args.x_pad, args.y_pad,
                     args.attribute_name, args.attribute_ids)
 
     # log finish time
@@ -67,7 +72,7 @@ def main():
     logging.info(f'finish process at {end_date} for a runtime of {end_date - start_date}')
 
 
-def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None, side_multiple=1, attribute_name=None,
+def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None, x_pad=0, y_pad=0, attribute_name=None,
                     attribute_ids=None):
     """ rasterize a shapefile to disk in the projection and extents of the reference file
 
@@ -85,7 +90,7 @@ def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None,
     rasterizer = ShapefileRasterizer(input_path, shapefile_name=shapefile,
                                      reference_dataset=reference_dataset, output_path=out_dir)
     rasterizer.rasterize_shapefile_to_disk(out_dir=out_dir, out_name=out_file,
-                                           side_multiple=side_multiple, attribute_ids=attribute_ids,
+                                           x_pad=x_pad, y_pad=y_pad, attribute_ids=attribute_ids,
                                            attribute_name=attribute_name)
 
 

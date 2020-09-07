@@ -21,7 +21,7 @@ class ShapefileReprojectCase(unittest.TestCase):
         utils = ShapefileRasterizer(self.shape_path, self.shape_name, self.conus1_mask_datset)
         tif_path = utils.reproject_and_mask()
         subset_mask = utils.subset_mask
-        subset_mask.add_bbox_to_mask(side_length_multiple=32)
+        subset_mask.add_bbox_to_mask()
         subset_mask.write_mask_to_tif(filename='testout.tif')
         self.assertIsNone(
             np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_mask').as_posix()),
@@ -33,7 +33,7 @@ class ShapefileReprojectCase(unittest.TestCase):
         utils = ShapefileRasterizer(self.shape_path, self.shape_name, self.conus2_mask_dataset)
         tif_path = utils.reproject_and_mask()
         subset_mask = utils.subset_mask
-        subset_mask.add_bbox_to_mask(side_length_multiple=32)
+        subset_mask.add_bbox_to_mask()
         subset_mask.write_mask_to_tif(filename='testout.tif')
         self.assertIsNone(
             np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus2_mask').as_posix()),

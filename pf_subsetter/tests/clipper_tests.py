@@ -21,25 +21,25 @@ class RegressionClipTests(unittest.TestCase):
         return_arr, new_geom, new_mask, bbox = clipper.subset(data_array)
         file_io_tools.write_array_to_geotiff("conus_1_clip_dem_test.tif",
                                              return_arr, new_geom, my_mask.mask_tif.GetProjection())
-
+        file_io_tools.write_pfb(data=return_arr, outfile="conus_1_clip_dem_test.pfb")
         self.assertIsNone(
             np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_dem').as_posix()),
                                           file_io_tools.read_file('conus_1_clip_dem_test.tif')),
             'Clipping DEM matches reference')
         os.remove('conus_1_clip_dem_test.tif')
 
-        file_io_tools.write_array_to_geotiff("conus1_mask_crop.tif",
-                                             new_mask, new_geom, my_mask.mask_tif.GetProjection())
+        # file_io_tools.write_array_to_geotiff("conus1_mask_crop.tif",
+        #                                      new_mask, new_geom, my_mask.mask_tif.GetProjection())
 
-        self.assertIsNone(
-            np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_inset').as_posix()),
-                                          file_io_tools.read_file('conus1_mask_crop.tif')),
-            'Subset results in reference inset mask')
-        os.remove('conus1_mask_crop.tif')
+        # self.assertIsNone(
+        #     np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_inset').as_posix()),
+        #                                   file_io_tools.read_file('conus1_mask_crop.tif')),
+        #     'Subset results in reference inset mask')
+        # os.remove('conus1_mask_crop.tif')
 
         file_io_tools.write_bbox(bbox, 'bbox_conus1.txt')
 
-        self.assertListEqual(file_io_tools.read_bbox('bbox_conus1.txt'), test_files.huc10190004.get('conus1_bbox'),
+        self.assertSequenceEqual(file_io_tools.read_bbox('bbox_conus1.txt'), test_files.huc10190004.get('conus1_bbox'),
                              'Subset writes correct bounding box file')
         os.remove('bbox_conus1.txt')
 
@@ -56,15 +56,15 @@ class RegressionClipTests(unittest.TestCase):
             'Clipping DEM matches reference')
         os.remove('conus_2_clip_dem_test.tif')
 
-        file_io_tools.write_array_to_geotiff("conus2_mask_crop.tif",
-                                             new_mask, new_geom, my_mask.mask_tif.GetProjection())
-        self.assertIsNone(
-            np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus2_inset').as_posix()),
-                                          file_io_tools.read_file('conus2_mask_crop.tif')),
-            'Subset results in reference inset mask')
-        os.remove('conus2_mask_crop.tif')
+        # file_io_tools.write_array_to_geotiff("conus2_mask_crop.tif",
+        #                                      new_mask, new_geom, my_mask.mask_tif.GetProjection())
+        # self.assertIsNone(
+        #     np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus2_inset').as_posix()),
+        #                                   file_io_tools.read_file('conus2_mask_crop.tif')),
+        #     'Subset results in reference inset mask')
+        # os.remove('conus2_mask_crop.tif')
         file_io_tools.write_bbox(bbox, 'bbox_conus2_full.txt')
-        self.assertListEqual(file_io_tools.read_bbox('bbox_conus2_full.txt'), test_files.huc10190004.get('conus2_bbox'),
+        self.assertSequenceEqual(file_io_tools.read_bbox('bbox_conus2_full.txt'), test_files.huc10190004.get('conus2_bbox'),
                              'Subset writes correct bounding box file')
         os.remove('bbox_conus2_full.txt')
 
@@ -72,39 +72,42 @@ class RegressionClipTests(unittest.TestCase):
         data_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
         my_mask = SubsetMask(test_files.huc10190004.get('conus1_mask').as_posix())
         clipper = MaskClipper(subset_mask=my_mask, no_data_threshold=-1)
-        mask_subset, new_geom, new_mask, bbox = clipper.subset(data_array, crop_inner=0)
+        mask_subset, _, _, bbox = clipper.subset(data_array, crop_inner=0)
 
-        box_clipper = BoxClipper(ref_array=data_array,x=1035, y=716, nx=96, ny=32)
-        box_subset = box_clipper.clip_ref_array()
+        box_clipper = BoxClipper(ref_array=data_array, x=bbox[0], y=bbox[1], nx=bbox[2], ny=bbox[3])
+        box_subset, _, _, _ = box_clipper.subset()
         self.assertEqual(mask_subset.shape[0], box_subset.shape[0])
         self.assertEqual(mask_subset.shape[1], box_subset.shape[1])
         self.assertEqual(mask_subset.shape[2], box_subset.shape[2])
         self.assertIsNone(np.testing.assert_array_equal(mask_subset, box_subset))
+        file_io_tools.write_pfb(box_subset, 'box_subset_conus1_dem.pfb')
 
     def test_box_clip(self):
         data_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
+        file_io_tools.write_pfb(data_array, 'bbox_entire_conus1_dem.pfb')
         box_clipper = BoxClipper(ref_array=data_array)
-        subset = box_clipper.clip_ref_array()
+        subset, _, _, _ = box_clipper.subset()
         self.assertEqual(1, subset.shape[0])
         self.assertEqual(3342, subset.shape[2])
         self.assertEqual(1888, subset.shape[1])
         self.assertIsNone(np.testing.assert_array_equal(data_array, subset),
                           'selecting the whole region should return exactly what you would expect')
 
+
         box_clipper.update_bbox(x=10, y=10, nx=3332, ny=1878)
-        subset2 = box_clipper.clip_ref_array()
+        subset2, _, _, _ = box_clipper.subset()
         self.assertEqual(1, subset2.shape[0])
         self.assertEqual(3332, subset2.shape[2])
         self.assertEqual(1878, subset2.shape[1])
 
         box_clipper.update_bbox(x=10, y=10, nx=201, ny=20)
-        subset3 = box_clipper.clip_ref_array()
+        subset3, _, _, _ = box_clipper.subset()
         self.assertEqual(1, subset3.shape[0])
         self.assertEqual(201, subset3.shape[2])
         self.assertEqual(20, subset3.shape[1])
 
         box_clipper.update_bbox(x=1, y=1, nx=500, ny=300)
-        subset4 = box_clipper.clip_ref_array()
+        subset4, _, _, _ = box_clipper.subset()
         self.assertEqual(1, subset4.shape[0])
         self.assertEqual(500, subset4.shape[2])
         self.assertEqual(300, subset4.shape[1])
@@ -116,19 +119,19 @@ class RegressionClipTests(unittest.TestCase):
                                [[19,20], [21,22],[23,24]]])
 
         box_clipper2 = BoxClipper(ref_array=data_array2)
-        subset5 = box_clipper2.clip_ref_array()
+        subset5, _, _, _ = box_clipper2.subset()
         self.assertIsNone(np.testing.assert_array_equal(data_array2, subset5))
         self.assertEqual(1, subset5[0,0,0])
         self.assertEqual(22, subset5[3,1,1])
 
         box_clipper2.update_bbox(x=1, y=1, nx=1, ny=2)
-        subset6 = box_clipper2.clip_ref_array()
-        self.assertEqual(3, subset6[0,0,0])
-        self.assertEqual(15, subset6[2,0,0])
-        self.assertEqual(17, subset6[2,1,0])
+        subset6, _, _, _  = box_clipper2.subset()
+        self.assertEqual(1, subset6[0,0,0])
+        self.assertEqual(13, subset6[2,0,0])
+        self.assertEqual(15, subset6[2,1,0])
 
         box_clipper2.update_bbox(z=1, nz=1)
-        subset7 = box_clipper2.clip_ref_array()
+        subset7, _, _, _  = box_clipper2.subset()
 
 
 if __name__ == '__main__':

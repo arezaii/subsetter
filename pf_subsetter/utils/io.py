@@ -6,6 +6,9 @@ import gdal
 import numpy as np
 from pf_subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
 import logging
+from parflowio.pyParflowio import PFData
+from pf_subsetter.bbox import BBox
+
 
 """
 Common disk I/O operations
@@ -29,9 +32,13 @@ def read_file(infile):
             header = fi.readline()
         nx, ny, nz = [int(x) for x in header.strip().split(' ')]
         arr = pd.read_csv(infile, skiprows=1, header=None).values
-        res_arr = np.reshape(arr, (nz, ny, nx))[:, ::-1, :]
+        res_arr = np.reshape(arr, (nz, ny, nx))[:, :, :]
     elif ext == '.pfb':  # parflow binary file
-        res_arr = pfio.pfread(infile)
+        #res_arr = pfio.pfread(infile)
+        pfdata = PFData(infile)
+        pfdata.loadHeader()
+        pfdata.loadData()
+        res_arr = pfdata.getDataAsArray()
     else:
         print('can not read file type ' + ext)
         sys.exit()
@@ -59,9 +66,17 @@ def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
     @param dz: vertical resolution
     @return: None
     """
-    # TODO: why do other datatypes (float32) cause invalid pfb files?
     logging.info(f'wrote pfb file {outfile}, (z,y,x)={data.shape}')
-    pfio.pfwrite(data.astype(np.float64), outfile, float(x0), float(y0), float(z0), float(dx), float(dx), float(dz))
+    #pfio.pfwrite(data.astype(np.float64), outfile, float(x0), float(y0), float(z0), float(dx), float(dx), float(dz))
+    pfdata = PFData()
+    pfdata.setDataArray(data)
+    pfdata.setDX(dx)
+    pfdata.setDY(dx)
+    pfdata.setDZ(dz)
+    pfdata.setX(x0)
+    pfdata.setY(y0)
+    pfdata.setZ(z0)
+    pfdata.writeFile(outfile)
 
 
 def write_bbox(bbox, outfile):
@@ -83,10 +98,11 @@ def read_bbox(bbox_file):
     @param bbox_file: the file to read
     @return: an array of integers representing the bounding box [top, bot, left, right]
     """
-    # TODO: Handle human readable format before handing back to system
     with open(bbox_file, 'r') as bbox:
         lines = bbox.readlines()
-        return [int(s) for s in lines[1].split('\t')]
+        bbox_vals = [int(s) for s in lines[1].split('\t')]
+        bbox = BBox(x_1=bbox_vals[0], y_1=bbox_vals[1], nx=bbox_vals[2], ny=bbox_vals[3])
+        return bbox.get_human_bbox()
 
 
 def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dtype=gdal.GDT_Int32, no_data=NO_DATA):

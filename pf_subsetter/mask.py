@@ -2,6 +2,7 @@ from pf_subsetter.utils.io import read_geotiff, write_array_to_geotiff, write_bb
 import numpy as np
 import numpy.ma as ma
 import logging
+from pf_subsetter.bbox import BBox
 
 
 class SubsetMask:
@@ -56,7 +57,7 @@ class SubsetMask:
     def mask_shape(self):
         return self.mask_array.shape
 
-    def add_bbox_to_mask(self, side_length_multiple=1):
+    def add_bbox_to_mask(self, x_pad=0, y_pad=0):
         """ add the inner bounding box of 0's to the reprojected mask. This will expand the bounding box of the
         clip so that the mask is centered in the bbox and the bbox edges expand proportionally in each direction
         to make the final bbox edges a multiple of the side_length_multiple argument
@@ -67,12 +68,14 @@ class SubsetMask:
         """
 
         min_y, max_y, min_x, max_x = self.inner_mask_edges
-        new_dims = self.calculate_new_dimensions(len_x=(max_x - min_x) + 1,
-                                                       len_y=(max_y - min_y) + 1,
-                                                       side_multiple=side_length_multiple)
-        top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y = new_dims
+        #new_dims = self.calculate_new_dimensions(len_x=(max_x - min_x) + 1,
+        #                                               len_y=(max_y - min_y) + 1,
+        #                                               side_multiple=side_length_multiple)
+        #top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y = new_dims
         new_mask = self.inner_mask.filled(fill_value=self.no_data_value)
-        new_edges = self.calculate_buffer_edges(min_x, min_y, max_x, max_y, [top_pad, bottom_pad, left_pad, right_pad])
+        #new_edges = self.calculate_buffer_edges(min_x, min_y, max_x, max_y, [top_pad, bottom_pad, left_pad, right_pad])
+        new_edges = [max(min_y - y_pad, 0), min(max_y + y_pad + 1, self.mask_array.shape[1]),
+                     max(min_x - x_pad, 0), min(max_x + x_pad + 1, self.mask_array.shape[2])]
         top_edge, bottom_edge, left_edge, right_edge = new_edges
         new_mask[:, top_edge: bottom_edge, left_edge: right_edge] =\
             self.inner_mask[:, top_edge: bottom_edge, left_edge: right_edge].filled(fill_value=0.0)
@@ -87,49 +90,49 @@ class SubsetMask:
         self.bbox_edges = self.find_mask_edges(self.bbox_mask)
         return new_mask, new_edges
 
-    def calculate_new_dimensions(self, len_x, len_y, side_multiple=32):
-        """ adjust the dimensions of an existing bbox to make it a multiple of side_multiple
+    # def calculate_new_dimensions(self, len_x, len_y, side_multiple=32):
+    #     """ adjust the dimensions of an existing bbox to make it a multiple of side_multiple
+    #
+    #     @param len_x: existing length in x direction
+    #     @param len_y: existing length in y direction
+    #     @param side_multiple: integer that final x and y should be a multiple of
+    #     @return: new padding values and new overall dimensions for the bbox
+    #     """
+    #     # add computational grid cell to make dimensions as multiple of side_multiple (nicer PxQxR)
+    #     new_len_y = ((len_y // side_multiple) + 1) * side_multiple
+    #     top_pad = (new_len_y - len_y) // 2
+    #     bottom_pad = new_len_y - len_y - top_pad
+    #     new_len_x = ((len_x // side_multiple) + 1) * side_multiple
+    #     left_pad = (new_len_x - len_x) // 2
+    #     right_pad = new_len_x - len_x - left_pad
+    #     logging.info(f'calculated new dimensions with side_multiple={str(side_multiple)},'
+    #                  f' old x_len={len_x}, old y_len={len_y}. '
+    #                  f'New dims(x,y) = {",".join([str(new_len_x), str(new_len_y)])}, '
+    #                  f'padding(top,bot,left,right)='
+    #                  f'{",".join([str(top_pad), str(bottom_pad), str(left_pad), str(right_pad)])}')
+    #     return top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y
 
-        @param len_x: existing length in x direction
-        @param len_y: existing length in y direction
-        @param side_multiple: integer that final x and y should be a multiple of
-        @return: new padding values and new overall dimensions for the bbox
-        """
-        # add computational grid cell to make dimensions as multiple of side_multiple (nicer PxQxR)
-        new_len_y = ((len_y // side_multiple) + 1) * side_multiple
-        top_pad = (new_len_y - len_y) // 2
-        bottom_pad = new_len_y - len_y - top_pad
-        new_len_x = ((len_x // side_multiple) + 1) * side_multiple
-        left_pad = (new_len_x - len_x) // 2
-        right_pad = new_len_x - len_x - left_pad
-        logging.info(f'calculated new dimensions with side_multiple={str(side_multiple)},'
-                     f' old x_len={len_x}, old y_len={len_y}. '
-                     f'New dims(x,y) = {",".join([str(new_len_x), str(new_len_y)])}, '
-                     f'padding(top,bot,left,right)='
-                     f'{",".join([str(top_pad), str(bottom_pad), str(left_pad), str(right_pad)])}')
-        return top_pad, bottom_pad, left_pad, right_pad, new_len_x, new_len_y
-
-    def calculate_buffer_edges(self, min_x, min_y, max_x, max_y, padding):
-        """ add a buffer/padding to the given dimensions
-
-        @param min_x: left edge of box
-        @param min_y: top edge of box
-        @param max_x: right edge of box
-        @param max_y: bottom edge of box
-        @param padding: array of padding values to add to each dimension
-        @return: array of expanded bounding box dimensions [top, bot, left, right]
-        """
-        # TODO These max_y and max_x +1's, why?
-        top_edge = min_y - padding[0]
-        bottom_edge = max_y + padding[1] + 1
-        left_edge = min_x - padding[2]
-        right_edge = max_x + padding[3] + 1
-        logging.info(f'calculated new mask edges original (top,bot,left,right)='
-                     f'{",".join([str(i) for i in [min_y, max_y, min_x, max_x]])} padding={padding}, '
-                     f'new edges={",".join([str(i) for i in [top_edge, bottom_edge, left_edge, right_edge]])}')
-        if left_edge < 0 or top_edge < 0:
-            logging.warning(f'found a negative minimum edge! Undefined behavior ahead!')
-        return [top_edge, bottom_edge, left_edge, right_edge]
+    # def calculate_buffer_edges(self, min_x, min_y, max_x, max_y, padding):
+    #     """ add a buffer/padding to the given dimensions
+    #
+    #     @param min_x: left edge of box
+    #     @param min_y: top edge of box
+    #     @param max_x: right edge of box
+    #     @param max_y: bottom edge of box
+    #     @param padding: array of padding values to add to each dimension
+    #     @return: array of expanded bounding box dimensions [top, bot, left, right]
+    #     """
+    #     # Expand padding + 1 on far end to include padded cell since range is [bottom, top)
+    #     top_edge = min_y - padding[0]
+    #     bottom_edge = max_y + padding[1] + 1
+    #     left_edge = min_x - padding[2]
+    #     right_edge = max_x + padding[3] + 1
+    #     logging.info(f'calculated new mask edges original (top,bot,left,right)='
+    #                  f'{",".join([str(i) for i in [min_y, max_y, min_x, max_x]])} padding={padding}, '
+    #                  f'new edges={",".join([str(i) for i in [top_edge, bottom_edge, left_edge, right_edge]])}')
+    #     if left_edge < 0 or top_edge < 0:
+    #         logging.warning(f'found a negative minimum edge! Undefined behavior ahead!')
+    #     return [top_edge, bottom_edge, left_edge, right_edge]
 
     def find_mask_edges(self, mask, mask_val=1):
         """ Identify the edges of the mask
@@ -143,23 +146,29 @@ class SubsetMask:
         min_y = min(yy)
         max_x = max(xx)
         max_y = max(yy)
-        logging.info(
-            f'located mask edges at (top,bot,left,right)='
-            f'{",".join([str(i) for i in self.get_human_bbox([min_y, max_y, min_x, max_x], mask.shape)])}')
+        # logging.info(
+        #     f'located mask edges at (top,bot,left,right)='
+        #     f'{",".join([str(i) for i in self.get_human_bbox([min_y, max_y, min_x, max_x], mask.shape)])}')
         return min_y, max_y, min_x, max_x
 
-    def get_human_bbox(self, bbox, shape):
+    def get_bbox(self):
+        return BBox(self.inner_mask_edges[2] + 1, self.inner_mask_edges[0] + 1,
+                    self.inner_mask_shape[1], self.inner_mask_shape[0])
+
+    def get_human_bbox(self, bbox=None, shape=None):
         """ convert from 0,0 in upper left to 0,0 in lower left, as a human would expect when visualizing
 
         @param bbox: array specifying the bounding box [top, bot, left, right]
         @param shape: tuple describing the shape of the larger domain (z, y, x)
         @return: array of edges [top, bot, left, right]
         """
-        human_bbox = [shape[1] - bbox[0], shape[1] - bbox[1], bbox[2], bbox[3]]
-        human_bbox = [human_bbox[1], human_bbox[0] + 1, human_bbox[2] + 1, human_bbox[3] + 2]
-        logging.info(f'converted system bbox {bbox} inside shape {shape} to human bbox {human_bbox}')
-        human_bbox = [human_bbox[3], human_bbox[0], human_bbox[3]-human_bbox[2], human_bbox[1] - human_bbox[0]]
-        return human_bbox
+        # human_bbox = [shape[1] - bbox[0], shape[1] - bbox[1], bbox[2], bbox[3]]
+        # human_bbox = [human_bbox[1], human_bbox[0] + 1, human_bbox[2] + 1, human_bbox[3] + 2]
+        # logging.info(f'converted system bbox {bbox} inside shape {shape} to human bbox {human_bbox}')
+        # human_bbox = [human_bbox[3], human_bbox[0], human_bbox[3]-human_bbox[2], human_bbox[1] - human_bbox[0]]
+        #return human_bbox
+        return self.get_bbox().get_human_bbox()
+
 
     def calculate_new_geom(self, min_x, min_y, old_geom):
         """ calculate a new geometry based on an old geometry and new minimum point
