@@ -1,7 +1,6 @@
 import os
 import sys
 import pandas as pd
-import pfio
 import gdal
 import numpy as np
 from pf_subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
@@ -34,7 +33,6 @@ def read_file(infile):
         arr = pd.read_csv(infile, skiprows=1, header=None).values
         res_arr = np.reshape(arr, (nz, ny, nx))[:, :, :]
     elif ext == '.pfb':  # parflow binary file
-        #res_arr = pfio.pfread(infile)
         pfdata = PFData(infile)
         pfdata.loadHeader()
         pfdata.loadData()
@@ -67,16 +65,15 @@ def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
     @return: None
     """
     logging.info(f'wrote pfb file {outfile}, (z,y,x)={data.shape}')
-    #pfio.pfwrite(data.astype(np.float64), outfile, float(x0), float(y0), float(z0), float(dx), float(dx), float(dz))
-    pfdata = PFData()
-    pfdata.setDataArray(data)
-    pfdata.setDX(dx)
-    pfdata.setDY(dx)
-    pfdata.setDZ(dz)
-    pfdata.setX(x0)
-    pfdata.setY(y0)
-    pfdata.setZ(z0)
-    pfdata.writeFile(outfile)
+    pf_data = PFData()
+    pf_data.setDataArray(data)
+    pf_data.setDX(dx)
+    pf_data.setDY(dx)
+    pf_data.setDZ(dz)
+    pf_data.setX(x0)
+    pf_data.setY(y0)
+    pf_data.setZ(z0)
+    pf_data.writeFile(outfile)
 
 
 def write_bbox(bbox, outfile):

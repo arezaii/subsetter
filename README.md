@@ -21,20 +21,22 @@ The generator will search the following places, in this order.
 * CONUS1 and or CONUS2 source files for clipping
 
 ### Packages
-* [pfio-tools](https://github.com/hydroframe/tools)
+* [parflowio](https://github.com/hydroframe/parflowio)
+* [gdal](https://gdal.org/download.html)
+* [numpy](https://numpy.org/install/)
+* [pyyaml](https://pypi.org/project/PyYAML/)
+* [pandas](https://pandas.pydata.org/)
 
 
 ## Setup
+
+Create a clean environment using anaconda or miniconda:
 
 ```
 git clone https://github.com/arezaii/subsetter
 cd subsetter
 conda env create -f=environment.yml
 conda activate pf_subsetter
-git clone https://github.com/hydroframe/tools
-cd tools/pfio
-pip install .
-cd ../..
 ```
 
 ## Input Files
@@ -95,7 +97,8 @@ python -m src.subset_conus -i <path_to_shapefile_parts> -s <shapefile_name> -f <
                             -o [path_to_write_outputs=.] 
                             -c [clip_clm=0]
                             -w [write_tcl=0]
-                            -m [side_length_multiple=1]
+                            -x [padding for left and right=0]
+                            -y [padding on top and bottom=0]
                             -e [shapefile_attribute_name='OBJECTID']
                             -a [shapefile_attribute_ids=[1]]
                             -t [tif_outs=0]
@@ -113,7 +116,8 @@ python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/co
 python -m src.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -r <reference_dataset> 
                               -o [path_to_write_outputs=.] 
                               -n [output_filename=shapfile_name] 
-                              -m [side_length_multiple=1] 
+                              -x [padding for left and right=0]
+                              -y [padding on top and bottom=0]
                               -e [shapefile_attribute_name='OBJECTID'] 
                               -a [shapefile_attribute_ids=[1]]
 ```
@@ -133,16 +137,34 @@ assumes all files are identically gridded and same as the mask file, if write_ti
 must supply at least one tif with correct projection and transform information as either the mask file, 
 as a reference dataset with the -r option, or in the list of datafiles to clip
 ```
-python -m src.bulk_clipper -m <mask_file> -d <list_of_datafiles_to_clip> 
+python -m src.bulk_clipper [-m <mask_file> OR -b <bbox file>] -d <list_of_datafiles_to_clip> 
                            -t [write_tifs=0] 
                            -o [output_directory=.]
 ```
-example usage:
+example usage with mask file:
 
-Clip the model outputs to the bounds of a mask generated from rasterize_shape or subset_conus
+Clip the domain outputs to the bounds of a mask generated from rasterize_shape or subset_conus
 ```
 python -m src.bulk_clipper -m ~/outputs/WBDHU8.tif -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
 ```
+
+example usage with bounding box file:
+
+Clip the domain outputs, starting at x,y, and extending for nx, ny
+```
+python -m src.bulk_clipper -b ~/outputs/bbox.txt -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
+```
+where bbox.txt is a tab-separted text file in the format:
+
+| x   | y   | nx | ny |
+|-----|-----|----|----|
+| x_1 | y_1 | nx | ny |
+
+Example bbox clipping only the very first (lower left) cell in a domain:
+
+| x   | y   | nx | ny |
+|-----|-----|----|----|
+| 1 | 1 | 1 | 1 |
 
 ### Optional Arguments Explanation
 
@@ -153,7 +175,8 @@ Many optional arguments are available for the subset_conus and rasterize_shape. 
 -o [path_to_write_outputs=.] The path to write the output files, defaults to current directory
 -c [clip_clim=0] Whether or not to clip the CLM lat/lon and vegm data. Defaults to False.
 -w [write_tcl=0] Whether or not to write the .tcl file to run the ParFlow model. Defaults to False
--m [side_length_multiple=1] Add padding to side lengths of outputs. 1=no pad, 2= even length sides. Default 1 
+-x [padding for left and right=0] Add padding to side lengths of outputs. 1=no pad, 2= even length sides. Default 1 
+-y [padding on top and bottom=0]
 -e [shapefile_attribute_name='OBJECTID'] The name of the attribute table column to uniquely ID objects. Default 'OBJECTID' 
 -a [shapefile_attribute_ids=[1]] The list of objects in the shapefile to rasterize. Default [1]
 -t [tif_outs=0] Whether or not to write outputs as .tif files. Defaults to False.
