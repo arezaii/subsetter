@@ -1,24 +1,15 @@
-# Subsetter
 [![Build Status](http://travis-ci.com/arezaii/subsetter.svg?branch=master)](http://travis-ci.com/arezaii/subsetter)
+
+# Subsetter
+The pf_subsetter is a suite of tools for clipping ParFlow inputs and outputs. Included are command
+line scripts to: 
+
+1. subset the inputs from CONUS1 or CONUS2 domains [subset_conus](#Use_a_mask_to_clip_multiple_files_to_PFB_or_TIF)
+2. generate a rasterized mask from a shapefile [rasterize_shape](#Create_subset_from_CONUS_models_from_a_shapefile)
+3. clip data from any number of supported input files [bulk_clip](#Rasterize_a_shapefile_for_use_as_a_mask)
+
+
 ## Prerequisites
-To build solid files, one of the following tools is required:
-pfmask-to-pfsol (included of ParFlow) 
-or
-[mask-to-pfsol](https://github.com/smithsg84/pf-mask-utilities.git)
-
-*If using mask-to-pfsol, be sure to follow [instructions](https://github.com/smithsg84/pf-mask-utilities.git) for building the utilities.*
-
-For the solidfile generator to work, it must be able to locate one of the above tools.
-The generator will search the following places, in this order.
-1. PFMASKUTILS environment variable
-2. mask-to-pfsol directory in PATH variable
-3. PARFLOW_DIR environment variable 
-4. ParFlow bin directory in PATH variable
-
-
-### Environment
-* miniconda or anaconda
-* CONUS1 and or CONUS2 source files for clipping
 
 ### Packages
 * [parflowio](https://github.com/hydroframe/parflowio)
@@ -26,6 +17,26 @@ The generator will search the following places, in this order.
 * [numpy](https://numpy.org/install/)
 * [pyyaml](https://pypi.org/project/PyYAML/)
 * [pandas](https://pandas.pydata.org/)
+
+
+#### Building Solid Files
+
+To build solid files (.pfsol), one of the following tools is required:
+`pfmask-to-pfsol` (included with ParFlow) 
+or
+[mask-to-pfsol](https://github.com/smithsg84/pf-mask-utilities.git)
+
+*If using `mask-to-pfsol`, be sure to follow [instructions](https://github.com/smithsg84/pf-mask-utilities.git) for building the utilities.*
+
+##### Environment Variables
+
+For the solidfile generator to work, it must be able to locate either `mask-to-pfsol` or `pfmask-to-pfsol`
+
+The generator will search the following places, in this order.
+1. PFMASKUTILS environment variable
+2. *mask-to-pfsol* directory in PATH variable
+3. PARFLOW_DIR environment variable 
+4. ParFlow *bin* directory in PATH variable
 
 
 ## Setup
@@ -41,41 +52,47 @@ conda activate pf_subsetter
 
 ## Input Files
 
-For CONUS 1 and 2 models, input files are required. 
+For CONUS1 and CONUS2 domains, local copies of model input files are required.  
 
-#### CONUS 1 Required files
+#### CONUS1 Files
 
-Domain Files:
+    required_files:
+      DOMAIN_MASK: Domain_Blank_Mask.tif
+      SUBSURFACE_DATA: grid3d.v3.pfb
+      PME: PmE.flux.pfb
+      SLOPE_X: slopex.pfb
+      SLOPE_Y: slopey.pfb
+    optional_files:
+      LAND_COVER: conus1_landcover.sa
+      LAT_LON: conus1_Grid_Centers_Short_Deg.format.sa
+      DEM: CONUS2.0_RawDEM_CONUS1clip.tif
 
-* CONUS_MASK: Domain_Blank_Mask.tif
-* SUBSURFACE_DATA: grid3d.v3.pfb
-* PME: PmE.flux.pfb
-* SLOPE_X: slopex.pfb
-* SLOPE_Y: slopey.pfb
-* DEM: CONUS2.0_RawDEM_CONUS1clip.tif
+#### CONUS2 Files
 
-CLM Files:
-* LAND_COVER: conus1_landcover.sa
-* LAT_LON: conus1_Grid_Centers_Short_Deg.format.sa
+    required_files:
+      DOMAIN_MASK: conus_1km_PFmask2.tif
+      SUBSURFACE_DATA: 3d-grid.v3.tif
+      PME: PME.tif
+      SLOPE_X: Str3Ep0_smth.rvth_1500.mx0.5.mn5.sec0.up_slopex.tif
+      SLOPE_Y: Str3Ep0_smth.rvth_1500.mx0.5.mn5.sec0.up_slopey.tif
+      SINKS: conus_1km_PFmask_manualsinks.tif
+      RESERVOIRS: conus_1km_PFmask_reservoirs.tif
+      LAKE_BORDER: conus_1km_PFmask_selectLakesborder.tif
+      LAKE_MASK: conus_1km_PFmask_selectLakesmask.tif
+      CHANNELS: 1km_upscaledNWM_ChannelOrder5_mod2.tif
+      CELL_TYPES: 1km_PF_BorderCellType.tif
+    optional_files:
+      LAND_COVER: 1km_CONUS2_landcover_IGBP.tif
+      LAT_LON: latlonCONUS2.sa
+      DEM: CONUS2.0_RawDEM.tif
 
-#### CONUS 2 Required files
+**Local Filenames**
 
-* CONUS_MASK: conus_1km_PFmask2.tif
-* SUBSURFACE_DATA: 3d-grid.v3.tif
-* PME: PME.tif
-* SLOPE_X: Str3Ep0_smth.rvth_1500.mx0.5.mn5.sec0.up_slopex.tif
-* SLOPE_Y: Str3Ep0_smth.rvth_1500.mx0.5.mn5.sec0.up_slopey.tif
-* SINKS: conus_1km_PFmask_manualsinks.tif
-* RESERVOIRS: conus_1km_PFmask_reservoirs.tif
-* LAKE_BORDER: conus_1km_PFmask_selectLakesborder.tif
-* LAKE_MASK: conus_1km_PFmask_selectLakesmask.tif
-* CHANNELS: 1km_upscaledNWM_ChannelOrder5_mod2.tif
-* CELL_TYPES: 1km_PF_BorderCellType.tif
-* DEM: CONUS2.0_RawDEM.tif
+If your local filenames differ from this list, update the local filenames in:
 
-CLM Files:
-* LAND_COVER: 1km_CONUS2_landcover_IGBP.tif
-* LAT_LON: latlonCONUS2.sa
+`pf_subsetter/data/conus_manifest.yaml`
+ 
+
 
 ## Testing
 
@@ -104,14 +121,14 @@ python -m src.subset_conus -i <path_to_shapefile_parts> -s <shapefile_name> -f <
                             -t [tif_outs=0]
 
 ```
-example usage:
+**Example usage:**
 
 Create a subset of the CONUS1 domain with CLM inputs based on the shapefile at ~/downloads/shapfiles/WBDHU8.shp and write the .tcl file to run the model
 ```
 python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/conus1 -c 1 -w 1 -n watershedA_conus1_clip
 ```
 
-#### Rasterize a shapefile for use as a mask, based on a reference dataset
+#### Rasterize a shapefile for use as a mask
 ```
 python -m src.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -r <reference_dataset> 
                               -o [path_to_write_outputs=.] 
@@ -123,7 +140,7 @@ python -m src.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -
 ```
 
 
-example usage:
+**Example usage:**
 
 Reproject the shapefile at ~/downloads/shapfiles/WBDHU8.shp to the CONUS1 projection and extent
 ```
@@ -141,14 +158,14 @@ python -m src.bulk_clipper [-m <mask_file> OR -b <bbox file>] -d <list_of_datafi
                            -t [write_tifs=0] 
                            -o [output_directory=.]
 ```
-example usage with mask file:
+**Example usage with mask file:**
 
 Clip the domain outputs to the bounds of a mask generated from rasterize_shape or subset_conus
 ```
 python -m src.bulk_clipper -m ~/outputs/WBDHU8.tif -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
 ```
 
-example usage with bounding box file:
+**Example usage with bounding box file:**
 
 Clip the domain outputs, starting at x,y, and extending for nx, ny
 ```
@@ -181,3 +198,10 @@ Many optional arguments are available for the subset_conus and rasterize_shape. 
 -a [shapefile_attribute_ids=[1]] The list of objects in the shapefile to rasterize. Default [1]
 -t [tif_outs=0] Whether or not to write outputs as .tif files. Defaults to False.
 ```
+
+
+## Supported File Types
+
+1. PFB
+2. TIF
+3. .sa
