@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from utils.arguments import is_valid_path, is_positive_integer
 from pf_subsetter.clipper import MaskClipper
-from pf_subsetter.domains import Conus
+from pf_subsetter.domain import Conus
 from pf_subsetter.rasterizer import ShapefileRasterizer
 from datetime import datetime
 import bin.bulk_clipper as bulk_clipper
@@ -13,6 +13,7 @@ import builders.solidfile as solidfile_generator
 from builders.tcl import build_tcl
 from utils.clm import ClmClipper
 from pf_subsetter.data import parkinglot_template
+import numpy as np
 
 
 def parse_args(args):
@@ -54,15 +55,10 @@ def parse_args(args):
                         help="generate the .tcl script for this subset",
                         type=int)
 
-    parser.add_argument("--x_pad", "-x", dest="x_pad", required=False,
-                        default=0,
-                        help="integer padding value for bounding box on x-sides",
-                        type=lambda x: is_positive_integer(parser, x))
-
-    parser.add_argument("--y_pad", "-y", dest="y_pad", required=False,
-                        default=0,
-                        help="integer padding value for bounding box on y-sides",
-                        type=lambda x: is_positive_integer(parser, x))
+    parser.add_argument("--padding", "-p", dest="padding", nargs=4, metavar=('Top', 'Right', 'Bottom', 'Left'),
+                        required=False, default=(0, 0, 0, 0), type=int,
+                        help="integer padding value for bounding box on x-sides"
+                        )
 
     parser.add_argument("--attribute_ids", "-a", dest="attribute_ids", required=False,
                         default=[1], nargs='+',
@@ -98,8 +94,7 @@ def main():
     rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.get_domain_tif(),
                                      no_data=-999, output_path=args.out_dir, )
     rasterizer.rasterize_shapefile_to_disk(out_name=f'{args.out_name}_raster_from_shapefile.tif',
-                                           x_pad=args.x_pad,
-                                           y_pad=args.y_pad,
+                                           padding=args.padding,
                                            attribute_name=args.attribute_name,
                                            attribute_ids=args.attribute_ids)
 

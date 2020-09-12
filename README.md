@@ -142,7 +142,7 @@ python -m src.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -
 
 **Example usage:**
 
-Reproject the shapefile at ~/downloads/shapfiles/WBDHU8.shp to the CONUS1 projection and extent
+Re-project the shapefile at ~/downloads/shapfiles/WBDHU8.shp to the CONUS1 projection and extent
 ```
 python -m src.rasterize_shape -i ~/downloads/shapefiles -s WBDHU8
 ```
@@ -185,15 +185,15 @@ Example bbox clipping only the very first (lower left) cell in a domain:
 
 ### Optional Arguments Explanation
 
-Many optional arguments are available for the subset_conus and rasterize_shape. Below is an explanationo of the options.
+Many optional arguments are available for subset_conus and rasterize_shape. Below is an explanation of the options.
 ```
 -n [name for output files=shapfile_name] The name to give the output raster, defaults to shapefile name
 -v [conus verson=1] The version of the ParFlow CONUS model to subset from (1 or 2), defaults to version 1
 -o [path_to_write_outputs=.] The path to write the output files, defaults to current directory
 -c [clip_clim=0] Whether or not to clip the CLM lat/lon and vegm data. Defaults to False.
 -w [write_tcl=0] Whether or not to write the .tcl file to run the ParFlow model. Defaults to False
--x [padding for left and right=0] Add padding to side lengths of outputs. 1=no pad, 2= even length sides. Default 1 
--y [padding on top and bottom=0]
+-x [padding for left and right=0] padding for right and left side
+-y [padding on top and bottom=0] padding for top and bottom side
 -e [shapefile_attribute_name='OBJECTID'] The name of the attribute table column to uniquely ID objects. Default 'OBJECTID' 
 -a [shapefile_attribute_ids=[1]] The list of objects in the shapefile to rasterize. Default [1]
 -t [tif_outs=0] Whether or not to write outputs as .tif files. Defaults to False.
@@ -202,6 +202,6 @@ Many optional arguments are available for the subset_conus and rasterize_shape. 
 
 ## Supported File Types
 
-1. PFB
-2. TIF
+1. .pfb
+2. .tif
 3. .sa

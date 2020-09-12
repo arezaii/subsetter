@@ -21,8 +21,10 @@ def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
               ' ensure PARFLOW_DIR environment variable is set'
         logging.exception(msg)
         raise Exception(msg)
+    # TODO: Should not have to flip this mask. Find why it is upside down
+    mask_mat = np.flip(clipped_mask, axis=1)
+    #
 
-    mask_mat = clipped_mask
     if len(mask_mat.shape) == 3:
         mask_mat = np.squeeze(mask_mat, axis=0)
     # create back borders

@@ -26,6 +26,8 @@ def read_file(infile):
         res_arr = gdal.Open(infile).ReadAsArray()
         if len(res_arr.shape) == 2:
             res_arr = res_arr[np.newaxis, ...]
+        # flip y axis so tiff aligns with PFB native alignment
+        res_arr = np.flip(res_arr, axis=1)
     elif ext == '.sa':  # parflow ascii file
         with open(infile, 'r') as fi:
             header = fi.readline()
@@ -66,7 +68,7 @@ def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
     """
     logging.info(f'wrote pfb file {outfile}, (z,y,x)={data.shape}')
     pf_data = PFData()
-    pf_data.setDataArray(data)
+    pf_data.setDataArray(np.ascontiguousarray(data, np.float64))
     pf_data.setDX(dx)
     pf_data.setDY(dx)
     pf_data.setDZ(dz)
@@ -102,7 +104,7 @@ def read_bbox(bbox_file):
         return bbox.get_human_bbox()
 
 
-def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dtype=gdal.GDT_Int32, no_data=NO_DATA):
+def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dtype=gdal.GDT_Float64, no_data=NO_DATA):
     """ write a numpy array to a geotiff
 
     @param out_raster_path: where to write the output file
@@ -113,8 +115,9 @@ def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dty
     @param no_data: no data value to encode in the geoTif
     @return: None
     """
-    # flip the z axis for proper orientation
-    np.flip(data, axis=0)
+    # flip the tif y axis back to tif standard (Tif 0's start at top left, PFB 0's at bottom left)
+    data = np.flip(data, axis=1)
+    data = np.ascontiguousarray(data, dtype=np.float64)
     driver = gdal.GetDriverByName('GTiff')
     no_bands, rows, cols = data.shape
     data_set = driver.Create(out_raster_path, xsize=cols, ysize=rows, bands=no_bands, eType=dtype,
@@ -129,10 +132,21 @@ def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dty
     data_set = None
 
 
-def write_array_to_simple_ascii(data, out_file, header, fmt, delimiter=' ', comments=''):
+def write_array_to_simple_ascii(data, out_file):
     """ write an array to ParFlow simple ascii (.sa) format
 
-    @param data: the 3d numpy array of data to write
+    @param data: 3d numpy array of data
+    @param out_file: filename to write data
+    @return: None
+    """
+    write_array_to_text_file(out_file=out_file, data=data.flatten(), fmt='%s',
+                             header=f'{data.shape[2]} {data.shape[1]} {data.shape[0]}')
+
+
+def write_array_to_text_file(data, out_file, header, fmt, delimiter=' ', comments=''):
+    """ write a flattened array to text output file
+
+    @param data: the 1d numpy array of data to write
     @param out_file: where to write the data
     @param header: the header to use in the file
     @param fmt: the python string format to use for printing each element of the array

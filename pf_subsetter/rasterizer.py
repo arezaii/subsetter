@@ -5,9 +5,6 @@ import logging
 from pf_subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
 from pf_subsetter.mask import SubsetMask
 
-# TODO: Do we start with 0,0 or 1,1?
-# TODO: Invert BBOX output values for Y axis so that 0,0 is lower left instead of upper left.
-
 
 class ShapefileRasterizer:
 
@@ -44,7 +41,7 @@ class ShapefileRasterizer:
         @param dtype: the datatype to write
         @param no_data: no_data value to use
         @param attribute_name: field in the shapefile to trace
-        @return: path (virtual mem) to the reprojected mask
+        @return: path (virtual mem) to the reprojected full_dim_mask
         """
         if attribute_ids is None:
             attribute_ids = [1]
@@ -80,16 +77,16 @@ class ShapefileRasterizer:
         self.subset_mask = SubsetMask(tif_path)
         return tif_path
 
-    def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, x_pad=0, y_pad=0, attribute_name='OBJECTID',
+    def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, padding=(0, 0, 0, 0), attribute_name='OBJECTID',
                                     attribute_ids=None):
         """ rasterize a shapefile to disk in the projection and extents of the reference dataset
 
         @param out_dir: directory to write outputs
         @param out_name: filename for outputs
-        @param side_multiple: optional side length multiple to expand bounding box to
+        @param padding: optional padding to add 0's around full_dim_mask
         @param attribute_name: optional name of shapefile attribute to select on
-        @param attribute_ids: optional list of attribute ids in shapefile to select for mask
-        @return: 3d array with no_data to extents, 0 in bounding box, 1 in mask region
+        @param attribute_ids: optional list of attribute ids in shapefile to select for full_dim_mask
+        @return: 3d array with no_data to extents, 0 in bounding box, 1 in full_dim_mask region
         """
         if attribute_ids is None:
             attribute_ids = [1]
@@ -98,7 +95,7 @@ class ShapefileRasterizer:
         if out_dir is None:
             out_dir = self.output_path
         self.reproject_and_mask(attribute_ids=attribute_ids, attribute_name=attribute_name)
-        self.subset_mask.add_bbox_to_mask(x_pad=x_pad, y_pad=y_pad)
+        self.subset_mask.add_bbox_to_mask(padding=padding)
         self.subset_mask.write_mask_to_tif(filename=os.path.join(out_dir, out_name))
         self.subset_mask.write_bbox(os.path.join(out_dir, 'bbox.txt'))
         return self.subset_mask.mask_array

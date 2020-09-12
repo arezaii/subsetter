@@ -2,6 +2,7 @@ import unittest
 import os
 import numpy as np
 import gdal
+from osgeo import osr
 import pf_subsetter.utils.io as file_io_tools
 import pf_subsetter.tests.test_files as test_files
 from test_files import regression_truth_tif
@@ -31,7 +32,7 @@ class FileIOToolBasicTestCase(unittest.TestCase):
         bbox = [10, 15, 20, 25]
         file_io_tools.write_bbox(bbox, 'bbox_test.txt')
         self.assertSequenceEqual(bbox, file_io_tools.read_bbox('bbox_test.txt'),
-                             'writing and reading a bbox does not change values')
+                                 'writing and reading a bbox does not change values')
         os.remove('bbox_test.txt')
 
     def test_write_tiff(self):
@@ -53,19 +54,75 @@ class FileIOToolBasicTestCase(unittest.TestCase):
                           'writing and reading a pfb gives back the same array values')
         os.remove('test_pfb_out.pfb')
 
-    def test_read_pfb_sa(self):
+    def test_read_pfb_sa_tif(self):
         sa_array = file_io_tools.read_file(test_files.forcings_sa.as_posix())
         pfb_array = file_io_tools.read_file(test_files.forcings_pfb.as_posix())
+        tif_array = file_io_tools.read_file(test_files.forcings_tif.as_posix())
         self.assertIsNone(np.testing.assert_array_almost_equal(sa_array, pfb_array, decimal=3),
                           'reading a .sa file and a .pfb file result in same array values')
+        self.assertIsNone(np.testing.assert_array_almost_equal(sa_array, tif_array, decimal=3),
+                          'reading a .sa file and a .pfb file result in same array values')
+        self.assertIsNone(np.testing.assert_array_almost_equal(tif_array, pfb_array, decimal=12),
+                          'reading a .sa file and a .pfb file result in same array values')
+
+    def test_read_write_sa_sanity_check(self):
+        sa_ref_array = file_io_tools.read_file(test_files.forcings_sa.as_posix())
+        file_io_tools.write_array_to_simple_ascii(data=sa_ref_array, out_file='sa_out_test_file.sa')
+        sa_read_array = file_io_tools.read_file('sa_out_test_file.sa')
+        self.assertIsNone(np.testing.assert_array_almost_equal(sa_ref_array, sa_read_array, decimal=12),
+                          'should be able to write to .sa and get the same data back')
+
+    def test_write_pfb_to_tif_to_sa(self):
+        pfb_array = file_io_tools.read_file(test_files.forcings_pfb.as_posix())
+        srs = osr.SpatialReference()
+        srs.SetWellKnownGeogCS("WGS84")
+        file_io_tools.write_array_to_geotiff(data=pfb_array, out_raster_path='NLDAS.Temp.000001_to_000024.tif',
+                                             geo_transform=[0,1000,0,0,0,-1000], projection=srs.ExportToWkt())
+        sa_array = file_io_tools.read_file(test_files.forcings_sa.as_posix())
+        tif_array = file_io_tools.read_file('NLDAS.Temp.000001_to_000024.tif')
+        self.assertIsNone(np.testing.assert_array_equal(tif_array, pfb_array,
+                                                        'Converting from multi-layer pfb to tif gives back same data'))
+        self.assertIsNone(np.testing.assert_array_almost_equal(tif_array, sa_array, decimal=4))
+        os.remove('NLDAS.Temp.000001_to_000024.tif')
 
     def test_read_write_tif_to_pfb(self):
         tif_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
-        file_io_tools.write_pfb(tif_array, outfile='conus1_dem_tif_to_pfb_test.pfb', dx=1, dz=1)
+        file_io_tools.write_pfb(tif_array, outfile='conus1_dem_tif_to_pfb_test.pfb')
         pfb_array = file_io_tools.read_file('conus1_dem_tif_to_pfb_test.pfb')
         self.assertIsNone(np.testing.assert_array_equal(tif_array, pfb_array,
                                                         'Converting from tif to pfb gives back same data'))
         os.remove('conus1_dem_tif_to_pfb_test.pfb')
+
+    def test_read_compare_tif_to_pfb(self):
+        tif_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
+        pfb_array = file_io_tools.read_file(test_files.conus1_dem_pfb.as_posix())
+        self.assertIsNone(np.testing.assert_array_equal(tif_array, pfb_array))
+
+    def test_read_write_pfb_to_tif(self):
+        tif_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
+        file_io_tools.write_pfb(tif_array, outfile='conus1_dem_tif_to_pfb_test.pfb')
+        pfb_array = file_io_tools.read_file('conus1_dem_tif_to_pfb_test.pfb')
+        self.assertIsNone(np.testing.assert_array_equal(tif_array, pfb_array,
+                                                        'Converting from single-layer tif to pfb gives back same data'))
+        os.remove('conus1_dem_tif_to_pfb_test.pfb')
+
+    def test_read_write_multilayer_tif_pfb(self):
+        tif_array = file_io_tools.read_file(test_files.conus2_subsurface.as_posix())
+        file_io_tools.write_pfb(tif_array, outfile='conus2_subsurface_tif_to_pfb_test.pfb')
+        pfb_array = file_io_tools.read_file('conus2_subsurface_tif_to_pfb_test.pfb')
+        self.assertIsNone(np.testing.assert_array_equal(tif_array, pfb_array,
+                                                        'Converting from multi-layer tif to pfb gives back same data'))
+        os.remove('conus2_subsurface_tif_to_pfb_test.pfb')
+
+    def test_read_write_tif_sanity_check(self):
+        tif_array = file_io_tools.read_file(test_files.conus2_subsurface.as_posix())
+        tif_ref = file_io_tools.read_geotiff(test_files.conus2_subsurface.as_posix())
+        file_io_tools.write_array_to_geotiff('conus2_subsurface_tif_read_write_test.tif',
+                                             tif_array, tif_ref.GetGeoTransform(), tif_ref.GetProjectionRef())
+        tif_read_array = file_io_tools.read_file('conus2_subsurface_tif_read_write_test.tif')
+        self.assertIsNone(np.testing.assert_array_equal(tif_array, tif_read_array),
+                          'reading and writing a tif should not change the data')
+        os.remove('conus2_subsurface_tif_read_write_test.tif')
 
 
 if __name__ == '__main__':

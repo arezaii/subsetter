@@ -1,6 +1,6 @@
 import unittest
 from pf_subsetter import data
-from pf_subsetter.domains import Conus
+from pf_subsetter.domain import Conus
 import os
 
 

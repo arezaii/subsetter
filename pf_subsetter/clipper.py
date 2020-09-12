@@ -22,7 +22,10 @@ class BoxClipper(Clipper):
     @param nz:
     @param no_data:  the no data value to use
     """
-    def __init__(self, ref_array, x=1, y=1, z=1, nx=None, ny=None, nz=None, no_data=NO_DATA):
+
+    def __init__(self, ref_array, x=1, y=1, z=1, nx=None, ny=None, nz=None, padding=(0, 0, 0, 0), no_data=NO_DATA):
+        self.padding = padding
+        self.no_data = no_data
         self.ref_array = ref_array
         if nx is None:
             nx = self.ref_array.shape[2]
@@ -32,10 +35,9 @@ class BoxClipper(Clipper):
             nz = self.ref_array.shape[0]
         if nx < 1 or ny < 1 or nz < 1 or x < 1 or y < 1 or z < 1:
             raise Exception("Error: invalid dimension, x,y,z nx, ny, nz must be >=1")
-        self.y_len = self.ref_array.shape[1]
-        self._translate_bbox(x,y,z,nx,ny,nz)
+        self._translate_bbox(x, y, z, nx, ny, nz, padding)
 
-    def _translate_bbox(self, x, y, z, nx, ny, nz):
+    def _translate_bbox(self, x, y, z, nx, ny, nz, padding):
         # update the x,y,z, nx, ny, nz values if desired
         if nx is not None:
             self.nx = nx
@@ -52,9 +54,10 @@ class BoxClipper(Clipper):
         if y is not None:
             self.y_0 = y - 1
             self.y_end = self.y_0 + ny
+        self.padding = padding
 
-    def update_bbox(self, x=None, y=None, z=None, nx=None, ny=None, nz=None):
-        self._translate_bbox(x, y, z, nx, ny, nz)
+    def update_bbox(self, x=None, y=None, z=None, nx=None, ny=None, nz=None, padding=(0, 0, 0, 0)):
+        self._translate_bbox(x, y, z, nx, ny, nz, padding)
 
     def subset(self, data_array=None):
         """
@@ -63,7 +66,18 @@ class BoxClipper(Clipper):
         """
         if data_array is None:
             data_array = self.ref_array
-        return data_array[self.z_0:self.z_end, self.y_0:self.y_end, self.x_0:self.x_end], None, None, None
+        if any(self.padding):
+            # create a full dimensioned array of no_data_values
+            ret_array = np.full(shape=(self.nz,
+                                self.ny + self.padding[0] + self.padding[2],
+                                self.nx + self.padding[1] + self.padding[3]), fill_value=self.no_data, dtype=np.float64)
+            # assign values from the data_array into the return array, mind the padding
+            ret_array[self.z_0:self.z_end, self.padding[2]:self.ny + self.padding[2],
+            self.padding[3]:self.nx + self.padding[3]] = data_array[self.z_0:self.z_end, self.y_0:self.y_end,
+                                                                    self.x_0:self.x_end]
+        else:
+            ret_array = data_array[self.z_0:self.z_end, self.y_0:self.y_end, self.x_0:self.x_end]
+        return ret_array, None, None, None
 
 
 class MaskClipper(Clipper):
@@ -79,8 +93,10 @@ class MaskClipper(Clipper):
         self.subset_mask = subset_mask
         min_y, max_y, min_x, max_x = self.subset_mask.bbox_edges
         self.bbox = [min_y, max_y + 1, min_x, max_x + 1]
-        self.clipped_geom = self.subset_mask.calculate_new_geom(min_x, min_y, self.subset_mask.mask_tif.GetGeoTransform())
-        self.clipped_mask = (self.subset_mask.bbox_mask.filled(fill_value=no_data_threshold) == 1)[:, self.bbox[0]:self.bbox[1],
+        self.clipped_geom = self.subset_mask.calculate_new_geom(min_x, min_y,
+                                                                self.subset_mask.mask_tif.GetGeoTransform())
+        self.clipped_mask = (self.subset_mask.bbox_mask.filled(fill_value=no_data_threshold) == 1)[:,
+                            self.bbox[0]:self.bbox[1],
                             self.bbox[2]:self.bbox[3]]
 
     def subset(self, data_array, no_data=NO_DATA, crop_inner=1):
@@ -98,11 +114,11 @@ class MaskClipper(Clipper):
             full_mask = np.broadcast_to(full_mask, data_array.shape)
             clip_mask = np.broadcast_to(clip_mask, (data_array.shape[0], clip_mask.shape[1], clip_mask.shape[2]))
             logging.info(f'clipper: broadcast subset_mask to match input data z layers: {data_array.shape[0]}')
-        # mask the input data using numpy masked array module (True=InvalidData, False=ValidData)
+        # full_dim_mask the input data using numpy masked array module (True=InvalidData, False=ValidData)
         masked_data = ma.masked_array(data=data_array, mask=full_mask)
 
         if crop_inner:
-            # return an array that includes all of the z data, and x and y no_data outside of the mask area
+            # return an array that includes all of the z data, and x and y no_data outside of the full_dim_mask area
             return_arr = ma.masked_array(masked_data[:,
                                          self.bbox[0]: self.bbox[1],
                                          self.bbox[2]: self.bbox[3]].filled(fill_value=no_data),

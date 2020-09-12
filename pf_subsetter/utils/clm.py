@@ -1,17 +1,17 @@
 import numpy as np
 import pf_subsetter.utils.io as file_io_tools
-from pf_subsetter.clipper import MaskClipper
+from pf_subsetter.clipper import MaskClipper, BoxClipper
 
 
 class ClmClipper:
 
-    def __init__(self, subset_mask):
+    def __init__(self, bbox):
         """Clip CLM datafiles lat/lon and land cover
 
         @param subset_mask: SubsetMask object for the mask
         """
-        self.subset_mask = subset_mask
-        self.clipper = MaskClipper(subset_mask)
+        self.bbox = bbox
+        self.clipper = BoxClipper(ref_array=None, x=bbox[0], y=bbox[1], nx=bbox[2], ny=bbox[3], nz=1)
 
     def clip_latlon(self, lat_lon_file):
         """ Clip the domain lat/lon data to the bounding box of the mask
@@ -20,8 +20,9 @@ class ClmClipper:
         @return: the formatted output (1d) and the raw clipped data array (3d)
         """
         data = file_io_tools.read_file(lat_lon_file)
-        clipped_data, _, clipped_mask, bbox = self.clipper.subset(data_array=data, crop_inner=0)
-        sa_formatted = np.flip(clipped_data, axis=1).flatten()
+        clipped_data, _, clipped_mask, bbox = self.clipper.subset(data_array=data)
+        #sa_formatted = np.flip(clipped_data, axis=1).flatten()
+        sa_formatted = clipped_data.flatten()
         return sa_formatted, clipped_data
 
     def clip_land_cover(self, lat_lon_array, land_cover_file):
@@ -33,8 +34,9 @@ class ClmClipper:
         """
         lat_lon_proper = np.char.split(lat_lon_array.astype(str), ' ')
         data = file_io_tools.read_file(land_cover_file)
-        clipped_data, _, clipped_mask, bbox = self.clipper.subset(data_array=data, crop_inner=0)
-        sa_formatted = np.flip(clipped_data, axis=1).flatten()
+        clipped_data, _, clipped_mask, bbox = self.clipper.subset(data_array=data)
+        #sa_formatted = np.flip(clipped_data, axis=1).flatten()
+        sa_formatted = clipped_data.flatten()
         sand = 0.16
         clay = 0.26
         color = 2
@@ -71,8 +73,8 @@ class ClmClipper:
                      '10', '11',
                      '12', '13', '14', '15', '16', '17', '18']
         header = '\n'.join([heading, ' '.join(col_names)])
-        file_io_tools.write_array_to_simple_ascii(out_file=out_file, data=land_cover_data, header=header,
-                                                  fmt=['%d'] * 2 + ['%.6f'] * 2 + ['%.2f'] * 2 + ['%d'] * 19)
+        file_io_tools.write_array_to_text_file(out_file=out_file, data=land_cover_data, header=header,
+                                               fmt=['%d'] * 2 + ['%.6f'] * 2 + ['%.2f'] * 2 + ['%d'] * 19)
 
     def write_lat_lon(self, lat_lon_data, out_file, x=0, y=0, z=0):
         """ Write the lat/lon data to a ParFlow simple ascii formatted file
@@ -84,4 +86,4 @@ class ClmClipper:
         @param z: size of z dimension
         @return: None
         """
-        file_io_tools.write_array_to_simple_ascii(out_file=out_file, data=lat_lon_data, fmt='%s', header=f'{x} {y} {z}')
+        file_io_tools.write_array_to_text_file(out_file=out_file, data=lat_lon_data, fmt='%s', header=f'{x} {y} {z}')

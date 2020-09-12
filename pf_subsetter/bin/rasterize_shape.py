@@ -31,15 +31,10 @@ def parse_args(args):
                         help="the filename to give the output",
                         type=str)
 
-    parser.add_argument("--x_pad", "-x", dest="x_pad", required=False,
-                        default=0,
-                        help="integer padding value for bounding box on x-sides",
-                        type=lambda x: is_positive_integer(parser, x))
-
-    parser.add_argument("--y_pad", "-y", dest="y_pad", required=False,
-                        default=0,
-                        help="integer padding value for bounding box on y-sides",
-                        type=lambda x: is_positive_integer(parser, x))
+    parser.add_argument("--padding", "-p", dest="padding", nargs=4, metavar=('Top', 'Right', 'Bottom', 'Left'),
+                        required=False, default=(0, 0, 0, 0), type=int,
+                        help="integer padding value for bounding box on x-sides"
+                        )
 
     parser.add_argument("--attribute_ids", "-a", dest="attribute_ids", required=False,
                         default=[1], nargs='+',
@@ -64,7 +59,7 @@ def main():
     args = parse_args(sys.argv[1:])
 
     # Convert the shape to raster
-    rasterize_shape(args.input_path, args.shapefile, args.ref_file, args.out_dir, args.out_file, args.x_pad, args.y_pad,
+    rasterize_shape(args.input_path, args.shapefile, args.ref_file, args.out_dir, args.out_file, args.padding,
                     args.attribute_name, args.attribute_ids)
 
     # log finish time
@@ -72,7 +67,7 @@ def main():
     logging.info(f'finish process at {end_date} for a runtime of {end_date - start_date}')
 
 
-def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None, x_pad=0, y_pad=0, attribute_name=None,
+def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None, padding=(0,0,0,0), attribute_name=None,
                     attribute_ids=None):
     """ rasterize a shapefile to disk in the projection and extents of the reference file
 
@@ -81,16 +76,16 @@ def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None,
     @param ref_file: tif file describing the domain
     @param out_dir: directory to write output to (optional)
     @param out_file: filename to give output (optional)
-    @param side_multiple: side length multiple to expand bounding box to (optional)
+    @param padding: padding (top,right,bottom,left) (optional)
     @param attribute_name: name of shapefile attribute to select on (optional)
-    @param attribute_ids: list of attribute ids in shapefile to select for mask (optional)
+    @param attribute_ids: list of attribute ids in shapefile to select for full_dim_mask (optional)
     @return: None
     """
     reference_dataset = file_io_tools.read_geotiff(ref_file)
     rasterizer = ShapefileRasterizer(input_path, shapefile_name=shapefile,
                                      reference_dataset=reference_dataset, output_path=out_dir)
     rasterizer.rasterize_shapefile_to_disk(out_dir=out_dir, out_name=out_file,
-                                           x_pad=x_pad, y_pad=y_pad, attribute_ids=attribute_ids,
+                                           padding=padding, attribute_ids=attribute_ids,
                                            attribute_name=attribute_name)
 
 

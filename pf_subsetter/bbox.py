@@ -3,9 +3,10 @@ class BBox:
 
     def __init__(self, x_1=0, y_1=0, nx=0, ny=0, pad=(0, 0, 0, 0)):
         """
+        A point (x,y) plus extents (nx, ny) and optional padding values
         _1 indexes are 1's based
         _0 are zero based
-        human creates bbox using (1,1) as lower left
+        human bbox creates bbox using (1,1) as lower left
         bbox translates to 0's based needed for data processing
         padding order specified as (top, right, bottom, left)
         """

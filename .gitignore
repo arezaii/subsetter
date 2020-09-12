@@ -133,3 +133,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.directory
+/subset_output/
+/subset_output2/
+/rasterizer_output/
+/rasterizer_output2/

@@ -29,35 +29,30 @@ class ParflowDomain:
         self.mask_tif = None
         self.mask_array = None
 
-    def get_domain_mask(self, domain_mask_key='DOMAIN_MASK'):
-        """ get the domain mask array
+    def _load_domain_tif(self, domain_mask_key='DOMAIN_MASK'):
+        tif_filename = os.path.join(self.local_path, self.required_files.get(domain_mask_key))
+        self.mask_tif = file_io_tools.read_geotiff(tif_filename)
+        self.mask_array = file_io_tools.read_file(tif_filename)
 
-        @param domain_mask_key: key in yaml file which defines the domain mask
-        @return: numpy array for the domain mask
+    def get_domain_mask(self, domain_mask_key='DOMAIN_MASK'):
+        """ get the domain full_dim_mask array
+
+        @param domain_mask_key: key in yaml file which defines the domain full_dim_mask
+        @return: numpy array for the domain full_dim_mask
         """
         if self.mask_array is None:
-            # check if mask is none, read and assign if so
-            self.mask_tif = file_io_tools.read_geotiff(os.path.join(self.local_path,
-                                                                    self.required_files.get(domain_mask_key)))
-            self.mask_array = self.mask_tif.ReadAsArray()
-            return self.mask_array
-        else:
-            return self.mask_array
+            self._load_domain_tif(domain_mask_key)
+        return self.mask_array
 
     def get_domain_tif(self, domain_mask_key='DOMAIN_MASK'):
-        """ get the domain mask tif as a gdal geotif object
+        """ get the domain full_dim_mask tif as a gdal geotif object
 
-        @param domain_mask_key: key in yaml file which defines the domain mask
-        @return: gdal object for the domain mask
+        @param domain_mask_key: key in yaml file which defines the domain full_dim_mask
+        @return: gdal object for the domain full_dim_mask
         """
         if self.mask_tif is None:
-            # check if mask is none, read and assign if so
-            self.mask_tif = file_io_tools.read_geotiff(os.path.join(self.local_path,
-                                                                    self.required_files.get(domain_mask_key)))
-            self.mask_array = self.mask_tif.ReadAsArray()
-            return self.mask_tif
-        else:
-            return self.mask_tif
+            self._load_domain_tif(domain_mask_key)
+        return self.mask_tif
 
     def check_inputs_exist(self):
         """ Look for each input file to see if it exists
@@ -150,6 +145,6 @@ class Conus(ParflowDomain):
             manifest_file = data.conus_manifest
         super().__init__('conus', local_path, manifest_file, version)
         # self.mask_array = self.mask_tif.ReadAsArray()
-        # had to do this because conus1 mask is all 0's
+        # had to do this because conus1 full_dim_mask is all 0's
         if self.version == 1:
             self.mask_array = self.get_domain_mask() + 1

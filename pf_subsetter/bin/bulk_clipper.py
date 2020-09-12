@@ -1,12 +1,12 @@
 from pf_subsetter.clipper import MaskClipper, BoxClipper
 import sys
 import argparse
-from utils.arguments import is_valid_file, is_valid_path
+from pf_subsetter.utils.arguments import is_valid_file, is_valid_path
 from pf_subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
 from pf_subsetter.mask import SubsetMask
 import os
 from pathlib import Path
-import utils.io as file_io_tools
+import pf_subsetter.utils.io as file_io_tools
 import logging
 from datetime import datetime
 
@@ -14,15 +14,18 @@ from datetime import datetime
 def parse_args(args):
     parser = argparse.ArgumentParser('Clip a list of identically gridded files and extract the data within the mask')
 
-    group = parser.add_mutually_exclusive_group(required=True)
+    exclusive_group = parser.add_mutually_exclusive_group(required=True)
 
-    group.add_argument("--maskfile", "-m", dest="mask_file", required=False,
+    exclusive_group.add_argument("--maskfile", "-m", dest="mask_file", required=False,
                         type=lambda x: is_valid_file(parser, x),
-                        help="gridded mask file to full extent of files to be clipped")
+                        help="gridded full_dim_mask file to full extent of files to be clipped")
 
-    group.add_argument("--bboxfile", "-b", dest="bbox_file", required=False,
+    exclusive_group.add_argument("--bboxfile", "-b", dest="bbox_file", required=False,
                         type=lambda x: is_valid_file(parser, x),
                         help="a tab separated text file indicating x1,y1,nx,ny of the files to be clipped")
+
+    exclusive_group.add_argument("--inline-bbox", "-i", dest="bbox_def", nargs=4, metavar=('X1', 'Y1', 'NX', 'NY'),
+                                 required=False, type=int, help="bbox defined by x1 y1 nx ny")
 
     parser.add_argument("--datafiles", "-d", dest="data_files", required=True,
                         nargs='+',
@@ -52,28 +55,26 @@ def parse_args(args):
 
 
 def mask_clip(mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
-    """ clip a list of files using a mask and a domain reference tif
+    """ clip a list of files using a full_dim_mask and a domain reference tif
 
-    @param mask_file: mask file generated from shapefile to mask utility no_data,0's=bbox,1's=mask
+    @param mask_file: full_dim_mask file generated from shapefile to mask utility no_data,0's=bbox,1's=mask
     @param data_files: list of data files (tif, pfb) to clip from
     @param out_dir: output directory (optional)
     @param pfb_outs: write pfb files as outputs (optional)
     @param tif_outs: write tif files as outputs (optional)
     @return: None
     """
-    # read the mask file
+    # read the full_dim_mask file
     mask = SubsetMask(mask_file)
 
-    # create clipper with mask
+    # create clipper with full_dim_mask
     clipper = MaskClipper(subset_mask=mask, no_data_threshold=-1)
     # clip all inputs and write outputs
     clip_inputs(clipper, input_list=data_files, out_dir=out_dir, pfb_outs=pfb_outs,
                 tif_outs=tif_outs)
 
 
-def box_clip(bbox_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
-    #read the bbox
-    bbox = file_io_tools.read_bbox(bbox_file)
+def box_clip(bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
 
     # create clipper with bbox
     clipper = BoxClipper(ref_array=file_io_tools.read_file(data_files[0]), x=bbox[0], y=bbox[1], nx=bbox[2], ny=bbox[3])
@@ -94,7 +95,7 @@ def locate_tifs(file_list):
 def clip_inputs(clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=NO_DATA):
     """ clip a list of files using a clipper object
 
-    @param clipper: clipper object loaded prepared with mask and reference dataset
+    @param clipper: clipper object prepared with full_dim_mask and reference dataset
     @param input_list: list of data files (tif, pfb) to clip from
     @param out_dir: output directory (optional)
     @param pfb_outs: write pfb files as outputs (optional)
@@ -132,8 +133,10 @@ def main():
                 raise Exception('Must include at least one geotif input or a ref_file when tif_outs is selected')
     if args.mask_file:
         mask_clip(args.mask_file, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
-    else:
-        box_clip(args.bbox_file, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+    elif args.bbox_file:
+        box_clip(file_io_tools.read_bbox(args.bbox_file), args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+    elif args.bbox_def:
+        box_clip(args.bbox_def, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
 

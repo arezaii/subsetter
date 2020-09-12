@@ -1,5 +1,5 @@
 import unittest
-from pf_subsetter.domains import ParflowDomain
+from pf_subsetter.domain import ParflowDomain
 from pf_subsetter.tests.test_files import test_domain_manifest
 import numpy as np
 from test_files import test_domain_inputs
