@@ -1,5 +1,5 @@
 import unittest
-from parflow.subsetter.mask import SubsetMask
+from parflow.subset.mask import SubsetMask
 from test_files import huc10190004
 
 

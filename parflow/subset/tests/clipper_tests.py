@@ -1,9 +1,9 @@
 import unittest
-from parflow.subsetter.clipper import MaskClipper, BoxClipper
-import parflow.subsetter.utils.io as file_io_tools
-from parflow.subsetter.mask import SubsetMask
+from parflow.subset.clipper import MaskClipper, BoxClipper
+import parflow.subset.utils.io as file_io_tools
+from parflow.subset.mask import SubsetMask
 import numpy as np
-import parflow.subsetter.tests.test_files as test_files
+import parflow.subset.tests.test_files as test_files
 import os
 
 

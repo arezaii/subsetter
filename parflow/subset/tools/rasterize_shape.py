@@ -1,6 +1,6 @@
-from rasterizer import ShapefileRasterizer
-from utils.arguments import is_valid_file, is_valid_path, is_positive_integer
-import utils.io as file_io_tools
+from parflow.subset.rasterizer import ShapefileRasterizer
+from parflow.subset.utils.arguments import is_valid_file, is_valid_path, is_positive_integer
+import parflow.subset.utils.io as file_io_tools
 import argparse
 import sys
 import logging

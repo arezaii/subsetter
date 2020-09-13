@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 import numpy.ma as ma
-from parflow.subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
+from parflow.subset import TIF_NO_DATA_VALUE_OUT as NO_DATA
 from abc import ABC, abstractmethod
 
 

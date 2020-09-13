@@ -1,9 +1,9 @@
 import os
 import unittest
 import numpy as np
-import parflow.subsetter.utils.io as file_io_tools
-import parflow.subsetter.tests.test_files as test_files
-from parflow.subsetter.utils.clm import ClmClipper
+import parflow.subset.utils.io as file_io_tools
+import parflow.subset.tests.test_files as test_files
+from parflow.subset.utils.clm import ClmClipper
 
 
 class ClmUtilsClipperRegressionTests(unittest.TestCase):

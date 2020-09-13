@@ -3,9 +3,9 @@ import unittest
 from pathlib import Path
 import gdal
 import numpy as np
-import parflow.subsetter.utils.io as file_io_tools
-import parflow.subsetter.tests.test_files as test_files
-from parflow.subsetter.rasterizer import ShapefileRasterizer
+import parflow.subset.utils.io as file_io_tools
+import parflow.subset.tests.test_files as test_files
+from parflow.subset.rasterizer import ShapefileRasterizer
 
 
 class ShapefileReprojectCase(unittest.TestCase):

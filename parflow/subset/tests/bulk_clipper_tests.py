@@ -1,7 +1,7 @@
 import unittest
-from parflow.subsetter.bin import bulk_clipper
-from parflow.subsetter.tests import test_files
-from parflow.subsetter.utils.io import read_file
+from parflow.subset.tools import bulk_clipper
+from parflow.subset.tests import test_files
+from parflow.subset.utils.io import read_file
 import numpy as np
 import os
 

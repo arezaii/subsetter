@@ -3,8 +3,8 @@ import os
 import numpy as np
 import gdal
 from osgeo import osr
-import parflow.subsetter.utils.io as file_io_tools
-import parflow.subsetter.tests.test_files as test_files
+import parflow.subset.utils.io as file_io_tools
+import parflow.subset.tests.test_files as test_files
 
 
 class FileIOToolBasicTestCase(unittest.TestCase):

@@ -3,16 +3,16 @@ import logging
 import os
 import sys
 from pathlib import Path
-from utils.arguments import is_valid_path, is_positive_integer
-from clipper import MaskClipper
-from domain import Conus
-from rasterizer import ShapefileRasterizer
+from parflow.subset.utils.arguments import is_valid_path, is_positive_integer
+from parflow.subset.clipper import MaskClipper
+from parflow.subset.domain import Conus
+from parflow.subset.rasterizer import ShapefileRasterizer
 from datetime import datetime
-import bin.bulk_clipper as bulk_clipper
-import builders.solidfile as solidfile_generator
-from builders.tcl import build_tcl
-from utils.clm import ClmClipper
-from data import parkinglot_template
+import parflow.subset.tools.bulk_clipper as bulk_clipper
+import parflow.subset.builders.solidfile as solidfile_generator
+from parflow.subset.builders.tcl import build_tcl
+from parflow.subset.utils.clm import ClmClipper
+from parflow.subset.data import parkinglot_template
 
 
 def parse_args(args):

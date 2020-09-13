@@ -1,6 +1,6 @@
 import numpy as np
-import parflow.subsetter.utils.io as file_io_tools
-from parflow.subsetter.clipper import BoxClipper
+import parflow.subset.utils.io as file_io_tools
+from parflow.subset.clipper import BoxClipper
 
 
 class ClmClipper:

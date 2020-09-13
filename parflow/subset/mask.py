@@ -1,8 +1,8 @@
-from parflow.subsetter.utils.io import read_geotiff, write_array_to_geotiff, write_bbox, read_file
+from parflow.subset.utils.io import read_geotiff, write_array_to_geotiff, write_bbox, read_file
 import numpy as np
 import numpy.ma as ma
 import logging
-from parflow.subsetter.bbox import BBox
+from parflow.subset.bbox import BBox
 
 
 class SubsetMask:

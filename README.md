@@ -1,7 +1,7 @@
 [![Build Status](http://travis-ci.com/arezaii/subsetter.svg?branch=master)](http://travis-ci.com/arezaii/subsetter)
 
 # Subsetter
-The pf_subsetter is a suite of tools for clipping ParFlow inputs and outputs. Included are command
+The subsetter is a suite of tools for clipping ParFlow inputs and outputs. Included are command
 line scripts to: 
 
 1. subset the inputs from CONUS1 or CONUS2 domains [subset_conus](#Use_a_mask_to_clip_multiple_files_to_PFB_or_TIF)

@@ -2,7 +2,7 @@
 *.tif
 *.pfb
 *.xml
-parflow/subsetter/tests/test_inputs/CONUS1_Inputs/conus1_Grid_Centers_Short_Deg.format.sa
+parflow/subset/tests/test_inputs/CONUS1_Inputs/conus1_Grid_Centers_Short_Deg.format.sa
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -145,4 +145,4 @@ dmypy.json
 !parflow/subsetter/tests/test_inputs/CONUS1_Inputs/*.pfb
 !parflow/subsetter/tests/test_inputs/CONUS2_Inputs/*.tif
 !parflow/subsetter/tests/test_inputs/CONUS2_Inputs/*.pfb
-!parflow/subsetter/tests/test_inputs/testdom_inputs/Domain_Blank_Mask.tif
+!parflow/subset/tests/test_inputs/testdom_inputs/Domain_Blank_Mask.tif
