@@ -70,6 +70,7 @@ class FileIOToolBasicTestCase(unittest.TestCase):
         sa_read_array = file_io_tools.read_file('sa_out_test_file.sa')
         self.assertIsNone(np.testing.assert_array_almost_equal(sa_ref_array, sa_read_array, decimal=12),
                           'should be able to write to .sa and get the same data back')
+        os.remove('sa_out_test_file.sa')
 
     def test_write_pfb_to_tif_to_sa(self):
         pfb_array = file_io_tools.read_file(test_files.forcings_pfb.as_posix())

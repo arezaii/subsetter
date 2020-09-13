@@ -115,12 +115,16 @@ class RegressionClipTests(unittest.TestCase):
     def test_box_clip_with_padding(self):
         data_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
         # css-like padding (top,right,bot,left)
-        box_clipper = BoxClipper(ref_array=data_array, x=1040, y=1143, nx=85, ny=30, padding=(1, 6, 1, 5))
+        bbox = test_files.huc10190004.get('conus1_bbox')
+        box_clipper = BoxClipper(ref_array=data_array, x=bbox[0], y=bbox[1], nx=bbox[2], ny=bbox[3], padding=(1, 6, 1, 5))
         subset, _, _, _ = box_clipper.subset()
         self.assertEqual(1, subset.shape[0])
         self.assertEqual(32, subset.shape[1])
         self.assertEqual(96, subset.shape[2])
         file_io_tools.write_pfb(subset, 'WBDHU8_conus1_dem_padded.pfb')
+        padded_subset_ref = file_io_tools.read_file(test_files.huc10190004.get('conus1_dem_padded_box').as_posix())
+        self.assertIsNone(np.testing.assert_array_equal(padded_subset_ref, subset))
+        os.remove('WBDHU8_conus1_dem_padded.pfb')
 
 
 if __name__ == '__main__':
