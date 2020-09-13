@@ -2,8 +2,8 @@ import gdal
 import ogr
 import os
 import logging
-from pf_subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
-from pf_subsetter.mask import SubsetMask
+from parflow.subsetter import TIF_NO_DATA_VALUE_OUT as NO_DATA
+from parflow.subsetter.mask import SubsetMask
 
 
 class ShapefileRasterizer:

@@ -3,9 +3,9 @@ import unittest
 from pathlib import Path
 import gdal
 import numpy as np
-import pf_subsetter.utils.io as file_io_tools
-import pf_subsetter.tests.test_files as test_files
-from pf_subsetter.rasterizer import ShapefileRasterizer
+import parflow.subsetter.utils.io as file_io_tools
+import parflow.subsetter.tests.test_files as test_files
+from parflow.subsetter.rasterizer import ShapefileRasterizer
 
 
 class ShapefileReprojectCase(unittest.TestCase):
@@ -47,7 +47,8 @@ class ShapefileReprojectCase(unittest.TestCase):
         rasterizer.reproject_and_mask()
         rasterizer.subset_mask.write_mask_to_tif(filename='testout.tif')
         self.assertIsNone(
-            np.testing.assert_array_equal(file_io_tools.read_file(test_files.huc10190004.get('conus1_mask_-9999999').as_posix()),
+            np.testing.assert_array_equal(file_io_tools.read_file(
+                test_files.huc10190004.get('conus1_mask_-9999999').as_posix()),
                                           file_io_tools.read_file('testout.tif')),
             'Should create a mask from CONUS1 with 1/-9999999')
         os.remove('testout.tif')

@@ -1,4 +1,4 @@
-from pf_subsetter.rasterizer import ShapefileRasterizer
+from rasterizer import ShapefileRasterizer
 from utils.arguments import is_valid_file, is_valid_path, is_positive_integer
 import utils.io as file_io_tools
 import argparse

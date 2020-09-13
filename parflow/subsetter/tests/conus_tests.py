@@ -1,6 +1,6 @@
 import unittest
-from pf_subsetter import data
-from pf_subsetter.domain import Conus
+import parflow.subsetter.data as data
+from parflow.subsetter.domain import Conus
 import os
 
 

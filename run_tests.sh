@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python -m unittest discover -s pf_subsetter/tests -p '*_tests.py'
+python -m unittest discover -s parflow/subsetter/tests -p '*_tests.py'

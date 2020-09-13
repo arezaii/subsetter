@@ -1,6 +1,6 @@
 import numpy as np
-import pf_subsetter.utils.io as file_io_tools
-from pf_subsetter.clipper import MaskClipper, BoxClipper
+import parflow.subsetter.utils.io as file_io_tools
+from parflow.subsetter.clipper import BoxClipper
 
 
 class ClmClipper:

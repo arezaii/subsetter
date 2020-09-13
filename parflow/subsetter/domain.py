@@ -2,8 +2,8 @@ import os
 import logging
 import yaml
 import errno
-from pf_subsetter import data
-import pf_subsetter.utils.io as file_io_tools
+import parflow.subsetter.data as data
+import parflow.subsetter.utils.io as file_io_tools
 
 
 class ParflowDomain:

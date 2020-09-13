@@ -3,9 +3,8 @@ import os
 import numpy as np
 import gdal
 from osgeo import osr
-import pf_subsetter.utils.io as file_io_tools
-import pf_subsetter.tests.test_files as test_files
-from test_files import regression_truth_tif
+import parflow.subsetter.utils.io as file_io_tools
+import parflow.subsetter.tests.test_files as test_files
 
 
 class FileIOToolBasicTestCase(unittest.TestCase):
@@ -23,9 +22,9 @@ class FileIOToolBasicTestCase(unittest.TestCase):
         self.assertEqual(292.95937295652664, results[-1, 40, 40])
 
     def test_read_tif(self):
-        results = file_io_tools.read_file(regression_truth_tif.as_posix())
+        results = file_io_tools.read_file(test_files.regression_truth_tif.as_posix())
         self.assertEqual(3, len(results.shape), 'read a 2d tiff always returns a 3d array')
-        results3d = file_io_tools.read_file(regression_truth_tif.as_posix())
+        results3d = file_io_tools.read_file(test_files.regression_truth_tif.as_posix())
         self.assertEqual(3, len(results3d.shape), 'read a 3d tiff always returns a 3d array')
 
     def test_write_read_bbox(self):
@@ -36,13 +35,13 @@ class FileIOToolBasicTestCase(unittest.TestCase):
         os.remove('bbox_test.txt')
 
     def test_write_tiff(self):
-        ds_ref = gdal.Open(regression_truth_tif.as_posix())
+        ds_ref = gdal.Open(test_files.regression_truth_tif.as_posix())
         file_io_tools.write_array_to_geotiff('test_write_tif_out.tif',
-                                             file_io_tools.read_file(regression_truth_tif.as_posix()),
+                                             file_io_tools.read_file(test_files.regression_truth_tif.as_posix()),
                                              ds_ref.GetGeoTransform(), ds_ref.GetProjection())
         data_array = file_io_tools.read_file('test_write_tif_out.tif')
         self.assertIsNone(np.testing.assert_array_equal(data_array,
-                                                        file_io_tools.read_file(regression_truth_tif.as_posix())),
+                                                        file_io_tools.read_file(test_files.regression_truth_tif.as_posix())),
                           'writing and reading a tif gives back the same array values')
         os.remove('test_write_tif_out.tif')
 
@@ -76,14 +75,14 @@ class FileIOToolBasicTestCase(unittest.TestCase):
         pfb_array = file_io_tools.read_file(test_files.forcings_pfb.as_posix())
         srs = osr.SpatialReference()
         srs.SetWellKnownGeogCS("WGS84")
-        file_io_tools.write_array_to_geotiff(data=pfb_array, out_raster_path='NLDAS.Temp.000001_to_000024.tif',
+        file_io_tools.write_array_to_geotiff(data=pfb_array, out_raster_path='tif_out_test_forcings_file.tif',
                                              geo_transform=[0,1000,0,0,0,-1000], projection=srs.ExportToWkt())
         sa_array = file_io_tools.read_file(test_files.forcings_sa.as_posix())
-        tif_array = file_io_tools.read_file('NLDAS.Temp.000001_to_000024.tif')
+        tif_array = file_io_tools.read_file('tif_out_test_forcings_file.tif')
         self.assertIsNone(np.testing.assert_array_equal(tif_array, pfb_array,
                                                         'Converting from multi-layer pfb to tif gives back same data'))
         self.assertIsNone(np.testing.assert_array_almost_equal(tif_array, sa_array, decimal=4))
-        os.remove('NLDAS.Temp.000001_to_000024.tif')
+        os.remove('tif_out_test_forcings_file.tif')
 
     def test_read_write_tif_to_pfb(self):
         tif_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())

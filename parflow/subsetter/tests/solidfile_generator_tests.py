@@ -1,9 +1,9 @@
 import os
 import unittest
-import pf_subsetter.builders.solidfile as solidfile_generator
-import pf_subsetter.tests.test_files as test_files
-from pf_subsetter.clipper import MaskClipper
-from pf_subsetter.mask import SubsetMask
+import parflow.subsetter.builders.solidfile as solidfile_generator
+import parflow.subsetter.tests.test_files as test_files
+from parflow.subsetter.clipper import MaskClipper
+from parflow.subsetter.mask import SubsetMask
 
 
 class RegressionSolidFileTests(unittest.TestCase):

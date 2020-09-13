@@ -1,5 +1,5 @@
 import unittest
-from pf_subsetter.bbox import BBox
+from parflow.subsetter.bbox import BBox
 
 
 class BBoxTestCases(unittest.TestCase):

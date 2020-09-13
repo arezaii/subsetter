@@ -4,16 +4,15 @@ import os
 import sys
 from pathlib import Path
 from utils.arguments import is_valid_path, is_positive_integer
-from pf_subsetter.clipper import MaskClipper
-from pf_subsetter.domain import Conus
-from pf_subsetter.rasterizer import ShapefileRasterizer
+from clipper import MaskClipper
+from domain import Conus
+from rasterizer import ShapefileRasterizer
 from datetime import datetime
 import bin.bulk_clipper as bulk_clipper
 import builders.solidfile as solidfile_generator
 from builders.tcl import build_tcl
 from utils.clm import ClmClipper
-from pf_subsetter.data import parkinglot_template
-import numpy as np
+from data import parkinglot_template
 
 
 def parse_args(args):
