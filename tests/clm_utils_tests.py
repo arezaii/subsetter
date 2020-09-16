@@ -2,8 +2,9 @@ import os
 import unittest
 import numpy as np
 import parflow.subset.utils.io as file_io_tools
-import parflow.subset.tests.test_files as test_files
+import tests.test_files as test_files
 from parflow.subset.utils.clm import ClmClipper
+from parflow.subset.bbox import BBox
 
 
 class ClmUtilsClipperRegressionTests(unittest.TestCase):
@@ -14,7 +15,8 @@ class ClmUtilsClipperRegressionTests(unittest.TestCase):
         if os.environ.get('TRAVIS'):
             pass
         elif os.path.isfile(test_files.conus1_latlon):
-            bbox = test_files.huc10190004.get('conus1_bbox')
+            bbox_list = test_files.huc10190004.get('conus1_bbox')
+            bbox = BBox(bbox_list[0], bbox_list[1], bbox_list[2], bbox_list[3])
             clm_clipper = ClmClipper(bbox)
 
             latlon_data, _ = clm_clipper.clip_latlon(test_files.conus1_latlon)
@@ -36,7 +38,8 @@ class ClmUtilsClipperRegressionTests(unittest.TestCase):
         if os.environ.get('TRAVIS'):
             pass
         elif os.path.isfile(test_files.conus1_latlon):
-            bbox = test_files.huc10190004.get('conus1_bbox')
+            bbox_list = test_files.huc10190004.get('conus1_bbox')
+            bbox = BBox(bbox_list[0], bbox_list[1], bbox_list[2], bbox_list[3])
             clm_clipper = ClmClipper(bbox)
             latlon_formatted, latlon_data = clm_clipper.clip_latlon(test_files.conus1_latlon)
             clm_clipper.write_lat_lon(latlon_formatted, 'WBDHU8_latlon_test.sa', x=latlon_data.shape[2],
@@ -44,7 +47,7 @@ class ClmUtilsClipperRegressionTests(unittest.TestCase):
             self.assertIsNone(np.testing.assert_array_equal(file_io_tools.read_file('WBDHU8_latlon_test.sa'),
                                                             file_io_tools.read_file(
                                                                 test_files.huc10190004.get('conus1_latlon').as_posix()
-                                                                )),
+                                                            )),
                               'writing and reading a tif gives back the same array values')
             os.remove('WBDHU8_latlon_test.sa')
         else:

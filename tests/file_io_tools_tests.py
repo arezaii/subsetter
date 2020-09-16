@@ -4,7 +4,7 @@ import numpy as np
 import gdal
 from osgeo import osr
 import parflow.subset.utils.io as file_io_tools
-import parflow.subset.tests.test_files as test_files
+import tests.test_files as test_files
 
 
 class FileIOToolBasicTestCase(unittest.TestCase):
@@ -41,7 +41,8 @@ class FileIOToolBasicTestCase(unittest.TestCase):
                                              ds_ref.GetGeoTransform(), ds_ref.GetProjection())
         data_array = file_io_tools.read_file('test_write_tif_out.tif')
         self.assertIsNone(np.testing.assert_array_equal(data_array,
-                                                        file_io_tools.read_file(test_files.regression_truth_tif.as_posix())),
+                                                        file_io_tools.read_file(
+                                                            test_files.regression_truth_tif.as_posix())),
                           'writing and reading a tif gives back the same array values')
         os.remove('test_write_tif_out.tif')
 
@@ -77,7 +78,7 @@ class FileIOToolBasicTestCase(unittest.TestCase):
         srs = osr.SpatialReference()
         srs.SetWellKnownGeogCS("WGS84")
         file_io_tools.write_array_to_geotiff(data=pfb_array, out_raster_path='tif_out_test_forcings_file.tif',
-                                             geo_transform=[0,1000,0,0,0,-1000], projection=srs.ExportToWkt())
+                                             geo_transform=[0, 1000, 0, 0, 0, -1000], projection=srs.ExportToWkt())
         sa_array = file_io_tools.read_file(test_files.forcings_sa.as_posix())
         tif_array = file_io_tools.read_file('tif_out_test_forcings_file.tif')
         self.assertIsNone(np.testing.assert_array_equal(tif_array, pfb_array,

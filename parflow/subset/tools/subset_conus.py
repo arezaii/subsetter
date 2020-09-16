@@ -77,32 +77,45 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def main():
-    # setup logging
-    start_date = datetime.utcnow()
-    logging.basicConfig(filename='subset_conus.log', filemode='w', level=logging.INFO)
-    logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
-    # parse the command line arguments
-    args = parse_args(sys.argv[1:])
-    if args.out_name is None:
-        args.out_name = args.shapefile
-    conus = Conus(version=args.conus_version, local_path=args.conus_files)
+def subset_conus(input_path, shapefile, conus_version=1, conus_files='.', out_dir='.', out_name=None, clip_clm=False,
+                 write_tcl=False, padding=(0, 0, 0, 0), attribute_name='OBJECTID', attribute_ids=None, write_tifs=False):
+    """
+    subset a conus domain inputs for running a regional model
+    @param input_path: path to input shapefile parts to use as mask
+    @param shapefile: name of shapefile to use as mask
+    @param conus_version: version of the CONUS domain to use (1 or 2)
+    @param conus_files: path to the CONUS source input files listed in conus_manifest.yaml
+    @param out_dir: directory to write the outputs (default .)
+    @param out_name: name to give the outputs (default shapefile name)
+    @param clip_clm: whether or not to clip the CLM input files too (default no)
+    @param write_tcl: whether or not to write a TCL file for the subset (default no)
+    @param padding: grid cells of no_data to add around domain mask. CSS Style (top, right, bottom, left) default 0
+    @param attribute_name: attribute name defined in shapefile to select as mask default 'OBJECTID'
+    @param attribute_ids: list of attribute ID's defined in shapefile to use as mask input. default [1]
+    @param write_tifs: whether or not to write outputs as TIF's in addition to PFB's. (default no)
+    @return:
+    """
+    if out_name is None:
+        out_name = shapefile
+    conus = Conus(version=conus_version, local_path=conus_files)
 
+    if attribute_ids is None:
+        attribute_ids = [1]
     # Step 1, rasterize shapefile
 
-    rasterizer = ShapefileRasterizer(args.input_path, args.shapefile, reference_dataset=conus.get_domain_tif(),
-                                     no_data=-999, output_path=args.out_dir, )
-    rasterizer.rasterize_shapefile_to_disk(out_name=f'{args.out_name}_raster_from_shapefile.tif',
-                                           padding=args.padding,
-                                           attribute_name=args.attribute_name,
-                                           attribute_ids=args.attribute_ids)
+    rasterizer = ShapefileRasterizer(input_path, shapefile, reference_dataset=conus.get_domain_tif(),
+                                     no_data=-999, output_path=out_dir, )
+    rasterizer.rasterize_shapefile_to_disk(out_name=f'{out_name}_raster_from_shapefile.tif',
+                                           padding=padding,
+                                           attribute_name=attribute_name,
+                                           attribute_ids=attribute_ids)
 
     subset_mask = rasterizer.subset_mask
 
     # Step 2, Generate solid file
     clip = MaskClipper(subset_mask, no_data_threshold=-1)
     batches = solidfile_generator.make_solid_file(clipped_mask=clip.clipped_mask,
-                                                  out_name=os.path.join(args.out_dir, args.out_name))
+                                                  out_name=os.path.join(out_dir, out_name))
     if len(batches) == 0:
         raise Exception("Did not make solid file correctly")
 
@@ -110,15 +123,15 @@ def main():
     bulk_clipper.clip_inputs(clip,
                              [os.path.join(conus.local_path, value) for key, value in conus.required_files.items()
                               if key not in ['DOMAIN_MASK', 'CHANNELS']],
-                             out_dir=args.out_dir, tif_outs=args.write_tifs)
+                             out_dir=out_dir, tif_outs=write_tifs)
 
     # Step 4. Clip CLM inputs
-    if args.clip_clm == 1:
+    if clip_clm == 1:
         clm_clipper = ClmClipper(subset_mask)
         latlon_formatted, latlon_data = clm_clipper.clip_latlon(os.path.join(conus.local_path,
                                                                              conus.optional_files.get('LAT_LON')))
 
-        clm_clipper.write_lat_lon(latlon_formatted, os.path.join(args.out_dir, f'{args.out_name}_latlon.sa'),
+        clm_clipper.write_lat_lon(latlon_formatted, os.path.join(out_dir, f'{out_name}_latlon.sa'),
                                   x=latlon_data.shape[2], y=latlon_data.shape[1], z=latlon_data.shape[0])
 
         land_cover_data, vegm_data = clm_clipper.clip_land_cover(lat_lon_array=latlon_formatted,
@@ -126,17 +139,31 @@ def main():
                                                                                               conus.optional_files.get(
                                                                                                   'LAND_COVER')))
 
-        clm_clipper.write_land_cover(vegm_data, os.path.join(args.out_dir, f'{args.out_name}_vegm.dat'))
+        clm_clipper.write_land_cover(vegm_data, os.path.join(out_dir, f'{out_name}_vegm.dat'))
 
     # Step 5. Generate TCL File
-    if args.write_tcl == 1:
-        build_tcl(os.path.join(args.out_dir, f'{args.out_name}.tcl'),
+    if write_tcl == 1:
+        build_tcl(os.path.join(out_dir, f'{out_name}.tcl'),
                   parkinglot_template,
-                  args.out_name,
-                  os.path.join(args.out_dir, f'{Path(conus.required_files.get("SLOPE_X")).stem}_clip.pfb'),
-                  os.path.join(args.out_dir, f'{args.out_name}.pfsol'),
-                  os.path.join(args.out_dir, 'pme.pfb'), end_time=10, batches=batches,
+                  out_name,
+                  os.path.join(out_dir, f'{Path(conus.required_files.get("SLOPE_X")).stem}_clip.pfb'),
+                  os.path.join(out_dir, f'{out_name}.pfsol'),
+                  os.path.join(out_dir, 'pme.pfb'), end_time=10, batches=batches,
                   p=2, q=1, r=1, timestep=1, constant=1)
+
+
+def main():
+    # setup logging
+    start_date = datetime.utcnow()
+    # parse the command line arguments
+    cmd_line_args = sys.argv
+    args = parse_args(cmd_line_args[1:])
+    logging.basicConfig(filename=os.path.join(args.out_dir, 'subset_conus.log'), filemode='w', level=logging.INFO)
+    logging.info(f'start process at {start_date} from command {" ".join(cmd_line_args[:])}')
+    subset_conus(input_path=args.input_path, shapefile=args.shapefile, conus_version=args.conus_version,
+                 conus_files=args.conus_files, out_dir=args.out_dir, out_name=args.out_name, clip_clm=args.clip_clm,
+                 write_tcl=args.write_tcl, padding=args.padding, attribute_ids=args.attribute_ids,
+                 attribute_name=args.attribute_name, write_tifs=args.write_tifs)
 
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date - start_date}')

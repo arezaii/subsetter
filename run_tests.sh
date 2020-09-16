@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python -m unittest discover -s parflow/subset/tests -p '*_tests.py'
+python -m unittest discover -s tests -p '*_tests.py'

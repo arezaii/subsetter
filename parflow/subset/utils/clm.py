@@ -8,10 +8,11 @@ class ClmClipper:
     def __init__(self, bbox):
         """Clip CLM datafiles lat/lon and land cover
 
-        @param subset_mask: SubsetMask object for the mask
+        @param bbox: BBox object describing the mask bounds
         """
-        self.bbox = bbox
-        self.clipper = BoxClipper(ref_array=None, x=bbox[0], y=bbox[1], nx=bbox[2], ny=bbox[3], nz=1)
+        self.bbox = bbox.get_human_bbox()
+        self.clipper = BoxClipper(ref_array=None, x=self.bbox[0], y=self.bbox[1], nx=self.bbox[2], ny=self.bbox[3],
+                                  nz=1)
 
     def clip_latlon(self, lat_lon_file):
         """ Clip the domain lat/lon data to the bounding box of the mask

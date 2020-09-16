@@ -1,4 +1,4 @@
-from parflow.subset.utils.io import read_geotiff, write_array_to_geotiff, write_bbox, read_file
+from parflow.subset.utils.io import read_geotiff, write_array_to_geotiff, write_bbox, read_file, write_pfb
 import numpy as np
 import numpy.ma as ma
 import logging
@@ -11,11 +11,11 @@ class SubsetMask:
         self.mask_tif = read_geotiff(tif_file)
         self.mask_array = read_file(tif_file)
         self.bbox_val = bbox_val
-        self.inner_mask = self._find_inner_object() #tight crop
-        self.bbox_mask = self._find_bbox() #bbox crop
+        self.inner_mask = self._find_inner_object()  # tight crop
+        self.bbox_mask = self._find_bbox()  # bbox crop
         self.no_data_value = self.mask_tif.GetRasterBand(1).GetNoDataValue()
-        self.inner_mask_edges = self.find_mask_edges(self.inner_mask) #edges
-        self.bbox_edges = self.find_mask_edges(self.bbox_mask) #edges
+        self.inner_mask_edges = self.find_mask_edges(self.inner_mask)  # edges
+        self.bbox_edges = self.find_mask_edges(self.bbox_mask)  # edges
 
     def _find_bbox(self):
         """ locate the outer bbox area
@@ -37,12 +37,12 @@ class SubsetMask:
 
     @property
     def bbox_shape(self):
-        return tuple([(self.bbox_edges[1]-self.bbox_edges[0]) + 1, (self.bbox_edges[3]-self.bbox_edges[2]) + 1])
+        return tuple([(self.bbox_edges[1] - self.bbox_edges[0]) + 1, (self.bbox_edges[3] - self.bbox_edges[2]) + 1])
 
     @property
     def inner_mask_shape(self):
-        return tuple([(self.inner_mask_edges[1]-self.inner_mask_edges[0]) + 1,
-                      (self.inner_mask_edges[3]-self.inner_mask_edges[2]) + 1])
+        return tuple([(self.inner_mask_edges[1] - self.inner_mask_edges[0]) + 1,
+                      (self.inner_mask_edges[3] - self.inner_mask_edges[2]) + 1])
 
     @property
     def mask_shape(self):
@@ -50,10 +50,9 @@ class SubsetMask:
 
     def add_bbox_to_mask(self, padding=(0, 0, 0, 0)):
         """ add the inner bounding box of 0's to the reprojected full_dim_mask. This will expand the bounding box of the
-        clip so that the full_dim_mask is centered in the bbox and the bbox edges expand proportionally in each direction
-        to make the final bbox edges a multiple of the side_length_multiple argument
+        clip so that the full_dim_mask is centered in the bbox and the bbox edges expand proportionally in each
+        direction to make the final bbox edges a multiple of the side_length_multiple argument
 
-        @param tiff_path: path to the tiff file that defines the full_dim_mask with no_data and 1
         @param padding: optional padding to add as 0's around full_dim_mask. css style (top,right,bottom,left)
         @return: 3d array with no data outside the bbox, 0 inside bbox, and 1 in full_dim_mask area, bounding box values
         """
@@ -65,7 +64,7 @@ class SubsetMask:
         new_edges = [max(min_y - padding[2], 0), min(max_y + padding[0] + 1, self.mask_array.shape[1]),
                      max(min_x - padding[3], 0), min(max_x + padding[1] + 1, self.mask_array.shape[2])]
         bottom_edge, top_edge, left_edge, right_edge = new_edges
-        new_mask[:, bottom_edge: top_edge, left_edge: right_edge] =\
+        new_mask[:, bottom_edge: top_edge, left_edge: right_edge] = \
             self.inner_mask[:, bottom_edge: top_edge, left_edge: right_edge].filled(fill_value=0.0)
         # Check if shape bbox aligns with any of our reference dataset edges
         # if 0 in new_edges or new_mask.shape[1] - 1 == [bottom_edge] or new_mask.shape[2] - 1 == right_edge:
@@ -125,6 +124,9 @@ class SubsetMask:
     def write_mask_to_tif(self, filename):
         write_array_to_geotiff(filename, self.mask_array, self.mask_tif.GetGeoTransform(),
                                self.mask_tif.GetProjection(), no_data=self.no_data_value)
+
+    def write_mask_to_pfb(self, filename):
+        write_pfb(data=self.mask_array, outfile=filename)
 
     def write_bbox(self, filename):
         write_bbox(self.get_human_bbox(), filename)

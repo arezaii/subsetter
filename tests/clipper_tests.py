@@ -3,13 +3,13 @@ from parflow.subset.clipper import MaskClipper, BoxClipper
 import parflow.subset.utils.io as file_io_tools
 from parflow.subset.mask import SubsetMask
 import numpy as np
-import parflow.subset.tests.test_files as test_files
+import tests.test_files as test_files
 import os
 
 
 class RegressionClipTests(unittest.TestCase):
     """
-    Regression tests to verify subsetting can correctly clip a data file,
+    Regression tests1 to verify subsetting can correctly clip a data file,
     correctly produces the subset clip,
     and correctly writes the bounding box file
     """
@@ -116,7 +116,8 @@ class RegressionClipTests(unittest.TestCase):
         data_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
         # css-like padding (top,right,bot,left)
         bbox = test_files.huc10190004.get('conus1_bbox')
-        box_clipper = BoxClipper(ref_array=data_array, x=bbox[0], y=bbox[1], nx=bbox[2], ny=bbox[3], padding=(1, 6, 1, 5))
+        box_clipper = BoxClipper(ref_array=data_array, x=bbox[0], y=bbox[1], nx=bbox[2], ny=bbox[3],
+                                 padding=(1, 6, 1, 5))
         subset, _, _, _ = box_clipper.subset()
         self.assertEqual(1, subset.shape[0])
         self.assertEqual(32, subset.shape[1])

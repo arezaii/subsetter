@@ -134,7 +134,8 @@ def main():
     if args.mask_file:
         mask_clip(args.mask_file, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
     elif args.bbox_file:
-        box_clip(file_io_tools.read_bbox(args.bbox_file), args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+        box_clip(file_io_tools.read_bbox(args.bbox_file), args.data_files, args.out_dir, args.write_pfbs,
+                 args.write_tifs)
     elif args.bbox_def:
         box_clip(args.bbox_def, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
     end_date = datetime.utcnow()

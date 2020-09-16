@@ -67,7 +67,8 @@ def main():
     logging.info(f'finish process at {end_date} for a runtime of {end_date - start_date}')
 
 
-def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None, padding=(0,0,0,0), attribute_name=None,
+def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None, padding=(0, 0, 0, 0),
+                    attribute_name=None,
                     attribute_ids=None):
     """ rasterize a shapefile to disk in the projection and extents of the reference file
 
@@ -91,4 +92,3 @@ def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None,
 
 if __name__ == '__main__':
     main()
-

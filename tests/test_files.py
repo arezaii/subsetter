@@ -38,7 +38,15 @@ huc10190004 = {'conus1_mask': local_dir / 'test_inputs/WBDHU8_conus1_mask.tif',
                'conus1_vegm': local_dir / 'test_inputs/WBDHU8_conus1_vegm.dat',
                'conus1_latlon': local_dir / 'test_inputs/WBDHU8_conus1_latlon.sa'}
 
+cuahsi_ref_10190004 = { 'conus2_mask': local_dir / 'test_inputs/HUC10190004_cuahsi_clip/Regions.tif',
+                        'conus2_sol': local_dir / 'test_inputs/HUC10190004_cuahsi_clip/subset.pfsol',
+                        'conus2_vtk' : local_dir /'test_inputs/HUC10190004_cuahsi_clip/subset.vtk',
+                        'conus2_slopeX' : local_dir / 'test_inputs/HUC10190004_cuahsi_clip/slopex.pfb',
+                        'conus2_slopeY' : local_dir /'test_inputs/HUC10190005_cuahsi_clip/slopey.pfb'
+                        }
+
+
+
 test_domain_manifest = local_dir / 'test_inputs/test_domain_manifest.yaml'
 
 test_domain_inputs = local_dir / 'test_inputs/testdom_inputs'
-

@@ -1,14 +1,14 @@
 import os
 import unittest
 import parflow.subset.builders.solidfile as solidfile_generator
-import parflow.subset.tests.test_files as test_files
+import tests.test_files as test_files
 from parflow.subset.clipper import MaskClipper
 from parflow.subset.mask import SubsetMask
 
 
 class RegressionSolidFileTests(unittest.TestCase):
     """
-    Regression tests to verify solidfile_generator creates solid file correctly from mask
+    Regression tests1 to verify solidfile_generator creates solid file correctly from mask
     """
 
     asc_filenames = ['Back_Border.asc', 'Bottom_Border.asc', 'Front_Border.asc',
