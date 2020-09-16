@@ -1,15 +1,14 @@
 import os
 import unittest
-import gdal
-import src.file_io_tools as file_io_tools
-import src.solidfile_generator as solidfile_generator
+import parflow.subset.builders.solidfile as solidfile_generator
 import tests.test_files as test_files
-from src.clipper import Clipper
+from parflow.subset.clipper import MaskClipper
+from parflow.subset.mask import SubsetMask
 
 
 class RegressionSolidFileTests(unittest.TestCase):
     """
-    Regression tests to verify solidfile_generator creates solid file correctly from mask
+    Regression tests1 to verify solidfile_generator creates solid file correctly from mask
     """
 
     asc_filenames = ['Back_Border.asc', 'Bottom_Border.asc', 'Front_Border.asc',
@@ -23,9 +22,8 @@ class RegressionSolidFileTests(unittest.TestCase):
                 pass
 
     def test_create_solid_file_conus1(self):
-        mask = file_io_tools.read_file(test_files.huc10190004.get('conus1_mask'))
-        ref_ds = file_io_tools.read_geotiff(test_files.conus1_dem)
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
+        my_mask = SubsetMask(test_files.huc10190004.get('conus1_mask').as_posix())
+        clipper = MaskClipper(subset_mask=my_mask, no_data_threshold=-1)
         batches = solidfile_generator.make_solid_file(clipped_mask=clipper.clipped_mask, out_name='conus1_solid')
         self.assertEqual(batches, '0 3 6 ')
         with open('conus1_solid.pfsol', 'r') as test_file:
@@ -44,9 +42,8 @@ class RegressionSolidFileTests(unittest.TestCase):
         os.remove('conus1_solid.pfsol')
 
     def test_create_solid_file_conus2(self):
-        mask = file_io_tools.read_file(test_files.huc10190004.get('conus2_mask'))
-        ref_ds = gdal.Open(test_files.conus2_dem)
-        clipper = Clipper(mask_array=mask, reference_dataset=ref_ds, no_data_threshold=-1)
+        my_mask = SubsetMask(test_files.huc10190004.get('conus2_mask').as_posix())
+        clipper = MaskClipper(subset_mask=my_mask, no_data_threshold=-1)
         batches = solidfile_generator.make_solid_file(clipper.clipped_mask, 'conus2_solid')
         self.assertEqual(batches, '0 3 6 ')
         with open('conus2_solid.pfsol', 'r') as test_file:
@@ -58,7 +55,7 @@ class RegressionSolidFileTests(unittest.TestCase):
         may vary
         """
         with open('conus2_solid.vtk', 'r') as test_file:
-            with open(test_files.huc10190004.get('conus2_vtk'), 'r') as ref_file:
+            with open(test_files.huc10190004.get('conus2_vtk').as_posix(), 'r') as ref_file:
                 self.assertEqual(test_file.read().split('\n')[2:], ref_file.read().split('\n')[2:],
                                  'Writing vtk file matches reference for conus2')
         for f in self.asc_filenames:

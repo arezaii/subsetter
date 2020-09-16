@@ -1,3 +1,5 @@
 numpy
 pandas
-GDAL~=2.4.2
+gdal~=2.4.2
+pyyaml
+parflowio

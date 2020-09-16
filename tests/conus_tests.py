@@ -1,23 +1,18 @@
 import unittest
-
-from src.conus import Conus
+import parflow.subset.data as data
+from parflow.subset.domain import Conus
+import os
 
 
 class ConusClassTests(unittest.TestCase):
-    testDir = 'TestDirectory'
 
-    # Can't perform this positive test case without all the files present
-    # def test_folder_exists(self):
-    #     os.mkdir(self.testDir)
-    #     try:
-    #         Conus(1, self.testDir)
-    #     except:
-    #         self.fail("Conus(1, self.testDir) raised an exception unexpectedly!")
-    #     shutil.rmtree(self.testDir)
-
-    def test_folder_not_exists(self):
-        with self.assertRaises(Exception):
-            Conus(1, self.testDir)
+    # Can't perform positive test case without all the required_files present
+    def test_normal_startup(self):
+        if os.getenv('TRAVIS', default=False):
+            pass
+        else:
+            conus1 = Conus(local_path='../subset_1/CONUS1_inputs')
+            self.assertEqual(conus1.manifest_file, data.conus_manifest)
 
 
 if __name__ == '__main__':

@@ -8,13 +8,9 @@ python:
 install:
   - sudo add-apt-repository ppa:ubuntugis/ppa -y && sudo apt-get update -y
   - sudo apt update
-  - sudo apt-get install gdal-bin
+  - sudo apt-get install gdal-bin python-gdal
   - sudo apt-get install libgdal-dev
   - pip install -r requirements.txt
-  - git clone https://github.com/arezaii/pf_tools
-  - cd pf_tools/pfio
-  - pip install .
-  - cd ../..
   - git clone https://github.com/smithsg84/pf-mask-utilities.git $HOME/pf-mask-utilities
   - cd $HOME/pf-mask-utilities
   - sed -i 's|-Ithird-party|-Ithird-party -I/usr/include/tcl|' Makefile
@@ -26,4 +22,4 @@ env:
   - PFMASKUTILS=$HOME/pf-mask-utilities CPLUS_INLCUDE_PATH=/usr/include/gdal C_INCLUDE_PATH=/usr/include/gdal
 # command to run tests
 script:
-  - python -m unittest discover tests -p '*_tests.py'
+  - bash ./run_tests.sh
