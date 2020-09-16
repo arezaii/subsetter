@@ -108,7 +108,7 @@ chmod +x run_tests.sh
 
 #### Create subset from CONUS models from a shapefile
 ```
-python -m src.subset_conus -i <path_to_shapefile_parts> -s <shapefile_name> -f <path_to_conus_input_files> 
+python -m parflow.subset.tools.subset_conus -i <path_to_shapefile_parts> -s <shapefile_name> -f <path_to_conus_input_files> 
                             -n [name_for_output_files=shapfile_name] 
                             -v [conus_verson=1] 
                             -o [path_to_write_outputs=.] 
@@ -125,12 +125,12 @@ python -m src.subset_conus -i <path_to_shapefile_parts> -s <shapefile_name> -f <
 
 Create a subset of the CONUS1 domain with CLM inputs based on the shapefile at ~/downloads/shapfiles/WBDHU8.shp and write the .tcl file to run the model
 ```
-python -m src.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/conus1 -c 1 -w 1 -n watershedA_conus1_clip
+python -m parflow.subset.tools.subset_conus -i ~/downloads/shapefiles -s WBDHU8 -f ~/downloads/conus1 -c 1 -w 1 -n watershedA_conus1_clip
 ```
 
 #### Rasterize a shapefile for use as a mask
 ```
-python -m src.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -r <reference_dataset> 
+python -m parflow.subset.tools.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -r <reference_dataset> 
                               -o [path_to_write_outputs=.] 
                               -n [output_filename=shapfile_name] 
                               -x [padding for left and right=0]
@@ -144,7 +144,7 @@ python -m src.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -
 
 Re-project the shapefile at ~/downloads/shapfiles/WBDHU8.shp to the CONUS1 projection and extent
 ```
-python -m src.rasterize_shape -i ~/downloads/shapefiles -s WBDHU8
+python -m parflow.subset.tools.rasterize_shape -i ~/downloads/shapefiles -s WBDHU8
 ```
 
 
@@ -154,7 +154,7 @@ assumes all files are identically gridded and same as the mask file, if write_ti
 must supply at least one tif with correct projection and transform information as either the mask file, 
 as a reference dataset with the -r option, or in the list of datafiles to clip
 ```
-python -m src.bulk_clipper [-m <mask_file> OR -b <bbox file>] -d <list_of_datafiles_to_clip> 
+python -m parflow.subset.tools.bulk_clipper [-m <mask_file> OR -b <bbox file>] -d <list_of_datafiles_to_clip> 
                            -t [write_tifs=0] 
                            -o [output_directory=.]
 ```
@@ -162,7 +162,7 @@ python -m src.bulk_clipper [-m <mask_file> OR -b <bbox file>] -d <list_of_datafi
 
 Clip the domain outputs to the bounds of a mask generated from rasterize_shape or subset_conus
 ```
-python -m src.bulk_clipper -m ~/outputs/WBDHU8.tif -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
+python -m parflow.subset.tools.bulk_clipper -m ~/outputs/WBDHU8.tif -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
 ```
 
 **Example usage with bounding box file:**
