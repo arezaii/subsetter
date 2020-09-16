@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="parflow_subsetter",
-    version="0.0.17",
+    version="0.0.24",
     author="Ahmad Rezaii",
     author_email="ahmadrezaii@u.boisestate.edu",
     description="A set of tools for clipping ParFlow models and their outputs",
@@ -26,6 +26,11 @@ setuptools.setup(
         ]
     },
     python_requires='>=3.6',
-    install_requires=['pyyaml>=5.3.0', 'pandas>=1.0', 'gdal==2.2.2', 'parflowio'],
+    install_requires=['pyyaml>=5.3.0', 'pandas>=1.0', 'parflowio'],
     namespace_packages=['parflow'],
+    package_data={
+        # Include any *.yaml, *.tcl files found in the "data" subdirectory
+        # of the "parflow.subset" package, also:
+        "parflow.subset": ["data/*.yaml", "data/*.tcl"],
+    }
 )
