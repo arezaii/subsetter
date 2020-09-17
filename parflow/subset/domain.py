@@ -1,3 +1,5 @@
+"""Represent a ParFlow domain
+"""
 import os
 import logging
 import yaml
@@ -7,14 +9,23 @@ import parflow.subset.utils.io as file_io_tools
 
 
 class ParflowDomain:
-
+    """A ParFlow domain described by a YAML file"""
     def __init__(self, name, local_path, manifest_file=None, version=1):
-        """ Information about the ParFlow model and dataset we are working with
+        """Information about the ParFlow domain and dataset we are working with
 
-        @param name: the name of the Model to create
-        @param local_path: path on system where ALL model inputs live
-        @param manifest_file: a file containing the keys and values for Model input required_files
-        @param version: the Model version to create (optional)
+        Parameters
+        ----------
+        name : str
+            the name of the Domain to create
+        local_path : str
+             path on system where ALL domain inputs live
+        manifest_file : str, optional
+            path on system to domain_manifest.yml file
+        version : int, optional
+            the version of the domain to load, as defined in the yaml file (default=1)
+        Returns
+        -------
+        ParflowDomain
         """
         self.name = name
         self.version = version
@@ -30,34 +41,63 @@ class ParflowDomain:
         self.mask_array = None
 
     def _load_domain_tif(self, domain_mask_key='DOMAIN_MASK'):
+        """Load the domain raster
+        Parameters
+        ----------
+        domain_mask_key : str, optional
+             Key value to load from domain definition (Default value = 'DOMAIN_MASK')
+
+        Returns
+        -------
+        None
+        """
         tif_filename = os.path.join(self.local_path, self.required_files.get(domain_mask_key))
         self.mask_tif = file_io_tools.read_geotiff(tif_filename)
         self.mask_array = file_io_tools.read_file(tif_filename)
 
     def get_domain_mask(self, domain_mask_key='DOMAIN_MASK'):
-        """ get the domain full_dim_mask array
+        """get the domain full_dim_mask array
 
-        @param domain_mask_key: key in yaml file which defines the domain full_dim_mask
-        @return: numpy array for the domain full_dim_mask
+        Parameters
+        ----------
+        domain_mask_key : str, optional
+            key in yaml file which defines the domain full_dim_mask (Default value = 'DOMAIN_MASK')
+
+        Returns
+        -------
+        mask_array : ndarray
+            numpy array for the domain full_dim_mask
+
         """
         if self.mask_array is None:
             self._load_domain_tif(domain_mask_key)
         return self.mask_array
 
     def get_domain_tif(self, domain_mask_key='DOMAIN_MASK'):
-        """ get the domain full_dim_mask tif as a gdal geotif object
+        """get the domain full_dim_mask tif as a gdal geotif object
 
-        @param domain_mask_key: key in yaml file which defines the domain full_dim_mask
-        @return: gdal object for the domain full_dim_mask
+        Parameters
+        ----------
+        domain_mask_key : str, optional
+            key in yaml file which defines the domain full_dim_mask (Default value = 'DOMAIN_MASK')
+
+        Returns
+        -------
+        mask_tif
+            gdal object for the domain full_dim_mask
+
         """
         if self.mask_tif is None:
             self._load_domain_tif(domain_mask_key)
         return self.mask_tif
 
     def check_inputs_exist(self):
-        """ Look for each input file to see if it exists
+        """Look for each input file to see if it exists
 
-        @return: None
+        Returns
+        -------
+        None
+
         """
         # check for required files
         required_missing = self._identify_missing_inputs(self.required_files)
@@ -71,10 +111,18 @@ class ParflowDomain:
         return None
 
     def _identify_missing_inputs(self, file_dict):
-        """ Identify any missing files from the file dictionary
+        """Identify any missing files from the file dictionary
 
-        @param file_dict: dictionary mapping the input file and filenames for the model
-        @return: list of missing files
+        Parameters
+        ----------
+        file_dict : dict
+            dictionary mapping the input file and filenames for the model
+
+        Returns
+        -------
+        missing : list
+            list of missing files
+
         """
         missing = []
         for name, file_name in file_dict.items():
@@ -84,10 +132,16 @@ class ParflowDomain:
         return missing
 
     def check_destination(self):
-        """ make sure the local folder to store inputs exists
+        """make sure the local folder to store inputs exists
 
-        @return: None if folder exists
-        @raise: FileNotFoundError if folder does not exist
+        Returns
+        -------
+        None
+            None if folder exists
+        Raises
+        ------
+        FileNotFoundError
+            if a destination folder is not found
         """
         if not os.path.isdir(self.local_path):
             msg = self.local_path
@@ -96,7 +150,7 @@ class ParflowDomain:
         return None
 
     def _read_manifest(self, required_file_dict, optional_file_dict):
-        """ read a manifest file in yaml format like so:
+        """read a manifest file in yaml format like so:
         <model>:
             <ver>:
                 required_files:
@@ -104,10 +158,22 @@ class ParflowDomain:
                 optional_files:
                     <file mappings>
 
-        @param required_file_dict: domain file dict to update
-        @param optional_file_dict: optional_files data dict to update
-        @return: None
-        @raise AttributeError if required_files key is missing
+        Parameters
+        ----------
+        required_file_dict : dict
+            domain file dict to update
+        optional_file_dict : dict
+            optional_files data dict to update
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        AttributeError
+            if required_files key is missing
+
         """
         with open(self.manifest_file, 'r') as manifest_file:
             yml = yaml.safe_load_all(manifest_file)
@@ -135,11 +201,20 @@ class ParflowDomain:
 class Conus(ParflowDomain):
 
     def __init__(self, local_path, manifest_file=None, version=1):
-        """ Information about the CONUS dataset we are working with
+        """Information about the CONUS domain we are working with
 
-        @param local_path: path on system where conus inputs live
-        @param manifest_file: a file containing the keys and values for CONUS input required_files
-        @param version: the conus version to create
+        Parameters
+        ----------
+        local_path : str
+            path on system where conus inputs live
+        manifest_file : str, optional
+            a file containing the keys and values for CONUS input required_files
+        version : int, optional
+            the conus version to create
+
+        Returns
+        -------
+        Conus
         """
         if manifest_file is None:
             manifest_file = data.conus_manifest

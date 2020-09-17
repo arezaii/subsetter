@@ -1,3 +1,8 @@
+"""Convenience wrapper for looping and clipping identically gridded in inputs
+
+Everything here can be customized using the classes in the subset package
+
+"""
 import sys
 import argparse
 import os
@@ -12,6 +17,19 @@ import parflow.subset.utils.io as file_io_tools
 
 
 def parse_args(args):
+    """Parse the command line arguments
+
+    Parameters
+    ----------
+    args : list
+        list of arguments from sys.argv
+
+    Returns
+    -------
+    Namespace
+        populated Namespace object from the parsed command line options
+
+    """
     parser = argparse.ArgumentParser('Clip a list of identically gridded files and extract the data within the mask')
 
     exclusive_group = parser.add_mutually_exclusive_group(required=True)
@@ -55,14 +73,25 @@ def parse_args(args):
 
 
 def mask_clip(mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
-    """ clip a list of files using a full_dim_mask and a domain reference tif
+    """clip a list of files using a full_dim_mask and a domain reference tif
 
-    @param mask_file: full_dim_mask file generated from shapefile to mask utility no_data,0's=bbox,1's=mask
-    @param data_files: list of data files (tif, pfb) to clip from
-    @param out_dir: output directory (optional)
-    @param pfb_outs: write pfb files as outputs (optional)
-    @param tif_outs: write tif files as outputs (optional)
-    @return: None
+    Parameters
+    ----------
+    mask_file : string
+        full_dim_mask file generated from shapefile to mask utility no_data,0's=bbox,1's=mask
+    data_files : list
+        list of data files (tif, pfb) to clip from
+    out_dir : string, optional
+        output directory (optional) (Default value = '.')
+    pfb_outs : int, optional
+        write pfb files as outputs (optional) (Default value = 1)
+    tif_outs : int, optional
+        write tif files as outputs (optional) (Default value = 0)
+
+    Returns
+    -------
+    None
+
     """
     # read the full_dim_mask file
     mask = SubsetMask(mask_file)
@@ -75,6 +104,26 @@ def mask_clip(mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
 
 
 def box_clip(bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
+    """clip a list of files using a bounding box
+
+    Parameters
+    ----------
+    bbox : tuple
+        tuple of x, y, nx, ny to specifies the bounding region
+    data_files : list
+        list of data files (tif, pfb) to clip from
+    out_dir : string, optional
+        output directory (optional) (Default value = '.')
+    pfb_outs : int, optional
+        write pfb files as outputs (optional) (Default value = 1)
+    tif_outs : int, optional
+        write tif files as outputs (optional) (Default value = 0)
+
+    Returns
+    -------
+    None
+    
+    """
 
     # create clipper with bbox
     clipper = BoxClipper(ref_array=file_io_tools.read_file(data_files[0]), x=bbox[0], y=bbox[1], nx=bbox[2], ny=bbox[3])
@@ -84,24 +133,43 @@ def box_clip(bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
 
 
 def locate_tifs(file_list):
-    """ identify the .tif files in a list of files
+    """identify the .tif files in a list of files
 
-    @param file_list: list of files to parse
-    @return: array of files where the extension is .tif
+    Parameters
+    ----------
+    file_list : list
+        list of files to parse
+
+    Returns
+    -------
+    list
+        list of files where the extension is .tif
+
     """
     return [s for s in file_list if '.tif' in s.lower()]
 
 
 def clip_inputs(clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=NO_DATA):
-    """ clip a list of files using a clipper object
+    """clip a list of files using a clipper object
 
-    @param clipper: clipper object prepared with full_dim_mask and reference dataset
-    @param input_list: list of data files (tif, pfb) to clip from
-    @param out_dir: output directory (optional)
-    @param pfb_outs: write pfb files as outputs (optional)
-    @param tif_outs: write tif files as outputs (optional)
-    @param no_data: no_data value for tifs (optional)
-    @return:
+    Parameters
+    ----------
+    clipper : Clipper
+        clipper object prepared with full_dim_mask and reference dataset
+    input_list : list
+        list of data files (tif, pfb) to clip from
+    out_dir : string, optional
+        output directory (optional) (Default value = '.')
+    pfb_outs : int, optional
+        write pfb files as outputs (optional) (Default value = 1)
+    tif_outs : int, optional
+        write tif files as outputs (optional) (Default value = 0)
+    no_data : int, optional
+        no_data value for tifs (optional) (Default value = NO_DATA)
+
+    Returns
+    -------
+    None
     """
     ref_proj = None
     if tif_outs:

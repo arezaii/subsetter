@@ -1,13 +1,30 @@
-from parflow.subset.rasterizer import ShapefileRasterizer
-from parflow.subset.utils.arguments import is_valid_file, is_valid_path, is_positive_integer
-import parflow.subset.utils.io as file_io_tools
+"""Convenience wrapper for rasterizing shapefile inputs to a reference grid
+
+Everything here can be customized using the classes in the subset package
+"""
 import argparse
 import sys
 import logging
 from datetime import datetime
+from parflow.subset.rasterizer import ShapefileRasterizer
+from parflow.subset.utils.arguments import is_valid_file, is_valid_path, is_positive_integer
+import parflow.subset.utils.io as file_io_tools
 
 
 def parse_args(args):
+    """Parse the command line arguments
+
+    Parameters
+    ----------
+    args : list
+        list of arguments from sys.argv
+
+    Returns
+    -------
+    Namespace
+        populated Namespace object from the parsed command line options
+
+    """
     parser = argparse.ArgumentParser('Generate a Raster From a Shapefile')
 
     parser.add_argument("--input_path", "-i", dest="input_path", required=True,
@@ -72,15 +89,28 @@ def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None,
                     attribute_ids=None):
     """ rasterize a shapefile to disk in the projection and extents of the reference file
 
-    @param input_path: path to input files (shapefile set)
-    @param shapefile: name of shapefile dataset
-    @param ref_file: tif file describing the domain
-    @param out_dir: directory to write output to (optional)
-    @param out_file: filename to give output (optional)
-    @param padding: padding (top,right,bottom,left) (optional)
-    @param attribute_name: name of shapefile attribute to select on (optional)
-    @param attribute_ids: list of attribute ids in shapefile to select for full_dim_mask (optional)
-    @return: None
+    Parameters
+    ----------
+    input_path : string
+        path to input files (shapefile set)
+    shapefile : string
+        name of shapefile dataset
+    ref_file : string
+        tif file describing the domain
+    out_dir : string
+        directory to write output to (optional) (Default value = '.')
+    out_file : string
+        filename to give output (optional) (Default value = None)
+    padding : tuple
+        padding (top,right,bottom,left) (optional) (Default value = (0)
+    attribute_name : string
+        name of shapefile attribute to select on (optional) (Default value = None)
+    attribute_ids : list
+        list of attribute ids in shapefile to select for full_dim_mask (optional) (Default value = None)
+
+    Returns
+    -------
+    None
     """
     reference_dataset = file_io_tools.read_geotiff(ref_file)
     rasterizer = ShapefileRasterizer(input_path, shapefile_name=shapefile,

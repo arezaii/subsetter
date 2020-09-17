@@ -1,3 +1,6 @@
+"""generate a solid file from an irregular shaped mask
+
+"""
 import logging
 import os
 import subprocess
@@ -6,15 +9,27 @@ import numpy as np
 
 
 def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
-    #TODO Add ability to buid features as patches on top layer of mask
-    """ Make a solid file and vtk file from a clipped mask, write to out_name, requires pfmask-to-sol from pftools
+    """Make a solid file and vtk file from a clipped mask, write to out_name, requires pfmask-to-sol from pftools
 
-    @param clipped_mask: the mask array cropped to the inner shape, with 1's in the mask, 0's outside
-    @param out_name: name for the output .vtk and .pfsol files
-    @param dx: horizontal cell size
-    @param dz: vertical cell size
-    @return: list of batches (patches?) located
+    Parameters
+    ----------
+    clipped_mask : ndarray
+        the mask array cropped to the inner shape, with 1's in the mask, 0's outside
+    out_name : string
+        name for the output .vtk and .pfsol files
+    dx : int, optional
+        horizontal cell size (Default value = 1000)
+    dz : int, optional
+        vertical cell size (Default value = 1000)
+
+    Returns
+    -------
+    batches : list
+        list of batches (patches?) located
+
     """
+
+    # TODO Add ability to buid features as patches on top layer of mask
     pf_mask_to_sol_path = find_mask_to_sol_exe()
     if pf_mask_to_sol_path is None:
         msg = 'Could not locate pfmask-to-pfsol utility needed to generate solid file (.pfsol)' \
@@ -112,9 +127,13 @@ def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
 
 
 def find_mask_to_sol_exe():
-    """  look for the pf_mask_to_pfsol utility on the system, then verify the file exists
+    """find the pf_mask_to_pfsol or mask-to-pfsol utility on the system
 
-    @return: tuple of (path to executable, depth/z-bottom flag for argument) or None if no executable was found
+    Returns
+    -------
+    pf_mask_to_sol_path : tuple
+        tuple of (path to executable, depth/z-bottom flag for argument) or None if no executable was found
+
     """
     pf_mask_to_sol_path = None
     possible_paths = {('mask-to-pfsol', '--depth'): [os.environ.get('PFMASKUTILS'), which('mask-to-pfsol')],

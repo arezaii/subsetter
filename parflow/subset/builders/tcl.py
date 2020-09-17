@@ -1,12 +1,30 @@
+"""Build a .tcl file for running a ParFlow model
+
+"""
 import argparse
 import os
 import sys
-import parflow.subset.utils.io as file_io_tools
 from datetime import datetime
 import logging
+import parflow.subset.utils.io as file_io_tools
+
 
 
 def read_infile(infile):
+    """
+
+    Parameters
+    ----------
+    infile : string
+        template input file to build from
+
+    Returns
+    -------
+    results : dictionary
+        key values for ParFlow keys
+    content : list
+        list of `infile` contents
+    """
     # critical information
     crit_info = ['runname', 'Process.Topology.P', 'Process.Topology.Q', 'Process.Topology.R',
                  'file copy -force', 'ComputationalGrid.NX', 'ComputationalGrid.NY',
@@ -47,6 +65,19 @@ def read_infile(infile):
 
 
 def parse_args(args):
+    """Parse the command line arguments
+
+    Parameters
+    ----------
+    args : list
+        list of arguments from sys.argv
+
+    Returns
+    -------
+    Namespace
+        populated Namespace object from the parsed command line options
+
+    """
     parser = argparse.ArgumentParser(description='Generate .tcl script from parkinglot template')
 
     # CORES
@@ -115,6 +146,74 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
               rec=0.0, constant=0, init=0.0, initw='bottom', flow='OverlandFlow', start_time=0.0, baseu=1, timestep=1,
               dump=1, dx=1000., dy=1000., dz=1000., nz=1,
               dz_scales=None):
+    """Build a tcl control file based on a template
+
+    Parameters
+    ----------
+    out_file : string
+        name for output file
+    temp_file : string
+        dict of ParFlow keys and template .tcl lines
+    runname : string
+        name to give domain
+    slope_file : string
+        input slope file name pattern for domain
+    solid_file : string
+        input solid file for domain
+    evap_file : string
+        input PME file for domain
+    end_time : int
+        stop time for simulation
+    batches : list
+        patch numbers in domain
+    p : int, optional
+        (Default value = 2)
+    q : int, optional
+        (Default value = 1)
+    r : int, optional
+        (Default value = 1)
+    evap_choice : int, optional
+        (Default value = 0)
+    k : double, optional
+        (Default value = 0.02849)
+    poros : double, optional
+        (Default value = 0.39738)
+    rain : double, optional
+        (Default value = -0.05)
+    rec : double, optional
+        (Default value = 0.0)
+    constant : double, optional
+        (Default value = 0)
+    init : double, optional
+        (Default value = 0.0)
+    initw : string, optional
+        (Default value = 'bottom')
+    flow : string, optional
+        (Default value = 'OverlandFlow')
+    start_time : double, optional
+        (Default value = 0.0)
+    baseu : int, optional
+        (Default value = 1)
+    timestep : int, optional
+        (Default value = 1)
+    dump : int, optional
+        (Default value = 1)
+    dx : int, optional
+        (Default value = 1000.)
+    dy : int, optional
+        (Default value = 1000.)
+    dz : int, optional
+        (Default value = 1000.)
+    nz : int, optional
+        (Default value = 1)
+    dz_scales : int, optional
+        (Default value = None)
+
+    Returns
+    -------
+    None
+    
+    """
 
     # read input file
     if dz_scales is None:

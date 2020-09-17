@@ -1,3 +1,8 @@
+"""Convenience wrapper for clipping inputs for the CONUS1 or CONUS2 models
+
+Everything here can be customized using the classes in the subset package
+"""
+
 import argparse
 import logging
 import os
@@ -11,11 +16,24 @@ from datetime import datetime
 import parflow.subset.tools.bulk_clipper as bulk_clipper
 import parflow.subset.builders.solidfile as solidfile_generator
 from parflow.subset.builders.tcl import build_tcl
-from parflow.subset.utils.clm import ClmClipper
+from parflow.subset.clipper import ClmClipper
 from parflow.subset.data import parkinglot_template
 
 
 def parse_args(args):
+    """Parse the command line arguments
+
+    Parameters
+    ----------
+    args : list
+        list of arguments from sys.argv
+
+    Returns
+    -------
+    Namespace
+        populated Namespace object from the parsed command line options
+
+    """
     parser = argparse.ArgumentParser('Subset a ParFlow CONUS domain')
 
     parser.add_argument("--input_path", "-i", dest="input_path", required=True,
@@ -79,21 +97,38 @@ def parse_args(args):
 
 def subset_conus(input_path, shapefile, conus_version=1, conus_files='.', out_dir='.', out_name=None, clip_clm=False,
                  write_tcl=False, padding=(0, 0, 0, 0), attribute_name='OBJECTID', attribute_ids=None, write_tifs=False):
-    """
-    subset a conus domain inputs for running a regional model
-    @param input_path: path to input shapefile parts to use as mask
-    @param shapefile: name of shapefile to use as mask
-    @param conus_version: version of the CONUS domain to use (1 or 2)
-    @param conus_files: path to the CONUS source input files listed in conus_manifest.yaml
-    @param out_dir: directory to write the outputs (default .)
-    @param out_name: name to give the outputs (default shapefile name)
-    @param clip_clm: whether or not to clip the CLM input files too (default no)
-    @param write_tcl: whether or not to write a TCL file for the subset (default no)
-    @param padding: grid cells of no_data to add around domain mask. CSS Style (top, right, bottom, left) default 0
-    @param attribute_name: attribute name defined in shapefile to select as mask default 'OBJECTID'
-    @param attribute_ids: list of attribute ID's defined in shapefile to use as mask input. default [1]
-    @param write_tifs: whether or not to write outputs as TIF's in addition to PFB's. (default no)
-    @return:
+    """subset a conus domain inputs for running a regional model
+
+    Parameters
+    ----------
+    input_path : string
+        path to input shapefile parts to use as mask
+    shapefile : string
+        name of shapefile to use as mask
+    conus_version : int, optional
+        version of the CONUS domain to use (1 or 2) (Default value = 1)
+    conus_files : string, optional
+        path to the CONUS source input files listed in conus_manifest.yaml (Default value = '.')
+    out_dir : string, optional
+        directory to write the outputs (default .)
+    out_name : string, optional
+        name to give the outputs (default shapefile name)
+    clip_clm : int, optional
+        whether or not to clip the CLM input files too (default no)
+    write_tcl : int, optional
+        whether or not to write a TCL file for the subset (default no)
+    padding : tuple, optional
+        grid cells of no_data to add around domain mask. CSS Style (top, right, bottom, left) default 0
+    attribute_name : string, optional
+        attribute name defined in shapefile to select as mask default 'OBJECTID'
+    attribute_ids : list, optional
+        list of attribute ID's defined in shapefile to use as mask input. default [1]
+    write_tifs : int, optional
+        whether or not to write outputs as TIF's in addition to PFB's. (default no)
+
+    Returns
+    -------
+    None
     """
     if out_name is None:
         out_name = shapefile

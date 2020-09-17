@@ -1,3 +1,4 @@
+"""Classes for converting inputs to gridded masks"""
 import gdal
 import ogr
 import os
@@ -7,15 +8,25 @@ from parflow.subset.mask import SubsetMask
 
 
 class ShapefileRasterizer:
-
+    """Class for converting shapefile to raster for use as mask"""
     def __init__(self, input_path, shapefile_name, reference_dataset, no_data=NO_DATA, output_path='.'):
-        """ Class for converting shapefiles to rasters for use as masks
+        """
+        Parameters
+        ----------
+        input_path : str
+            path to input files (shapefile set)
+        shapefile_name : str
+            name of shapefile dataset
+        reference_dataset : str
+            gdal dataset defining the overall domain
+        no_data : int, optional
+            value to write for no_data cells (default -999)
+        output_path : str, optional
+            where to write the outputs (default '.')
 
-        @param input_path: path to input files (shapefile set)
-        @param shapefile_name: name of shapefile dataset
-        @param reference_dataset: gdal dataset defining the overall domain
-        @param no_data: value to write for no_data cells
-        @param output_path: where to write the outputs
+        Returns
+        -------
+        ShapefileRasterizer
         """
         if no_data in [0, 1]:
             raise Exception(f'ShapfileRasterizer: '
@@ -30,6 +41,12 @@ class ShapefileRasterizer:
         self.subset_mask = None
 
     def check_shapefile_parts(self):
+        """verify the required parts of a shapefile are present in the same folder
+        logs a warning
+        Returns
+        -------
+        None
+        """
         shape_parts = [".".join((self.shapefile_name, ext)) for ext in ['shp', 'dbf', 'prj', 'shx']]
         for shp_component_file in shape_parts:
             if not os.path.isfile(os.path.join(self.shapefile_path, shp_component_file)):
@@ -37,11 +54,23 @@ class ShapefileRasterizer:
 
     def reproject_and_mask(self, dtype=gdal.GDT_Int32, no_data=None, attribute_name='OBJECTID', attribute_ids=None):
         """
-        @param attribute_ids: list of attribute ID values to select
-        @param dtype: the datatype to write
-        @param no_data: no_data value to use
-        @param attribute_name: field in the shapefile to trace
-        @return: path (virtual mem) to the reprojected full_dim_mask
+
+        Parameters
+        ----------
+        attribute_ids : str
+            list of attribute ID values to select (Default value = None)
+        dtype : gdal.datatype
+            the datatype to write (Default value = gdal.GDT_Int32)
+        no_data : str
+            no_data value to use (Default value = None)
+        attribute_name : str
+            field in the shapefile to trace (Default value = 'OBJECTID')
+
+        Returns
+        -------
+        str
+            path (virtual mem) to the reprojected full_dim_mask
+
         """
         if attribute_ids is None:
             attribute_ids = [1]
@@ -79,14 +108,26 @@ class ShapefileRasterizer:
 
     def rasterize_shapefile_to_disk(self, out_dir=None, out_name=None, padding=(0, 0, 0, 0), attribute_name='OBJECTID',
                                     attribute_ids=None):
-        """ rasterize a shapefile to disk in the projection and extents of the reference dataset
+        """rasterize a shapefile to disk in the projection and extents of the reference dataset
 
-        @param out_dir: directory to write outputs
-        @param out_name: filename for outputs
-        @param padding: optional padding to add 0's around full_dim_mask
-        @param attribute_name: optional name of shapefile attribute to select on
-        @param attribute_ids: optional list of attribute ids in shapefile to select for full_dim_mask
-        @return: 3d array with no_data to extents, 0 in bounding box, 1 in full_dim_mask region
+        Parameters
+        ----------
+        out_dir : str
+            directory to write outputs (Default value = None)
+        out_name : str
+            filename for outputs (Default value = None)
+        padding : tuple
+            optional padding to add 0's around full_dim_mask (Default value = (0,0,0,0))
+        attribute_name : str
+            optional name of shapefile attribute to select on (Default value = 'OBJECTID')
+        attribute_ids : list
+            optional list of attribute ids in shapefile to select for full_dim_mask (Default value = None)
+
+        Returns
+        -------
+        ndarray
+            3d array with no_data to extents, 0 in bounding box, 1 in full_dim_mask region
+
         """
         if attribute_ids is None:
             attribute_ids = [1]

@@ -1,24 +1,29 @@
+"""Common disk I/O operations"""
+
 import os
 import sys
-import pandas as pd
-import gdal
-import numpy as np
-from parflow.subset import TIF_NO_DATA_VALUE_OUT as NO_DATA
 import logging
+import pandas as pd
+import numpy as np
+import gdal
+from parflow.subset import TIF_NO_DATA_VALUE_OUT as NO_DATA
 from parflowio.pyParflowio import PFData
 from parflow.subset.bbox import BBox
 
 
-"""
-Common disk I/O operations
-"""
-
-
 def read_file(infile):
-    """ read an input file and return a 3d numpy array
+    """read an input file and return a 3d numpy array
 
-    @param infile: file to open (.pfb, .sa, .tif, .tiff)
-    @return: a 3d numpy array with data from file in (z,y,x) format
+    Parameters
+    ----------
+    infile : str
+        file to open (.pfb, .sa, .tif, .tiff)
+
+    Returns
+    -------
+    res_arr : ndarray
+        a 3d numpy array with data from file in (z,y,x) format with y axis 0 at bottom
+
     """
     # get extension
     ext = os.path.splitext(os.path.basename(infile))[1]
@@ -46,25 +51,46 @@ def read_file(infile):
 
 
 def read_geotiff(infile):
-    """ wrapper for reading geotifs with gdal
+    """wrapper for reading geotifs with gdal
 
-    @param infile: the geotif to open
-    @return: gdal dataset
+    Parameters
+    ----------
+    infile : str
+        the geotif to open
+
+    Returns
+    -------
+    dataset
+        gdal dataset object
+
     """
     return gdal.Open(infile)
 
 
 def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
-    """ Write a 3d numpy array to a PFB output file
+    """Write a 3d numpy array to a PFB output file
 
-    @param data: 3d numpy data array to write to pfb !(x,y,z)!
-    @param outfile: filename and path to write output
-    @param x0: initial x location
-    @param y0: initial y location
-    @param z0: initial z location
-    @param dx: horizontal resolution
-    @param dz: vertical resolution
-    @return: None
+    Parameters
+    ----------
+    data : ndarray
+        3d numpy data array to write to pfb !(x,y,z)!
+    outfile : str
+        filename and path to write output
+    x0 : int, optional
+        initial x location (Default value = 0)
+    y0 : int, optional
+        initial y location (Default value = 0)
+    z0 : int, optional
+        initial z location (Default value = 0)
+    dx : int, optional
+        horizontal resolution (Default value = 1000)
+    dz : int, optional
+        vertical resolution (Default value = 1000)
+
+    Returns
+    -------
+    None
+
     """
     logging.info(f'wrote pfb file {outfile}, (z,y,x)={data.shape}')
     pf_data = PFData()
@@ -79,11 +105,19 @@ def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
 
 
 def write_bbox(bbox, outfile):
-    """ Write bounding box values to tab separated text file
+    """Write bounding box values to tab separated text file
 
-    @param bbox: array of bounding box values [top, bot, left, right]
-    @param outfile: where to write the file
-    @return: None
+    Parameters
+    ----------
+    bbox : list of ints
+        array of bounding box values [x1, y1, nx, ny]
+    outfile :
+        where to write the file
+
+    Returns
+    -------
+    None
+
     """
     logging.info(f'wrote bbox file {outfile}, {bbox}')
     with open(outfile, 'w') as fp:
@@ -92,10 +126,18 @@ def write_bbox(bbox, outfile):
 
 
 def read_bbox(bbox_file):
-    """ Parse a tab separated bounding box text file and return the array of values as integers
+    """Parse a tab separated bounding box text file and return the array of values as integers
 
-    @param bbox_file: the file to read
-    @return: an array of integers representing the bounding box [top, bot, left, right]
+    Parameters
+    ----------
+    bbox_file : str
+        the file to read
+
+    Returns
+    -------
+    list of ints
+        an array of integers representing the bounding box [x1, y1, nx, ny]
+
     """
     with open(bbox_file, 'r') as bbox:
         lines = bbox.readlines()
@@ -105,15 +147,28 @@ def read_bbox(bbox_file):
 
 
 def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dtype=gdal.GDT_Float64, no_data=NO_DATA):
-    """ write a numpy array to a geotiff
+    """write a numpy array to a geotiff
 
-    @param out_raster_path: where to write the output file
-    @param data: 3d array of data to write
-    @param geo_transform: gdal formatted geoTransform to use for the geoTif
-    @param projection: gdal formatted Projection to use for the geoTif
-    @param dtype: gdal datatype to use for the geoTif
-    @param no_data: no data value to encode in the geoTif
-    @return: None
+    Parameters
+    ----------
+    out_raster_path : str
+        where to write the output file
+    data : ndarray
+        3d array of data to write
+    geo_transform : list of ints
+        gdal formatted geoTransform to use for the geoTif
+    projection : str
+        srs wkt formatted Projection to use for the geoTif
+    dtype : gdal.datatype, optional
+        gdal datatype to use for the geoTif (Default value = gdal.GDT_Float64)
+    no_data : int, optional
+        no data value to encode in the geoTif (Default value = NO_DATA)
+
+    Returns
+    -------
+    type
+        None
+
     """
     # flip the tif y axis back to tif standard (Tif 0's start at top left, PFB 0's at bottom left)
     data = np.flip(data, axis=1)
@@ -133,25 +188,45 @@ def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dty
 
 
 def write_array_to_simple_ascii(data, out_file):
-    """ write an array to ParFlow simple ascii (.sa) format
+    """write an array to ParFlow simple ascii (.sa) format
 
-    @param data: 3d numpy array of data
-    @param out_file: filename to write data
-    @return: None
+    Parameters
+    ----------
+    data : ndarray
+        3d numpy array of data
+    out_file : str
+        filename to write data
+
+    Returns
+    -------
+    None
+
     """
     write_array_to_text_file(out_file=out_file, data=data.flatten(), fmt='%s',
                              header=f'{data.shape[2]} {data.shape[1]} {data.shape[0]}')
 
 
 def write_array_to_text_file(data, out_file, header, fmt, delimiter=' ', comments=''):
-    """ write a flattened array to text output file
+    """write a flattened array to text output file
 
-    @param data: the 1d numpy array of data to write
-    @param out_file: where to write the data
-    @param header: the header to use in the file
-    @param fmt: the python string format to use for printing each element of the array
-    @param delimiter: the delimiter character to use when writing the elements (optional)
-    @param comments: the comment character to write for header (optional)
-    @return: None
+    Parameters
+    ----------
+    data : ndarray
+        the 1d numpy array of data to write
+    out_file : str
+        where to write the data
+    header : str
+        the header to use in the file
+    fmt : str
+        the python string format to use for printing each element of the array
+    delimiter : str, optional
+        the delimiter character to use when writing the elements (optional) (Default value = ' ')
+    comments : str, optional
+        the comment character to write for header (optional) (Default value = '')
+
+    Returns
+    -------
+    None
+
     """
     np.savetxt(fname=out_file, X=data, delimiter=delimiter, comments=comments, header=header, fmt=fmt)

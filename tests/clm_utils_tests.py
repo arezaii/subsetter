@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import parflow.subset.utils.io as file_io_tools
 import tests.test_files as test_files
-from parflow.subset.utils.clm import ClmClipper
+from parflow.subset.clipper import ClmClipper
 from parflow.subset.bbox import BBox
 
 

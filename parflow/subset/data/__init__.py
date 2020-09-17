@@ -1,3 +1,4 @@
+"""Data files, templates, domain definitions"""
 from pathlib import Path
 
 conus_manifest = Path(__file__).parent / 'conus_manifest.yaml'
