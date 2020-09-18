@@ -36,7 +36,7 @@ class BBox:
 
     &#34;&#34;&#34;Bounding box to identify data mask and optional padding&#34;&#34;&#34;
 
-    def __init__(self, x_1=0, y_1=0, nx=0, ny=0, pad=(0, 0, 0, 0)):
+    def __init__(self, x_1=1, y_1=1, nx=0, ny=0, pad=(0, 0, 0, 0)):
         &#34;&#34;&#34;A point (x,y) plus extents (nx, ny) and optional padding values
         _1 indexes are 1&#39;s based
         _0 are zero based
@@ -47,16 +47,17 @@ class BBox:
         Parameters
         ----------
         x_1: int, optional
-           starting X location
+           starting X location (default=1)
         y_1: int, optional
-            starting Y location
+            starting Y location (default=1)
         nx : int, optional
-            number of X cells to include
+            number of X cells to include (default=0)
         ny : int, optional
-            number of Y cells to include
+            number of Y cells to include (default=0)
         pad : tuple, optional
             number of no_data cells to add around data region.
             Specified clockwise, starting from top (top,right,bot,left) (CSS Style)
+            default=(0,0,0,0)
         Returns
         -------
         BBox
@@ -71,6 +72,11 @@ class BBox:
         self.ny = ny
         self.x_0 = self.x_1 - 1
         self.y_0 = self.y_1 - 1
+
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(x_1:{self.x_1}, y_1:{self.y_1}, nx:{self.nx}, ny:{self.ny}, &#34; \
+               f&#34;x_0:{self.x_0}, y_0:{self.y_0}, pad_top:{self.pad_top}, pad_right:{self.pad_right}, &#34; \
+                f&#34;pad_bottom:{self.pad_bottom}, pad_left:{self.pad_left})&#34;
 
     def get_inner_extents(self):
         &#34;&#34;&#34;get the extent range of data without padding
@@ -132,7 +138,7 @@ class BBox:
 <dl>
 <dt id="parflow.subset.bbox.BBox"><code class="flex name class">
 <span>class <span class="ident">BBox</span></span>
-<span>(</span><span>x_1=0, y_1=0, nx=0, ny=0, pad=(0, 0, 0, 0))</span>
+<span>(</span><span>x_1=1, y_1=1, nx=0, ny=0, pad=(0, 0, 0, 0))</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Bounding box to identify data mask and optional padding</p>
@@ -146,16 +152,17 @@ padding order specified as (top, right, bottom, left)</p>
 <dl>
 <dt><strong><code>x_1</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>&nbsp;</dd>
-<dt>starting X location</dt>
+<dt>starting X location (default=1)</dt>
 <dt><strong><code>y_1</code></strong> :&ensp;<code>int</code>, optional</dt>
-<dd>starting Y location</dd>
+<dd>starting Y location (default=1)</dd>
 <dt><strong><code>nx</code></strong> :&ensp;<code>int</code>, optional</dt>
-<dd>number of X cells to include</dd>
+<dd>number of X cells to include (default=0)</dd>
 <dt><strong><code>ny</code></strong> :&ensp;<code>int</code>, optional</dt>
-<dd>number of Y cells to include</dd>
+<dd>number of Y cells to include (default=0)</dd>
 <dt><strong><code>pad</code></strong> :&ensp;<code>tuple</code>, optional</dt>
 <dd>number of no_data cells to add around data region.
-Specified clockwise, starting from top (top,right,bot,left) (CSS Style)</dd>
+Specified clockwise, starting from top (top,right,bot,left) (CSS Style)
+default=(0,0,0,0)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -170,7 +177,7 @@ Specified clockwise, starting from top (top,right,bot,left) (CSS Style)</dd>
 
     &#34;&#34;&#34;Bounding box to identify data mask and optional padding&#34;&#34;&#34;
 
-    def __init__(self, x_1=0, y_1=0, nx=0, ny=0, pad=(0, 0, 0, 0)):
+    def __init__(self, x_1=1, y_1=1, nx=0, ny=0, pad=(0, 0, 0, 0)):
         &#34;&#34;&#34;A point (x,y) plus extents (nx, ny) and optional padding values
         _1 indexes are 1&#39;s based
         _0 are zero based
@@ -181,16 +188,17 @@ Specified clockwise, starting from top (top,right,bot,left) (CSS Style)</dd>
         Parameters
         ----------
         x_1: int, optional
-           starting X location
+           starting X location (default=1)
         y_1: int, optional
-            starting Y location
+            starting Y location (default=1)
         nx : int, optional
-            number of X cells to include
+            number of X cells to include (default=0)
         ny : int, optional
-            number of Y cells to include
+            number of Y cells to include (default=0)
         pad : tuple, optional
             number of no_data cells to add around data region.
             Specified clockwise, starting from top (top,right,bot,left) (CSS Style)
+            default=(0,0,0,0)
         Returns
         -------
         BBox
@@ -205,6 +213,11 @@ Specified clockwise, starting from top (top,right,bot,left) (CSS Style)</dd>
         self.ny = ny
         self.x_0 = self.x_1 - 1
         self.y_0 = self.y_1 - 1
+
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(x_1:{self.x_1}, y_1:{self.y_1}, nx:{self.nx}, ny:{self.ny}, &#34; \
+               f&#34;x_0:{self.x_0}, y_0:{self.y_0}, pad_top:{self.pad_top}, pad_right:{self.pad_right}, &#34; \
+                f&#34;pad_bottom:{self.pad_bottom}, pad_left:{self.pad_left})&#34;
 
     def get_inner_extents(self):
         &#34;&#34;&#34;get the extent range of data without padding

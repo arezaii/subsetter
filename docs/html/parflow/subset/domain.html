@@ -223,8 +223,8 @@ class ParflowDomain:
                                     f&#39;{self.name}, version {self.version}&#39;)
 
     def __repr__(self):
-        return f&#39;{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, &#39; \
-               f&#39;manifest={self.manifest_file}, local_path={self.local_path}, )&#39;
+        return f&#34;{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, &#34; \
+               f&#34;manifest={self.manifest_file!r}, local_path={self.local_path!r}, )&#34;
 
 
 class Conus(ParflowDomain):
@@ -251,7 +251,11 @@ class Conus(ParflowDomain):
         # self.mask_array = self.mask_tif.ReadAsArray()
         # had to do this because conus1 full_dim_mask is all 0&#39;s
         if self.version == 1:
-            self.mask_array = self.get_domain_mask() + 1</code></pre>
+            self.mask_array = self.get_domain_mask() + 1
+
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(name:{self.name!r}, version:{self.version!r}, &#34; \
+        f&#34;manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, mask_array:{self.mask_array!r})&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -312,7 +316,11 @@ class Conus(ParflowDomain):
         # self.mask_array = self.mask_tif.ReadAsArray()
         # had to do this because conus1 full_dim_mask is all 0&#39;s
         if self.version == 1:
-            self.mask_array = self.get_domain_mask() + 1</code></pre>
+            self.mask_array = self.get_domain_mask() + 1
+
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(name:{self.name!r}, version:{self.version!r}, &#34; \
+        f&#34;manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, mask_array:{self.mask_array!r})&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -543,8 +551,8 @@ class Conus(ParflowDomain):
                                     f&#39;{self.name}, version {self.version}&#39;)
 
     def __repr__(self):
-        return f&#39;{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, &#39; \
-               f&#39;manifest={self.manifest_file}, local_path={self.local_path}, )&#39;</code></pre>
+        return f&#34;{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, &#34; \
+               f&#34;manifest={self.manifest_file!r}, local_path={self.local_path!r}, )&#34;</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">

@@ -41,6 +41,12 @@ class SubsetMask:
     &#34;&#34;&#34;A full-sized mask with a bounding box and irregular bordered mask inside
     &#34;&#34;&#34;
 
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(mask_tif:{self.mask_tif!r}, mask_array:{self.mask_array!r}, &#34; \
+               f&#34;bbox_val:{self.bbox_val!r}, inner_mask:{self.inner_mask!r}, bbox_mask:{self.bbox_mask!r}, &#34; \
+               f&#34;no_data_value:{self.no_data_value!r}, inner_mask_edges:{self.inner_mask_edges!r}, &#34; \
+               f&#34;bbox_edges:{self.bbox_edges!r}&#34;
+
     def __init__(self, tif_file, bbox_val=0):
         &#34;&#34;&#34;Create a new instance of SubsetMask
 
@@ -305,6 +311,12 @@ class SubsetMask:
 <pre><code class="python">class SubsetMask:
     &#34;&#34;&#34;A full-sized mask with a bounding box and irregular bordered mask inside
     &#34;&#34;&#34;
+
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(mask_tif:{self.mask_tif!r}, mask_array:{self.mask_array!r}, &#34; \
+               f&#34;bbox_val:{self.bbox_val!r}, inner_mask:{self.inner_mask!r}, bbox_mask:{self.bbox_mask!r}, &#34; \
+               f&#34;no_data_value:{self.no_data_value!r}, inner_mask_edges:{self.inner_mask_edges!r}, &#34; \
+               f&#34;bbox_edges:{self.bbox_edges!r}&#34;
 
     def __init__(self, tif_file, bbox_val=0):
         &#34;&#34;&#34;Create a new instance of SubsetMask

@@ -38,6 +38,7 @@ from parflow.subset.mask import SubsetMask
 
 class ShapefileRasterizer:
     &#34;&#34;&#34;Class for converting shapefile to raster for use as mask&#34;&#34;&#34;
+
     def __init__(self, input_path, shapefile_name, reference_dataset, no_data=NO_DATA, output_path=&#39;.&#39;):
         &#34;&#34;&#34;
         Parameters
@@ -46,7 +47,7 @@ class ShapefileRasterizer:
             path to input files (shapefile set)
         shapefile_name : str
             name of shapefile dataset
-        reference_dataset : str
+        reference_dataset : gdal.dataset
             gdal dataset defining the overall domain
         no_data : int, optional
             value to write for no_data cells (default -999)
@@ -69,6 +70,12 @@ class ShapefileRasterizer:
         self.full_shapefile_path = os.path.join(self.shapefile_path, &#39;.&#39;.join((self.shapefile_name, &#39;shp&#39;)))
         self.check_shapefile_parts()
         self.subset_mask = None
+
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(shapefile_path:{self.shapefile_path!r}, &#34; \
+               f&#34;shapefile_name:{self.shapefile_name!r}, output_path:{self.output_path!r}, ds_ref:{self.ds_ref!r}, &#34; \
+               f&#34;no_data:{self.no_data!r}, full_shapefile_path:{self.full_shapefile_path!r}, &#34; \
+               f&#34;subset_mask:{self.subset_mask!r}&#34;
 
     def check_shapefile_parts(self):
         &#34;&#34;&#34;verify the required parts of a shapefile are present in the same folder
@@ -193,7 +200,7 @@ class ShapefileRasterizer:
 <dd>path to input files (shapefile set)</dd>
 <dt><strong><code>shapefile_name</code></strong> :&ensp;<code>str</code></dt>
 <dd>name of shapefile dataset</dd>
-<dt><strong><code>reference_dataset</code></strong> :&ensp;<code>str</code></dt>
+<dt><strong><code>reference_dataset</code></strong> :&ensp;<code>gdal.dataset</code></dt>
 <dd>gdal dataset defining the overall domain</dd>
 <dt><strong><code>no_data</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>value to write for no_data cells (default -999)</dd>
@@ -211,6 +218,7 @@ class ShapefileRasterizer:
 </summary>
 <pre><code class="python">class ShapefileRasterizer:
     &#34;&#34;&#34;Class for converting shapefile to raster for use as mask&#34;&#34;&#34;
+
     def __init__(self, input_path, shapefile_name, reference_dataset, no_data=NO_DATA, output_path=&#39;.&#39;):
         &#34;&#34;&#34;
         Parameters
@@ -219,7 +227,7 @@ class ShapefileRasterizer:
             path to input files (shapefile set)
         shapefile_name : str
             name of shapefile dataset
-        reference_dataset : str
+        reference_dataset : gdal.dataset
             gdal dataset defining the overall domain
         no_data : int, optional
             value to write for no_data cells (default -999)
@@ -242,6 +250,12 @@ class ShapefileRasterizer:
         self.full_shapefile_path = os.path.join(self.shapefile_path, &#39;.&#39;.join((self.shapefile_name, &#39;shp&#39;)))
         self.check_shapefile_parts()
         self.subset_mask = None
+
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(shapefile_path:{self.shapefile_path!r}, &#34; \
+               f&#34;shapefile_name:{self.shapefile_name!r}, output_path:{self.output_path!r}, ds_ref:{self.ds_ref!r}, &#34; \
+               f&#34;no_data:{self.no_data!r}, full_shapefile_path:{self.full_shapefile_path!r}, &#34; \
+               f&#34;subset_mask:{self.subset_mask!r}&#34;
 
     def check_shapefile_parts(self):
         &#34;&#34;&#34;verify the required parts of a shapefile are present in the same folder

@@ -12,6 +12,12 @@ class SubsetMask:
     """A full-sized mask with a bounding box and irregular bordered mask inside
     """
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(mask_tif:{self.mask_tif!r}, mask_array:{self.mask_array!r}, " \
+               f"bbox_val:{self.bbox_val!r}, inner_mask:{self.inner_mask!r}, bbox_mask:{self.bbox_mask!r}, " \
+               f"no_data_value:{self.no_data_value!r}, inner_mask_edges:{self.inner_mask_edges!r}, " \
+               f"bbox_edges:{self.bbox_edges!r}"
+
     def __init__(self, tif_file, bbox_val=0):
         """Create a new instance of SubsetMask
 

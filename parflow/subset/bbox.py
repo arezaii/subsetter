@@ -7,7 +7,7 @@ class BBox:
 
     """Bounding box to identify data mask and optional padding"""
 
-    def __init__(self, x_1=0, y_1=0, nx=0, ny=0, pad=(0, 0, 0, 0)):
+    def __init__(self, x_1=1, y_1=1, nx=0, ny=0, pad=(0, 0, 0, 0)):
         """A point (x,y) plus extents (nx, ny) and optional padding values
         _1 indexes are 1's based
         _0 are zero based
@@ -18,16 +18,17 @@ class BBox:
         Parameters
         ----------
         x_1: int, optional
-           starting X location
+           starting X location (default=1)
         y_1: int, optional
-            starting Y location
+            starting Y location (default=1)
         nx : int, optional
-            number of X cells to include
+            number of X cells to include (default=0)
         ny : int, optional
-            number of Y cells to include
+            number of Y cells to include (default=0)
         pad : tuple, optional
             number of no_data cells to add around data region.
             Specified clockwise, starting from top (top,right,bot,left) (CSS Style)
+            default=(0,0,0,0)
         Returns
         -------
         BBox
@@ -42,6 +43,11 @@ class BBox:
         self.ny = ny
         self.x_0 = self.x_1 - 1
         self.y_0 = self.y_1 - 1
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(x_1:{self.x_1}, y_1:{self.y_1}, nx:{self.nx}, ny:{self.ny}, " \
+               f"x_0:{self.x_0}, y_0:{self.y_0}, pad_top:{self.pad_top}, pad_right:{self.pad_right}, " \
+                f"pad_bottom:{self.pad_bottom}, pad_left:{self.pad_left})"
 
     def get_inner_extents(self):
         """get the extent range of data without padding
@@ -90,3 +96,4 @@ class BBox:
         """get 1's based bbox values
         """
         return self.x_1, self.y_1, self.nx, self.ny
+

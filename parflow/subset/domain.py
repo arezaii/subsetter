@@ -194,8 +194,8 @@ class ParflowDomain:
                                     f'{self.name}, version {self.version}')
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, ' \
-               f'manifest={self.manifest_file}, local_path={self.local_path}, )'
+        return f"{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, " \
+               f"manifest={self.manifest_file!r}, local_path={self.local_path!r}, )"
 
 
 class Conus(ParflowDomain):
@@ -223,3 +223,7 @@ class Conus(ParflowDomain):
         # had to do this because conus1 full_dim_mask is all 0's
         if self.version == 1:
             self.mask_array = self.get_domain_mask() + 1
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(name:{self.name!r}, version:{self.version!r}, " \
+        f"manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, mask_array:{self.mask_array!r})"

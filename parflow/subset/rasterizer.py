@@ -9,6 +9,7 @@ from parflow.subset.mask import SubsetMask
 
 class ShapefileRasterizer:
     """Class for converting shapefile to raster for use as mask"""
+
     def __init__(self, input_path, shapefile_name, reference_dataset, no_data=NO_DATA, output_path='.'):
         """
         Parameters
@@ -17,7 +18,7 @@ class ShapefileRasterizer:
             path to input files (shapefile set)
         shapefile_name : str
             name of shapefile dataset
-        reference_dataset : str
+        reference_dataset : gdal.dataset
             gdal dataset defining the overall domain
         no_data : int, optional
             value to write for no_data cells (default -999)
@@ -40,6 +41,12 @@ class ShapefileRasterizer:
         self.full_shapefile_path = os.path.join(self.shapefile_path, '.'.join((self.shapefile_name, 'shp')))
         self.check_shapefile_parts()
         self.subset_mask = None
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(shapefile_path:{self.shapefile_path!r}, " \
+               f"shapefile_name:{self.shapefile_name!r}, output_path:{self.output_path!r}, ds_ref:{self.ds_ref!r}, " \
+               f"no_data:{self.no_data!r}, full_shapefile_path:{self.full_shapefile_path!r}, " \
+               f"subset_mask:{self.subset_mask!r}"
 
     def check_shapefile_parts(self):
         """verify the required parts of a shapefile are present in the same folder

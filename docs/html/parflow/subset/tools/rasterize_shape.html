@@ -57,6 +57,10 @@ def parse_args(args):
     &#34;&#34;&#34;
     parser = argparse.ArgumentParser(&#39;Generate a Raster From a Shapefile&#39;)
 
+    &#34;&#34;&#34;
+    Required Arguments
+    &#34;&#34;&#34;
+
     parser.add_argument(&#34;--input_path&#34;, &#34;-i&#34;, dest=&#34;input_path&#34;, required=True,
                         type=lambda x: is_valid_path(parser, x),
                         help=&#34;the input path to the shapefile file set&#34;)
@@ -67,6 +71,10 @@ def parse_args(args):
     parser.add_argument(&#34;--ref_file&#34;, &#34;-r&#34;, dest=&#34;ref_file&#34;, required=True,
                         type=lambda x: is_valid_file(parser, x),
                         help=&#34;the reference tif to reproject to&#34;)
+
+    &#34;&#34;&#34;
+    Optional Arguments
+    &#34;&#34;&#34;
 
     parser.add_argument(&#34;--out_dir&#34;, &#34;-o&#34;, dest=&#34;out_dir&#34;, required=False,
                         default=&#39;.&#39;,
@@ -223,6 +231,10 @@ if __name__ == &#39;__main__&#39;:
     &#34;&#34;&#34;
     parser = argparse.ArgumentParser(&#39;Generate a Raster From a Shapefile&#39;)
 
+    &#34;&#34;&#34;
+    Required Arguments
+    &#34;&#34;&#34;
+
     parser.add_argument(&#34;--input_path&#34;, &#34;-i&#34;, dest=&#34;input_path&#34;, required=True,
                         type=lambda x: is_valid_path(parser, x),
                         help=&#34;the input path to the shapefile file set&#34;)
@@ -233,6 +245,10 @@ if __name__ == &#39;__main__&#39;:
     parser.add_argument(&#34;--ref_file&#34;, &#34;-r&#34;, dest=&#34;ref_file&#34;, required=True,
                         type=lambda x: is_valid_file(parser, x),
                         help=&#34;the reference tif to reproject to&#34;)
+
+    &#34;&#34;&#34;
+    Optional Arguments
+    &#34;&#34;&#34;
 
     parser.add_argument(&#34;--out_dir&#34;, &#34;-o&#34;, dest=&#34;out_dir&#34;, required=False,
                         default=&#39;.&#39;,

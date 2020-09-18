@@ -30,8 +30,23 @@ class Clipper(ABC):
 
 class BoxClipper(Clipper):
     """Clip a rectangular data region specified by a bounding box
-
+ self.padding = padding
+        self.no_data = no_data
+        self.ref_array = ref_array
+        if nx is None:
+            nx = self.ref_array.shape[2]
+        if ny is None:
+            ny = self.ref_array.shape[1]
+        if nz is None:
+            nz = self.ref_array.shape[0]
+        if nx < 1 or ny < 1 or nz < 1 or x < 1 or y < 1 or z < 1:
+            raise Exception("Error: invalid dimension, x,y,z nx, ny, nz must be >=1")
+        self.update_bbox(x, y, z, nx, ny, nz, padding)
     """
+    def __repr__(self):
+        return f"{self.__class__.__name__}(x_0:{self.x_0}, x_end:{self.x_end}, y_0:{self.y_0}, y_end:{self.y_end}, " \
+               f"z_0:{self.z_0}, z_end:{self.z_end}, nx:{self.nx}, ny:{self.ny}, nz:{self.nz!r}, " \
+               f"ref_array:{self.ref_array!r}, padding:{self.padding!r}, no_data:{self.no_data!r}"
 
     def __init__(self, ref_array, x=1, y=1, z=1, nx=None, ny=None, nz=None, padding=(0, 0, 0, 0), no_data=NO_DATA):
         """
@@ -153,6 +168,11 @@ class BoxClipper(Clipper):
 
 class MaskClipper(Clipper):
     """Clip an irregular data region specified by a mask"""
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(subset_mask:{self.subset_mask!r}, bbox:{self.bbox!r}, " \
+               f"clipped_geom:{self.clipped_geom!r}, clipped_mask:{self.clipped_mask!r}"
+
     def __init__(self, subset_mask, no_data_threshold=NO_DATA):
         """Assumes input mask_array has 1's written to valid data, 0's for bounding box,
              and <=no_data_threshold for no_data val, no_data_threshold must be < 0 or bounding box will

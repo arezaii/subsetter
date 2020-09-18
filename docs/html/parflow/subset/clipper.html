@@ -59,8 +59,23 @@ class Clipper(ABC):
 
 class BoxClipper(Clipper):
     &#34;&#34;&#34;Clip a rectangular data region specified by a bounding box
-
+ self.padding = padding
+        self.no_data = no_data
+        self.ref_array = ref_array
+        if nx is None:
+            nx = self.ref_array.shape[2]
+        if ny is None:
+            ny = self.ref_array.shape[1]
+        if nz is None:
+            nz = self.ref_array.shape[0]
+        if nx &lt; 1 or ny &lt; 1 or nz &lt; 1 or x &lt; 1 or y &lt; 1 or z &lt; 1:
+            raise Exception(&#34;Error: invalid dimension, x,y,z nx, ny, nz must be &gt;=1&#34;)
+        self.update_bbox(x, y, z, nx, ny, nz, padding)
     &#34;&#34;&#34;
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(x_0:{self.x_0}, x_end:{self.x_end}, y_0:{self.y_0}, y_end:{self.y_end}, &#34; \
+               f&#34;z_0:{self.z_0}, z_end:{self.z_end}, nx:{self.nx}, ny:{self.ny}, nz:{self.nz!r}, &#34; \
+               f&#34;ref_array:{self.ref_array!r}, padding:{self.padding!r}, no_data:{self.no_data!r}&#34;
 
     def __init__(self, ref_array, x=1, y=1, z=1, nx=None, ny=None, nz=None, padding=(0, 0, 0, 0), no_data=NO_DATA):
         &#34;&#34;&#34;
@@ -182,6 +197,11 @@ class BoxClipper(Clipper):
 
 class MaskClipper(Clipper):
     &#34;&#34;&#34;Clip an irregular data region specified by a mask&#34;&#34;&#34;
+
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(subset_mask:{self.subset_mask!r}, bbox:{self.bbox!r}, &#34; \
+               f&#34;clipped_geom:{self.clipped_geom!r}, clipped_mask:{self.clipped_mask!r}&#34;
+
     def __init__(self, subset_mask, no_data_threshold=NO_DATA):
         &#34;&#34;&#34;Assumes input mask_array has 1&#39;s written to valid data, 0&#39;s for bounding box,
              and &lt;=no_data_threshold for no_data val, no_data_threshold must be &lt; 0 or bounding box will
@@ -404,7 +424,19 @@ class ClmClipper:
 <span>(</span><span>ref_array, x=1, y=1, z=1, nx=None, ny=None, nz=None, padding=(0, 0, 0, 0), no_data=-999)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Clip a rectangular data region specified by a bounding box</p>
+<div class="desc"><p>Clip a rectangular data region specified by a bounding box
+self.padding = padding
+self.no_data = no_data
+self.ref_array = ref_array
+if nx is None:
+nx = self.ref_array.shape[2]
+if ny is None:
+ny = self.ref_array.shape[1]
+if nz is None:
+nz = self.ref_array.shape[0]
+if nx &lt; 1 or ny &lt; 1 or nz &lt; 1 or x &lt; 1 or y &lt; 1 or z &lt; 1:
+raise Exception("Error: invalid dimension, x,y,z nx, ny, nz must be &gt;=1")
+self.update_bbox(x, y, z, nx, ny, nz, padding)</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>ref_array</code></strong> :&ensp;<code>ndarray</code></dt>
@@ -442,8 +474,23 @@ class ClmClipper:
 </summary>
 <pre><code class="python">class BoxClipper(Clipper):
     &#34;&#34;&#34;Clip a rectangular data region specified by a bounding box
-
+ self.padding = padding
+        self.no_data = no_data
+        self.ref_array = ref_array
+        if nx is None:
+            nx = self.ref_array.shape[2]
+        if ny is None:
+            ny = self.ref_array.shape[1]
+        if nz is None:
+            nz = self.ref_array.shape[0]
+        if nx &lt; 1 or ny &lt; 1 or nz &lt; 1 or x &lt; 1 or y &lt; 1 or z &lt; 1:
+            raise Exception(&#34;Error: invalid dimension, x,y,z nx, ny, nz must be &gt;=1&#34;)
+        self.update_bbox(x, y, z, nx, ny, nz, padding)
     &#34;&#34;&#34;
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(x_0:{self.x_0}, x_end:{self.x_end}, y_0:{self.y_0}, y_end:{self.y_end}, &#34; \
+               f&#34;z_0:{self.z_0}, z_end:{self.z_end}, nx:{self.nx}, ny:{self.ny}, nz:{self.nz!r}, &#34; \
+               f&#34;ref_array:{self.ref_array!r}, padding:{self.padding!r}, no_data:{self.no_data!r}&#34;
 
     def __init__(self, ref_array, x=1, y=1, z=1, nx=None, ny=None, nz=None, padding=(0, 0, 0, 0), no_data=NO_DATA):
         &#34;&#34;&#34;
@@ -1157,6 +1204,11 @@ not be identifiable</p>
 </summary>
 <pre><code class="python">class MaskClipper(Clipper):
     &#34;&#34;&#34;Clip an irregular data region specified by a mask&#34;&#34;&#34;
+
+    def __repr__(self):
+        return f&#34;{self.__class__.__name__}(subset_mask:{self.subset_mask!r}, bbox:{self.bbox!r}, &#34; \
+               f&#34;clipped_geom:{self.clipped_geom!r}, clipped_mask:{self.clipped_mask!r}&#34;
+
     def __init__(self, subset_mask, no_data_threshold=NO_DATA):
         &#34;&#34;&#34;Assumes input mask_array has 1&#39;s written to valid data, 0&#39;s for bounding box,
              and &lt;=no_data_threshold for no_data val, no_data_threshold must be &lt; 0 or bounding box will
