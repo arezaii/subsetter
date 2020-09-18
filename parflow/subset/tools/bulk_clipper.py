@@ -72,11 +72,11 @@ def mask_clip(mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
 
     Parameters
     ----------
-    mask_file : string
+    mask_file : str
         full_dim_mask file generated from shapefile to mask utility no_data,0's=bbox,1's=mask
     data_files : list
         list of data files (tif, pfb) to clip from
-    out_dir : string, optional
+    out_dir : str, optional
         output directory (optional) (Default value = '.')
     pfb_outs : int, optional
         write pfb files as outputs (optional) (Default value = 1)
@@ -106,7 +106,7 @@ def box_clip(bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
         tuple of x, y, nx, ny to specifies the bounding region
     data_files : list
         list of data files (tif, pfb) to clip from
-    out_dir : string, optional
+    out_dir : str, optional
         output directory (optional) (Default value = '.')
     pfb_outs : int, optional
         write pfb files as outputs (optional) (Default value = 1)
@@ -152,7 +152,7 @@ def clip_inputs(clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_dat
         clipper object prepared with full_dim_mask and reference dataset
     input_list : list
         list of data files (tif, pfb) to clip from
-    out_dir : string, optional
+    out_dir : str, optional
         output directory (optional) (Default value = '.')
     pfb_outs : int, optional
         write pfb files as outputs (optional) (Default value = 1)

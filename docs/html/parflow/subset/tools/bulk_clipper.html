@@ -102,11 +102,11 @@ def mask_clip(mask_file, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0
 
     Parameters
     ----------
-    mask_file : string
+    mask_file : str
         full_dim_mask file generated from shapefile to mask utility no_data,0&#39;s=bbox,1&#39;s=mask
     data_files : list
         list of data files (tif, pfb) to clip from
-    out_dir : string, optional
+    out_dir : str, optional
         output directory (optional) (Default value = &#39;.&#39;)
     pfb_outs : int, optional
         write pfb files as outputs (optional) (Default value = 1)
@@ -136,7 +136,7 @@ def box_clip(bbox, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0):
         tuple of x, y, nx, ny to specifies the bounding region
     data_files : list
         list of data files (tif, pfb) to clip from
-    out_dir : string, optional
+    out_dir : str, optional
         output directory (optional) (Default value = &#39;.&#39;)
     pfb_outs : int, optional
         write pfb files as outputs (optional) (Default value = 1)
@@ -182,7 +182,7 @@ def clip_inputs(clipper, input_list, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0
         clipper object prepared with full_dim_mask and reference dataset
     input_list : list
         list of data files (tif, pfb) to clip from
-    out_dir : string, optional
+    out_dir : str, optional
         output directory (optional) (Default value = &#39;.&#39;)
     pfb_outs : int, optional
         write pfb files as outputs (optional) (Default value = 1)
@@ -256,7 +256,7 @@ if __name__ == &#39;__main__&#39;:
 <dd>tuple of x, y, nx, ny to specifies the bounding region</dd>
 <dt><strong><code>data_files</code></strong> :&ensp;<code>list</code></dt>
 <dd>list of data files (tif, pfb) to clip from</dd>
-<dt><strong><code>out_dir</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dt><strong><code>out_dir</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>output directory (optional) (Default value = '.')</dd>
 <dt><strong><code>pfb_outs</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>write pfb files as outputs (optional) (Default value = 1)</dd>
@@ -281,7 +281,7 @@ if __name__ == &#39;__main__&#39;:
         tuple of x, y, nx, ny to specifies the bounding region
     data_files : list
         list of data files (tif, pfb) to clip from
-    out_dir : string, optional
+    out_dir : str, optional
         output directory (optional) (Default value = &#39;.&#39;)
     pfb_outs : int, optional
         write pfb files as outputs (optional) (Default value = 1)
@@ -312,7 +312,7 @@ if __name__ == &#39;__main__&#39;:
 <dd>clipper object prepared with full_dim_mask and reference dataset</dd>
 <dt><strong><code>input_list</code></strong> :&ensp;<code>list</code></dt>
 <dd>list of data files (tif, pfb) to clip from</dd>
-<dt><strong><code>out_dir</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dt><strong><code>out_dir</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>output directory (optional) (Default value = '.')</dd>
 <dt><strong><code>pfb_outs</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>write pfb files as outputs (optional) (Default value = 1)</dd>
@@ -339,7 +339,7 @@ if __name__ == &#39;__main__&#39;:
         clipper object prepared with full_dim_mask and reference dataset
     input_list : list
         list of data files (tif, pfb) to clip from
-    out_dir : string, optional
+    out_dir : str, optional
         output directory (optional) (Default value = &#39;.&#39;)
     pfb_outs : int, optional
         write pfb files as outputs (optional) (Default value = 1)
@@ -443,11 +443,11 @@ if __name__ == &#39;__main__&#39;:
 <div class="desc"><p>clip a list of files using a full_dim_mask and a domain reference tif</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>mask_file</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>mask_file</code></strong> :&ensp;<code>str</code></dt>
 <dd>full_dim_mask file generated from shapefile to mask utility no_data,0's=bbox,1's=mask</dd>
 <dt><strong><code>data_files</code></strong> :&ensp;<code>list</code></dt>
 <dd>list of data files (tif, pfb) to clip from</dd>
-<dt><strong><code>out_dir</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dt><strong><code>out_dir</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>output directory (optional) (Default value = '.')</dd>
 <dt><strong><code>pfb_outs</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>write pfb files as outputs (optional) (Default value = 1)</dd>
@@ -468,11 +468,11 @@ if __name__ == &#39;__main__&#39;:
 
     Parameters
     ----------
-    mask_file : string
+    mask_file : str
         full_dim_mask file generated from shapefile to mask utility no_data,0&#39;s=bbox,1&#39;s=mask
     data_files : list
         list of data files (tif, pfb) to clip from
-    out_dir : string, optional
+    out_dir : str, optional
         output directory (optional) (Default value = &#39;.&#39;)
     pfb_outs : int, optional
         write pfb files as outputs (optional) (Default value = 1)

@@ -15,7 +15,7 @@ def read_infile(infile):
 
     Parameters
     ----------
-    infile : string
+    infile : str
         template input file to build from
 
     Returns
@@ -149,17 +149,17 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
 
     Parameters
     ----------
-    out_file : string
+    out_file : str
         name for output file
-    temp_file : string
+    temp_file : str
         dict of ParFlow keys and template .tcl lines
-    runname : string
+    runname : str
         name to give domain
-    slope_file : string
+    slope_file : str
         input slope file name pattern for domain
-    solid_file : string
+    solid_file : str
         input solid file for domain
-    evap_file : string
+    evap_file : str
         input PME file for domain
     end_time : int
         stop time for simulation
@@ -185,9 +185,9 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
         (Default value = 0)
     init : double, optional
         (Default value = 0.0)
-    initw : string, optional
+    initw : str, optional
         (Default value = 'bottom')
-    flow : string, optional
+    flow : str, optional
         (Default value = 'OverlandFlow')
     start_time : double, optional
         (Default value = 0.0)

@@ -1,3 +1,4 @@
+import contextlib
 import unittest
 from parflow.subset.clipper import MaskClipper, BoxClipper
 import parflow.subset.utils.io as file_io_tools
@@ -126,6 +127,27 @@ class RegressionClipTests(unittest.TestCase):
         padded_subset_ref = file_io_tools.read_file(test_files.huc10190004.get('conus1_dem_padded_box').as_posix())
         self.assertIsNone(np.testing.assert_array_equal(padded_subset_ref, subset))
         os.remove('WBDHU8_conus1_dem_padded_test.pfb')
+
+    def test_box_clip_invalid_nx_dim(self):
+        with self.assertRaises(Exception):
+            data_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
+            BoxClipper(ref_array=data_array, nx=0)
+
+    def test_box_clip_invalid_x_dim(self):
+        with self.assertRaises(Exception):
+            data_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
+            BoxClipper(ref_array=data_array, x=0)
+
+    def test_box_print_no_exception(self):
+        data_array = file_io_tools.read_file(test_files.conus1_dem.as_posix())
+        clipper = BoxClipper(ref_array=data_array)
+        self.assertEqual(-999, clipper.no_data)
+        self.assertIsNone(print(clipper))
+
+    def test_mask_print_no_exception(self):
+        my_mask = SubsetMask(test_files.huc10190004.get('conus1_mask').as_posix())
+        clipper = MaskClipper(subset_mask=my_mask, no_data_threshold=-1)
+        self.assertIsNone(print(clipper))
 
 
 if __name__ == '__main__':

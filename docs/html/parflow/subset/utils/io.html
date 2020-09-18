@@ -57,7 +57,6 @@ def read_file(infile):
     &#34;&#34;&#34;
     infile_path = Path(infile)
     # get extension
-    #ext = os.path.splitext(os.path.basename(infile))[1]
     ext = infile_path.suffix
     file_string_path = os.fspath(infile_path)
     if ext in [&#39;.tif&#39;, &#39;.tiff&#39;]:
@@ -78,8 +77,8 @@ def read_file(infile):
         pfdata.loadData()
         res_arr = pfdata.getDataAsArray()
     else:
-        print(&#39;can not read file type &#39; + ext)
-        sys.exit()
+        raise ValueError(&#39;can not read file type &#39; + ext)
+
     return res_arr
 
 
@@ -348,7 +347,6 @@ def write_array_to_text_file(data, out_file, header, fmt, delimiter=&#39; &#39;,
     &#34;&#34;&#34;
     infile_path = Path(infile)
     # get extension
-    #ext = os.path.splitext(os.path.basename(infile))[1]
     ext = infile_path.suffix
     file_string_path = os.fspath(infile_path)
     if ext in [&#39;.tif&#39;, &#39;.tiff&#39;]:
@@ -369,8 +367,8 @@ def write_array_to_text_file(data, out_file, header, fmt, delimiter=&#39; &#39;,
         pfdata.loadData()
         res_arr = pfdata.getDataAsArray()
     else:
-        print(&#39;can not read file type &#39; + ext)
-        sys.exit()
+        raise ValueError(&#39;can not read file type &#39; + ext)
+
     return res_arr</code></pre>
 </details>
 </dd>

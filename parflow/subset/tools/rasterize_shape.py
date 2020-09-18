@@ -99,19 +99,19 @@ def rasterize_shape(input_path, shapefile, ref_file, out_dir='.', out_file=None,
 
     Parameters
     ----------
-    input_path : string
+    input_path : str
         path to input files (shapefile set)
-    shapefile : string
+    shapefile : str
         name of shapefile dataset
-    ref_file : string
+    ref_file : str
         tif file describing the domain
-    out_dir : string
+    out_dir : str
         directory to write output to (optional) (Default value = '.')
-    out_file : string
+    out_file : str
         filename to give output (optional) (Default value = None)
     padding : tuple
         padding (top,right,bottom,left) (optional) (Default value = (0)
-    attribute_name : string
+    attribute_name : str
         name of shapefile attribute to select on (optional) (Default value = None)
     attribute_ids : list
         list of attribute ids in shapefile to select for full_dim_mask (optional) (Default value = None)

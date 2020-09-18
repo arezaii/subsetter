@@ -44,7 +44,7 @@ def read_infile(infile):
 
     Parameters
     ----------
-    infile : string
+    infile : str
         template input file to build from
 
     Returns
@@ -178,17 +178,17 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
 
     Parameters
     ----------
-    out_file : string
+    out_file : str
         name for output file
-    temp_file : string
+    temp_file : str
         dict of ParFlow keys and template .tcl lines
-    runname : string
+    runname : str
         name to give domain
-    slope_file : string
+    slope_file : str
         input slope file name pattern for domain
-    solid_file : string
+    solid_file : str
         input solid file for domain
-    evap_file : string
+    evap_file : str
         input PME file for domain
     end_time : int
         stop time for simulation
@@ -214,9 +214,9 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
         (Default value = 0)
     init : double, optional
         (Default value = 0.0)
-    initw : string, optional
+    initw : str, optional
         (Default value = &#39;bottom&#39;)
-    flow : string, optional
+    flow : str, optional
         (Default value = &#39;OverlandFlow&#39;)
     start_time : double, optional
         (Default value = 0.0)
@@ -478,17 +478,17 @@ if __name__ == &#39;__main__&#39;:
 <div class="desc"><p>Build a tcl control file based on a template</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>out_file</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>out_file</code></strong> :&ensp;<code>str</code></dt>
 <dd>name for output file</dd>
-<dt><strong><code>temp_file</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>temp_file</code></strong> :&ensp;<code>str</code></dt>
 <dd>dict of ParFlow keys and template .tcl lines</dd>
-<dt><strong><code>runname</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>runname</code></strong> :&ensp;<code>str</code></dt>
 <dd>name to give domain</dd>
-<dt><strong><code>slope_file</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>slope_file</code></strong> :&ensp;<code>str</code></dt>
 <dd>input slope file name pattern for domain</dd>
-<dt><strong><code>solid_file</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>solid_file</code></strong> :&ensp;<code>str</code></dt>
 <dd>input solid file for domain</dd>
-<dt><strong><code>evap_file</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>evap_file</code></strong> :&ensp;<code>str</code></dt>
 <dd>input PME file for domain</dd>
 <dt><strong><code>end_time</code></strong> :&ensp;<code>int</code></dt>
 <dd>stop time for simulation</dd>
@@ -514,9 +514,9 @@ if __name__ == &#39;__main__&#39;:
 <dd>(Default value = 0)</dd>
 <dt><strong><code>init</code></strong> :&ensp;<code>double</code>, optional</dt>
 <dd>(Default value = 0.0)</dd>
-<dt><strong><code>initw</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dt><strong><code>initw</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>(Default value = 'bottom')</dd>
-<dt><strong><code>flow</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dt><strong><code>flow</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>(Default value = 'OverlandFlow')</dd>
 <dt><strong><code>start_time</code></strong> :&ensp;<code>double</code>, optional</dt>
 <dd>(Default value = 0.0)</dd>
@@ -555,17 +555,17 @@ if __name__ == &#39;__main__&#39;:
 
     Parameters
     ----------
-    out_file : string
+    out_file : str
         name for output file
-    temp_file : string
+    temp_file : str
         dict of ParFlow keys and template .tcl lines
-    runname : string
+    runname : str
         name to give domain
-    slope_file : string
+    slope_file : str
         input slope file name pattern for domain
-    solid_file : string
+    solid_file : str
         input solid file for domain
-    evap_file : string
+    evap_file : str
         input PME file for domain
     end_time : int
         stop time for simulation
@@ -591,9 +591,9 @@ if __name__ == &#39;__main__&#39;:
         (Default value = 0)
     init : double, optional
         (Default value = 0.0)
-    initw : string, optional
+    initw : str, optional
         (Default value = &#39;bottom&#39;)
-    flow : string, optional
+    flow : str, optional
         (Default value = &#39;OverlandFlow&#39;)
     start_time : double, optional
         (Default value = 0.0)
@@ -947,7 +947,7 @@ if __name__ == &#39;__main__&#39;:
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>infile</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>infile</code></strong> :&ensp;<code>str</code></dt>
 <dd>template input file to build from</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -966,7 +966,7 @@ if __name__ == &#39;__main__&#39;:
 
     Parameters
     ----------
-    infile : string
+    infile : str
         template input file to build from
 
     Returns

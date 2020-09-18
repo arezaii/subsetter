@@ -28,7 +28,6 @@ def read_file(infile):
     """
     infile_path = Path(infile)
     # get extension
-    #ext = os.path.splitext(os.path.basename(infile))[1]
     ext = infile_path.suffix
     file_string_path = os.fspath(infile_path)
     if ext in ['.tif', '.tiff']:
@@ -49,8 +48,8 @@ def read_file(infile):
         pfdata.loadData()
         res_arr = pfdata.getDataAsArray()
     else:
-        print('can not read file type ' + ext)
-        sys.exit()
+        raise ValueError('can not read file type ' + ext)
+
     return res_arr
 
 

@@ -40,22 +40,6 @@ class ShapefileReprojectCase(unittest.TestCase):
             'Should create a mask from CONUS2 with 1/0s')
         os.remove('testout.tif')
 
-    # def test_reproject_conus2_w_padding(self):
-    # CUAHSI Subset reference does not match subset tool from repo
-    #     rasterizer = ShapefileRasterizer(self.shape_path, self.shape_name, self.conus2_mask_dataset,no_data=-99)
-    #     rasterizer.reproject_and_mask()
-    #     subset_mask = rasterizer.subset_mask
-    #     subset_mask.add_bbox_to_mask(padding=(1, 6, 1, 5))
-    #     subset_mask.write_mask_to_tif(filename='testout.tif')
-    #     test_ref_array = file_io_tools.read_file(test_files.cuahsi_ref_10190004.get('conus2_mask').as_posix())
-    #     test_out_array = file_io_tools.read_file('testout.tif')
-    #     test_ref_array = (test_ref_array > 0).astype(int)
-    #     test_out_array = (test_out_array > 0).astype(int)
-    #     self.assertIsNone(
-    #         np.testing.assert_array_equal(test_ref_array, test_out_array),
-    #         'Should create a mask from CONUS2 with 1/0s')
-    #     #os.remove('testout.tif')
-
     def test_rasterize_no_data_values(self):
         rasterizer = ShapefileRasterizer(self.shape_path, shapefile_name=self.shape_name,
                                          reference_dataset=self.conus1_mask_datset, no_data=-9999999)
@@ -64,10 +48,23 @@ class ShapefileReprojectCase(unittest.TestCase):
         self.assertIsNone(
             np.testing.assert_array_equal(file_io_tools.read_file(
                 test_files.huc10190004.get('conus1_mask_-9999999').as_posix()),
-                                          file_io_tools.read_file('testout.tif')),
+                file_io_tools.read_file('testout.tif')),
             'Should create a mask from CONUS1 with 1/-9999999')
         os.remove('testout.tif')
 
+    def test_rasterizer_bad_no_data_val1(self):
+        with self.assertRaises(Exception):
+            ShapefileRasterizer(self.shape_path, shapefile_name=self.shape_name,
+                                reference_dataset=self.conus1_mask_datset, no_data=1)
+
+    def test_rasterizer_bad_no_data_val0(self):
+        with self.assertRaises(Exception):
+            ShapefileRasterizer(self.shape_path, shapefile_name=self.shape_name,
+                                reference_dataset=self.conus1_mask_datset, no_data=0)
+
+    def test_rasterizer_print_no_except(self):
+        rasterizer = ShapefileRasterizer(self.shape_path, self.shape_name, self.conus2_mask_dataset)
+        self.assertIsNone(print(rasterizer))
 
 if __name__ == '__main__':
     unittest.main()

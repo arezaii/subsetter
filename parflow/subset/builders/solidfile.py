@@ -15,7 +15,7 @@ def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
     ----------
     clipped_mask : ndarray
         the mask array cropped to the inner shape, with 1's in the mask, 0's outside
-    out_name : string
+    out_name : str
         name for the output .vtk and .pfsol files
     dx : int, optional
         horizontal cell size (Default value = 1000)

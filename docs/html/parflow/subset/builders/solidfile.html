@@ -44,7 +44,7 @@ def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
     ----------
     clipped_mask : ndarray
         the mask array cropped to the inner shape, with 1&#39;s in the mask, 0&#39;s outside
-    out_name : string
+    out_name : str
         name for the output .vtk and .pfsol files
     dx : int, optional
         horizontal cell size (Default value = 1000)
@@ -233,7 +233,7 @@ def find_mask_to_sol_exe():
 <dl>
 <dt><strong><code>clipped_mask</code></strong> :&ensp;<code>ndarray</code></dt>
 <dd>the mask array cropped to the inner shape, with 1's in the mask, 0's outside</dd>
-<dt><strong><code>out_name</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>out_name</code></strong> :&ensp;<code>str</code></dt>
 <dd>name for the output .vtk and .pfsol files</dd>
 <dt><strong><code>dx</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>horizontal cell size (Default value = 1000)</dd>
@@ -256,7 +256,7 @@ def find_mask_to_sol_exe():
     ----------
     clipped_mask : ndarray
         the mask array cropped to the inner shape, with 1&#39;s in the mask, 0&#39;s outside
-    out_name : string
+    out_name : str
         name for the output .vtk and .pfsol files
     dx : int, optional
         horizontal cell size (Default value = 1000)

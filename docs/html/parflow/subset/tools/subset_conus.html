@@ -131,17 +131,17 @@ def subset_conus(input_path, shapefile, conus_version=1, conus_files=&#39;.&#39;
 
     Parameters
     ----------
-    input_path : string
+    input_path : str
         path to input shapefile parts to use as mask
-    shapefile : string
+    shapefile : str
         name of shapefile to use as mask
     conus_version : int, optional
         version of the CONUS domain to use (1 or 2) (Default value = 1)
-    conus_files : string, optional
+    conus_files : str, optional
         path to the CONUS source input files listed in conus_manifest.yaml (Default value = &#39;.&#39;)
-    out_dir : string, optional
+    out_dir : str, optional
         directory to write the outputs (default .)
-    out_name : string, optional
+    out_name : str, optional
         name to give the outputs (default shapefile name)
     clip_clm : int, optional
         whether or not to clip the CLM input files too (default no)
@@ -149,7 +149,7 @@ def subset_conus(input_path, shapefile, conus_version=1, conus_files=&#39;.&#39;
         whether or not to write a TCL file for the subset (default no)
     padding : tuple, optional
         grid cells of no_data to add around domain mask. CSS Style (top, right, bottom, left) default 0
-    attribute_name : string, optional
+    attribute_name : str, optional
         attribute name defined in shapefile to select as mask default &#39;OBJECTID&#39;
     attribute_ids : list, optional
         list of attribute ID&#39;s defined in shapefile to use as mask input. default [1]
@@ -372,17 +372,17 @@ if __name__ == &#39;__main__&#39;:
 <div class="desc"><p>subset a conus domain inputs for running a regional model</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>input_path</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>input_path</code></strong> :&ensp;<code>str</code></dt>
 <dd>path to input shapefile parts to use as mask</dd>
-<dt><strong><code>shapefile</code></strong> :&ensp;<code>string</code></dt>
+<dt><strong><code>shapefile</code></strong> :&ensp;<code>str</code></dt>
 <dd>name of shapefile to use as mask</dd>
 <dt><strong><code>conus_version</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>version of the CONUS domain to use (1 or 2) (Default value = 1)</dd>
-<dt><strong><code>conus_files</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dt><strong><code>conus_files</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>path to the CONUS source input files listed in conus_manifest.yaml (Default value = '.')</dd>
-<dt><strong><code>out_dir</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dt><strong><code>out_dir</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>directory to write the outputs (default .)</dd>
-<dt><strong><code>out_name</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dt><strong><code>out_name</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>name to give the outputs (default shapefile name)</dd>
 <dt><strong><code>clip_clm</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>whether or not to clip the CLM input files too (default no)</dd>
@@ -390,7 +390,7 @@ if __name__ == &#39;__main__&#39;:
 <dd>whether or not to write a TCL file for the subset (default no)</dd>
 <dt><strong><code>padding</code></strong> :&ensp;<code>tuple</code>, optional</dt>
 <dd>grid cells of no_data to add around domain mask. CSS Style (top, right, bottom, left) default 0</dd>
-<dt><strong><code>attribute_name</code></strong> :&ensp;<code>string</code>, optional</dt>
+<dt><strong><code>attribute_name</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>attribute name defined in shapefile to select as mask default 'OBJECTID'</dd>
 <dt><strong><code>attribute_ids</code></strong> :&ensp;<code>list</code>, optional</dt>
 <dd>list of attribute ID's defined in shapefile to use as mask input. default [1]</dd>
@@ -412,17 +412,17 @@ if __name__ == &#39;__main__&#39;:
 
     Parameters
     ----------
-    input_path : string
+    input_path : str
         path to input shapefile parts to use as mask
-    shapefile : string
+    shapefile : str
         name of shapefile to use as mask
     conus_version : int, optional
         version of the CONUS domain to use (1 or 2) (Default value = 1)
-    conus_files : string, optional
+    conus_files : str, optional
         path to the CONUS source input files listed in conus_manifest.yaml (Default value = &#39;.&#39;)
-    out_dir : string, optional
+    out_dir : str, optional
         directory to write the outputs (default .)
-    out_name : string, optional
+    out_name : str, optional
         name to give the outputs (default shapefile name)
     clip_clm : int, optional
         whether or not to clip the CLM input files too (default no)
@@ -430,7 +430,7 @@ if __name__ == &#39;__main__&#39;:
         whether or not to write a TCL file for the subset (default no)
     padding : tuple, optional
         grid cells of no_data to add around domain mask. CSS Style (top, right, bottom, left) default 0
-    attribute_name : string, optional
+    attribute_name : str, optional
         attribute name defined in shapefile to select as mask default &#39;OBJECTID&#39;
     attribute_ids : list, optional
         list of attribute ID&#39;s defined in shapefile to use as mask input. default [1]

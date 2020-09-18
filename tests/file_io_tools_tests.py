@@ -125,6 +125,10 @@ class FileIOToolBasicTestCase(unittest.TestCase):
                           'reading and writing a tif should not change the data')
         os.remove('conus2_subsurface_tif_read_write_test.tif')
 
+    def test_read_invalid_file_type_check(self):
+        with self.assertRaises(ValueError):
+            file_io_tools.read_file(test_files.huc10190004.get('shapefile'))
+
 
 if __name__ == '__main__':
     unittest.main()
