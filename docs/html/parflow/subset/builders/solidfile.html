@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>subset.builders.solidfile API documentation</title>
+<title>parflow.subset.builders.solidfile API documentation</title>
 <meta name="description" content="generate a solid file from an irregular shaped mask" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>subset.builders.solidfile</code></h1>
+<h1 class="title">Module <code>parflow.subset.builders.solidfile</code></h1>
 </header>
 <section id="section-intro">
 <p>generate a solid file from an irregular shaped mask</p>
@@ -55,9 +55,7 @@ def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
     -------
     batches : list
         list of batches (patches?) located
-
     &#34;&#34;&#34;
-
     # TODO Add ability to buid features as patches on top layer of mask
     pf_mask_to_sol_path = find_mask_to_sol_exe()
     if pf_mask_to_sol_path is None:
@@ -162,7 +160,6 @@ def find_mask_to_sol_exe():
     -------
     pf_mask_to_sol_path : tuple
         tuple of (path to executable, depth/z-bottom flag for argument) or None if no executable was found
-
     &#34;&#34;&#34;
     pf_mask_to_sol_path = None
     possible_paths = {(&#39;mask-to-pfsol&#39;, &#39;--depth&#39;): [os.environ.get(&#39;PFMASKUTILS&#39;), which(&#39;mask-to-pfsol&#39;)],
@@ -188,7 +185,7 @@ def find_mask_to_sol_exe():
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="subset.builders.solidfile.find_mask_to_sol_exe"><code class="name flex">
+<dt id="parflow.subset.builders.solidfile.find_mask_to_sol_exe"><code class="name flex">
 <span>def <span class="ident">find_mask_to_sol_exe</span></span>(<span>)</span>
 </code></dt>
 <dd>
@@ -209,7 +206,6 @@ def find_mask_to_sol_exe():
     -------
     pf_mask_to_sol_path : tuple
         tuple of (path to executable, depth/z-bottom flag for argument) or None if no executable was found
-
     &#34;&#34;&#34;
     pf_mask_to_sol_path = None
     possible_paths = {(&#39;mask-to-pfsol&#39;, &#39;--depth&#39;): [os.environ.get(&#39;PFMASKUTILS&#39;), which(&#39;mask-to-pfsol&#39;)],
@@ -228,7 +224,7 @@ def find_mask_to_sol_exe():
     return pf_mask_to_sol_path</code></pre>
 </details>
 </dd>
-<dt id="subset.builders.solidfile.make_solid_file"><code class="name flex">
+<dt id="parflow.subset.builders.solidfile.make_solid_file"><code class="name flex">
 <span>def <span class="ident">make_solid_file</span></span>(<span>clipped_mask, out_name, dx=1000, dz=1000)</span>
 </code></dt>
 <dd>
@@ -271,9 +267,7 @@ def find_mask_to_sol_exe():
     -------
     batches : list
         list of batches (patches?) located
-
     &#34;&#34;&#34;
-
     # TODO Add ability to buid features as patches on top layer of mask
     pf_mask_to_sol_path = find_mask_to_sol_exe()
     if pf_mask_to_sol_path is None:
@@ -384,13 +378,13 @@ def find_mask_to_sol_exe():
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="subset.builders" href="index.html">subset.builders</a></code></li>
+<li><code><a title="parflow.subset.builders" href="index.html">parflow.subset.builders</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="subset.builders.solidfile.find_mask_to_sol_exe" href="#subset.builders.solidfile.find_mask_to_sol_exe">find_mask_to_sol_exe</a></code></li>
-<li><code><a title="subset.builders.solidfile.make_solid_file" href="#subset.builders.solidfile.make_solid_file">make_solid_file</a></code></li>
+<li><code><a title="parflow.subset.builders.solidfile.find_mask_to_sol_exe" href="#parflow.subset.builders.solidfile.find_mask_to_sol_exe">find_mask_to_sol_exe</a></code></li>
+<li><code><a title="parflow.subset.builders.solidfile.make_solid_file" href="#parflow.subset.builders.solidfile.make_solid_file">make_solid_file</a></code></li>
 </ul>
 </li>
 </ul>

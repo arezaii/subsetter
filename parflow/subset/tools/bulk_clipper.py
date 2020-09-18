@@ -28,7 +28,6 @@ def parse_args(args):
     -------
     Namespace
         populated Namespace object from the parsed command line options
-
     """
     parser = argparse.ArgumentParser('Clip a list of identically gridded files and extract the data within the mask')
 
@@ -60,14 +59,10 @@ def parse_args(args):
                         type=lambda x: is_valid_path(parser, x))
 
     parser.add_argument("--pfb_outs", "-p", dest="write_pfbs", required=False,
-                        default=1,
-                        help="write pfb output files",
-                        type=int)
+                        action='store_true', default=True, help="write pfb output files")
 
     parser.add_argument("--tif_outs", "-t", dest="write_tifs", required=False,
-                        default=0,
-                        help="write tif output files",
-                        type=int)
+                        action='store_true', help="write tif output files")
 
     return parser.parse_args(args)
 
@@ -91,7 +86,6 @@ def mask_clip(mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
     Returns
     -------
     None
-
     """
     # read the full_dim_mask file
     mask = SubsetMask(mask_file)

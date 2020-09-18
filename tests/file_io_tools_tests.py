@@ -24,7 +24,7 @@ class FileIOToolBasicTestCase(unittest.TestCase):
     def test_read_tif(self):
         results = file_io_tools.read_file(test_files.regression_truth_tif)
         self.assertEqual(3, len(results.shape), 'read a 2d tiff always returns a 3d array')
-        results3d = file_io_tools.read_file(test_files.regression_truth_tif)
+        results3d = file_io_tools.read_file(test_files.forcings_tif)
         self.assertEqual(3, len(results3d.shape), 'read a 3d tiff always returns a 3d array')
 
     def test_write_read_bbox(self):

@@ -36,6 +36,7 @@ class ShapefileRasterizer:
         self.shapefile_name = shapefile_name
         self.ds_ref = reference_dataset
         self.no_data = no_data
+        # TODO Handle shape extension using Pathlib.path
         self.full_shapefile_path = os.path.join(self.shapefile_path, '.'.join((self.shapefile_name, 'shp')))
         self.check_shapefile_parts()
         self.subset_mask = None

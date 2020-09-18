@@ -26,9 +26,7 @@ def make_solid_file(clipped_mask, out_name, dx=1000, dz=1000):
     -------
     batches : list
         list of batches (patches?) located
-
     """
-
     # TODO Add ability to buid features as patches on top layer of mask
     pf_mask_to_sol_path = find_mask_to_sol_exe()
     if pf_mask_to_sol_path is None:
@@ -133,7 +131,6 @@ def find_mask_to_sol_exe():
     -------
     pf_mask_to_sol_path : tuple
         tuple of (path to executable, depth/z-bottom flag for argument) or None if no executable was found
-
     """
     pf_mask_to_sol_path = None
     possible_paths = {('mask-to-pfsol', '--depth'): [os.environ.get('PFMASKUTILS'), which('mask-to-pfsol')],

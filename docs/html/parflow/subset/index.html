@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>subset.utils API documentation</title>
-<meta name="description" content="Utilities for subset package classes" />
+<title>parflow.subset API documentation</title>
+<meta name="description" content="Tools for clipping gridded ParFlow inputs and outputs" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -19,27 +19,57 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>subset.utils</code></h1>
+<h1 class="title">Module <code>parflow.subset</code></h1>
 </header>
 <section id="section-intro">
-<p>Utilities for subset package classes</p>
+<p>Tools for clipping gridded ParFlow inputs and outputs</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Utilities for subset package classes&#34;&#34;&#34;</code></pre>
+<pre><code class="python">&#34;&#34;&#34;Tools for clipping gridded ParFlow inputs and outputs
+&#34;&#34;&#34;
+TIF_NO_DATA_VALUE_OUT = -999</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="subset.utils.arguments" href="arguments.html">subset.utils.arguments</a></code></dt>
+<dt><code class="name"><a title="parflow.subset.bbox" href="bbox.html">parflow.subset.bbox</a></code></dt>
 <dd>
-<div class="desc"><p>Common helpers for checking if command line arguments are valid</p></div>
+<div class="desc"><p>Bounding Box to clip data with</p></div>
 </dd>
-<dt><code class="name"><a title="subset.utils.io" href="io.html">subset.utils.io</a></code></dt>
+<dt><code class="name"><a title="parflow.subset.builders" href="builders/index.html">parflow.subset.builders</a></code></dt>
 <dd>
-<div class="desc"><p>Common disk I/O operations</p></div>
+<div class="desc"><p>Classes for creating new ParFlow inputs</p></div>
+</dd>
+<dt><code class="name"><a title="parflow.subset.clipper" href="clipper.html">parflow.subset.clipper</a></code></dt>
+<dd>
+<div class="desc"><p>Classes for clipping gridded inputs</p></div>
+</dd>
+<dt><code class="name"><a title="parflow.subset.data" href="data/index.html">parflow.subset.data</a></code></dt>
+<dd>
+<div class="desc"><p>Data files, templates, domain definitions</p></div>
+</dd>
+<dt><code class="name"><a title="parflow.subset.domain" href="domain.html">parflow.subset.domain</a></code></dt>
+<dd>
+<div class="desc"><p>Represent a ParFlow domain</p></div>
+</dd>
+<dt><code class="name"><a title="parflow.subset.mask" href="mask.html">parflow.subset.mask</a></code></dt>
+<dd>
+<div class="desc"><p>Represent an irregular mask for clipping</p></div>
+</dd>
+<dt><code class="name"><a title="parflow.subset.rasterizer" href="rasterizer.html">parflow.subset.rasterizer</a></code></dt>
+<dd>
+<div class="desc"><p>Classes for converting inputs to gridded masks</p></div>
+</dd>
+<dt><code class="name"><a title="parflow.subset.tools" href="tools/index.html">parflow.subset.tools</a></code></dt>
+<dd>
+<div class="desc"><p>Collection of convenience tools for clipping</p></div>
+</dd>
+<dt><code class="name"><a title="parflow.subset.utils" href="utils/index.html">parflow.subset.utils</a></code></dt>
+<dd>
+<div class="desc"><p>Utilities for subset package classes</p></div>
 </dd>
 </dl>
 </section>
@@ -58,13 +88,20 @@
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="subset" href="../index.html">subset</a></code></li>
+<li><code><a title="parflow" href="../index.html">parflow</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="subset.utils.arguments" href="arguments.html">subset.utils.arguments</a></code></li>
-<li><code><a title="subset.utils.io" href="io.html">subset.utils.io</a></code></li>
+<li><code><a title="parflow.subset.bbox" href="bbox.html">parflow.subset.bbox</a></code></li>
+<li><code><a title="parflow.subset.builders" href="builders/index.html">parflow.subset.builders</a></code></li>
+<li><code><a title="parflow.subset.clipper" href="clipper.html">parflow.subset.clipper</a></code></li>
+<li><code><a title="parflow.subset.data" href="data/index.html">parflow.subset.data</a></code></li>
+<li><code><a title="parflow.subset.domain" href="domain.html">parflow.subset.domain</a></code></li>
+<li><code><a title="parflow.subset.mask" href="mask.html">parflow.subset.mask</a></code></li>
+<li><code><a title="parflow.subset.rasterizer" href="rasterizer.html">parflow.subset.rasterizer</a></code></li>
+<li><code><a title="parflow.subset.tools" href="tools/index.html">parflow.subset.tools</a></code></li>
+<li><code><a title="parflow.subset.utils" href="utils/index.html">parflow.subset.utils</a></code></li>
 </ul>
 </li>
 </ul>

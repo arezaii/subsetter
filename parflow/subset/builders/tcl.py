@@ -76,7 +76,6 @@ def parse_args(args):
     -------
     Namespace
         populated Namespace object from the parsed command line options
-
     """
     parser = argparse.ArgumentParser(description='Generate .tcl script from parkinglot template')
 
@@ -212,9 +211,7 @@ def build_tcl(out_file, temp_file, runname, slope_file, solid_file, evap_file, e
     Returns
     -------
     None
-    
     """
-
     # read input file
     if dz_scales is None:
         dz_scales = [.5]

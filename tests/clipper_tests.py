@@ -122,10 +122,10 @@ class RegressionClipTests(unittest.TestCase):
         self.assertEqual(1, subset.shape[0])
         self.assertEqual(32, subset.shape[1])
         self.assertEqual(96, subset.shape[2])
-        file_io_tools.write_pfb(subset, 'WBDHU8_conus1_dem_padded.pfb')
+        file_io_tools.write_pfb(subset, 'WBDHU8_conus1_dem_padded_test.pfb')
         padded_subset_ref = file_io_tools.read_file(test_files.huc10190004.get('conus1_dem_padded_box').as_posix())
         self.assertIsNone(np.testing.assert_array_equal(padded_subset_ref, subset))
-        os.remove('WBDHU8_conus1_dem_padded.pfb')
+        os.remove('WBDHU8_conus1_dem_padded_test.pfb')
 
 
 if __name__ == '__main__':

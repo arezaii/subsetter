@@ -172,8 +172,7 @@ def write_array_to_geotiff(out_raster_path, data, geo_transform, projection, dty
 
     Returns
     -------
-    type
-        None
+    None
 
     """
     # flip the tif y axis back to tif standard (Tif 0's start at top left, PFB 0's at bottom left)

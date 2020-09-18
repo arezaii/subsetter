@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from parflow.subset.utils.arguments import is_valid_path, is_positive_integer
+from parflow.subset.utils.arguments import is_valid_path, is_positive_integer, is_valid_file
 from parflow.subset.clipper import MaskClipper
 from parflow.subset.domain import Conus
 from parflow.subset.rasterizer import ShapefileRasterizer
@@ -36,6 +36,9 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser('Subset a ParFlow CONUS domain')
 
+    """
+    Required Arguments
+    """
     parser.add_argument("--input_path", "-i", dest="input_path", required=True,
                         type=lambda x: is_valid_path(parser, x),
                         help="the input path to the shapefile file set")
@@ -43,15 +46,16 @@ def parse_args(args):
     parser.add_argument("--shapefile", "-s", dest="shapefile", required=True,
                         help="the name of the shapefile file set")
 
-    parser.add_argument("--version", "-v", dest="conus_version", required=False,
-                        default=1,
-                        type=lambda x: is_positive_integer(parser, x),
-                        help="the version of CONUS to subset from")
-
-    parser.add_argument("--conus_files", "-f", dest="conus_files", required=False,
-                        default='CONUS1_Inputs',
+    parser.add_argument("--conus_files", "-f", dest="conus_files", required=True,
                         help="local path to the CONUS inputs to subset",
                         type=lambda x: is_valid_path(parser, x))
+    """
+    Optional Arguments
+    """
+    parser.add_argument("--version", "-v", dest="conus_version", required=False,
+                        default=1, choices=[1, 2],
+                        type=lambda x: is_positive_integer(parser, x),
+                        help="the version of CONUS to subset from")
 
     parser.add_argument("--out_dir", "-o", dest="out_dir", required=False,
                         default='.',
@@ -63,14 +67,12 @@ def parse_args(args):
                         help="the name to give the outputs")
 
     parser.add_argument("--clip_clm", "-c", dest="clip_clm", required=False,
-                        default=0,
-                        help="also clip inputs for CLM",
-                        type=int)
+                        action='store_true',
+                        help="also clip inputs for CLM")
 
     parser.add_argument("--write_tcl", "-w", dest="write_tcl", required=False,
-                        default=0,
-                        help="generate the .tcl script for this subset",
-                        type=int)
+                        action='store_true',
+                        help="generate the .tcl script for this subset")
 
     parser.add_argument("--padding", "-p", dest="padding", nargs=4, metavar=('Top', 'Right', 'Bottom', 'Left'),
                         required=False, default=(0, 0, 0, 0), type=int,
@@ -88,9 +90,7 @@ def parse_args(args):
                         type=str)
 
     parser.add_argument("--tif_outs", "-t", dest="write_tifs", required=False,
-                        default=0,
-                        help="write tif output files",
-                        type=int)
+                        action='store_true', help="write tif output files")
 
     return parser.parse_args(args)
 

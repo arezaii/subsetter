@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>subset.tools.bulk_clipper API documentation</title>
+<title>parflow.subset.tools.bulk_clipper API documentation</title>
 <meta name="description" content="Convenience wrapper for looping and clipping identically gridded in inputs …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>subset.tools.bulk_clipper</code></h1>
+<h1 class="title">Module <code>parflow.subset.tools.bulk_clipper</code></h1>
 </header>
 <section id="section-intro">
 <p>Convenience wrapper for looping and clipping identically gridded in inputs</p>
@@ -58,7 +58,6 @@ def parse_args(args):
     -------
     Namespace
         populated Namespace object from the parsed command line options
-
     &#34;&#34;&#34;
     parser = argparse.ArgumentParser(&#39;Clip a list of identically gridded files and extract the data within the mask&#39;)
 
@@ -90,14 +89,10 @@ def parse_args(args):
                         type=lambda x: is_valid_path(parser, x))
 
     parser.add_argument(&#34;--pfb_outs&#34;, &#34;-p&#34;, dest=&#34;write_pfbs&#34;, required=False,
-                        default=1,
-                        help=&#34;write pfb output files&#34;,
-                        type=int)
+                        action=&#39;store_true&#39;, default=True, help=&#34;write pfb output files&#34;)
 
     parser.add_argument(&#34;--tif_outs&#34;, &#34;-t&#34;, dest=&#34;write_tifs&#34;, required=False,
-                        default=0,
-                        help=&#34;write tif output files&#34;,
-                        type=int)
+                        action=&#39;store_true&#39;, help=&#34;write tif output files&#34;)
 
     return parser.parse_args(args)
 
@@ -121,7 +116,6 @@ def mask_clip(mask_file, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0
     Returns
     -------
     None
-
     &#34;&#34;&#34;
     # read the full_dim_mask file
     mask = SubsetMask(mask_file)
@@ -251,7 +245,7 @@ if __name__ == &#39;__main__&#39;:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="subset.tools.bulk_clipper.box_clip"><code class="name flex">
+<dt id="parflow.subset.tools.bulk_clipper.box_clip"><code class="name flex">
 <span>def <span class="ident">box_clip</span></span>(<span>bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0)</span>
 </code></dt>
 <dd>
@@ -307,7 +301,7 @@ if __name__ == &#39;__main__&#39;:
                 tif_outs=tif_outs)</code></pre>
 </details>
 </dd>
-<dt id="subset.tools.bulk_clipper.clip_inputs"><code class="name flex">
+<dt id="parflow.subset.tools.bulk_clipper.clip_inputs"><code class="name flex">
 <span>def <span class="ident">clip_inputs</span></span>(<span>clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=-999)</span>
 </code></dt>
 <dd>
@@ -374,7 +368,7 @@ if __name__ == &#39;__main__&#39;:
                                                  return_arr, new_geom, ref_proj, no_data=no_data)</code></pre>
 </details>
 </dd>
-<dt id="subset.tools.bulk_clipper.locate_tifs"><code class="name flex">
+<dt id="parflow.subset.tools.bulk_clipper.locate_tifs"><code class="name flex">
 <span>def <span class="ident">locate_tifs</span></span>(<span>file_list)</span>
 </code></dt>
 <dd>
@@ -410,7 +404,7 @@ if __name__ == &#39;__main__&#39;:
     return [s for s in file_list if &#39;.tif&#39; in s.lower()]</code></pre>
 </details>
 </dd>
-<dt id="subset.tools.bulk_clipper.main"><code class="name flex">
+<dt id="parflow.subset.tools.bulk_clipper.main"><code class="name flex">
 <span>def <span class="ident">main</span></span>(<span>)</span>
 </code></dt>
 <dd>
@@ -442,7 +436,7 @@ if __name__ == &#39;__main__&#39;:
     logging.info(f&#39;completed process at {end_date} for a runtime of {end_date-start_date}&#39;)</code></pre>
 </details>
 </dd>
-<dt id="subset.tools.bulk_clipper.mask_clip"><code class="name flex">
+<dt id="parflow.subset.tools.bulk_clipper.mask_clip"><code class="name flex">
 <span>def <span class="ident">mask_clip</span></span>(<span>mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0)</span>
 </code></dt>
 <dd>
@@ -488,7 +482,6 @@ if __name__ == &#39;__main__&#39;:
     Returns
     -------
     None
-
     &#34;&#34;&#34;
     # read the full_dim_mask file
     mask = SubsetMask(mask_file)
@@ -500,7 +493,7 @@ if __name__ == &#39;__main__&#39;:
                 tif_outs=tif_outs)</code></pre>
 </details>
 </dd>
-<dt id="subset.tools.bulk_clipper.parse_args"><code class="name flex">
+<dt id="parflow.subset.tools.bulk_clipper.parse_args"><code class="name flex">
 <span>def <span class="ident">parse_args</span></span>(<span>args)</span>
 </code></dt>
 <dd>
@@ -531,7 +524,6 @@ if __name__ == &#39;__main__&#39;:
     -------
     Namespace
         populated Namespace object from the parsed command line options
-
     &#34;&#34;&#34;
     parser = argparse.ArgumentParser(&#39;Clip a list of identically gridded files and extract the data within the mask&#39;)
 
@@ -563,14 +555,10 @@ if __name__ == &#39;__main__&#39;:
                         type=lambda x: is_valid_path(parser, x))
 
     parser.add_argument(&#34;--pfb_outs&#34;, &#34;-p&#34;, dest=&#34;write_pfbs&#34;, required=False,
-                        default=1,
-                        help=&#34;write pfb output files&#34;,
-                        type=int)
+                        action=&#39;store_true&#39;, default=True, help=&#34;write pfb output files&#34;)
 
     parser.add_argument(&#34;--tif_outs&#34;, &#34;-t&#34;, dest=&#34;write_tifs&#34;, required=False,
-                        default=0,
-                        help=&#34;write tif output files&#34;,
-                        type=int)
+                        action=&#39;store_true&#39;, help=&#34;write tif output files&#34;)
 
     return parser.parse_args(args)</code></pre>
 </details>
@@ -588,17 +576,17 @@ if __name__ == &#39;__main__&#39;:
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="subset.tools" href="index.html">subset.tools</a></code></li>
+<li><code><a title="parflow.subset.tools" href="index.html">parflow.subset.tools</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
-<li><code><a title="subset.tools.bulk_clipper.box_clip" href="#subset.tools.bulk_clipper.box_clip">box_clip</a></code></li>
-<li><code><a title="subset.tools.bulk_clipper.clip_inputs" href="#subset.tools.bulk_clipper.clip_inputs">clip_inputs</a></code></li>
-<li><code><a title="subset.tools.bulk_clipper.locate_tifs" href="#subset.tools.bulk_clipper.locate_tifs">locate_tifs</a></code></li>
-<li><code><a title="subset.tools.bulk_clipper.main" href="#subset.tools.bulk_clipper.main">main</a></code></li>
-<li><code><a title="subset.tools.bulk_clipper.mask_clip" href="#subset.tools.bulk_clipper.mask_clip">mask_clip</a></code></li>
-<li><code><a title="subset.tools.bulk_clipper.parse_args" href="#subset.tools.bulk_clipper.parse_args">parse_args</a></code></li>
+<li><code><a title="parflow.subset.tools.bulk_clipper.box_clip" href="#parflow.subset.tools.bulk_clipper.box_clip">box_clip</a></code></li>
+<li><code><a title="parflow.subset.tools.bulk_clipper.clip_inputs" href="#parflow.subset.tools.bulk_clipper.clip_inputs">clip_inputs</a></code></li>
+<li><code><a title="parflow.subset.tools.bulk_clipper.locate_tifs" href="#parflow.subset.tools.bulk_clipper.locate_tifs">locate_tifs</a></code></li>
+<li><code><a title="parflow.subset.tools.bulk_clipper.main" href="#parflow.subset.tools.bulk_clipper.main">main</a></code></li>
+<li><code><a title="parflow.subset.tools.bulk_clipper.mask_clip" href="#parflow.subset.tools.bulk_clipper.mask_clip">mask_clip</a></code></li>
+<li><code><a title="parflow.subset.tools.bulk_clipper.parse_args" href="#parflow.subset.tools.bulk_clipper.parse_args">parse_args</a></code></li>
 </ul>
 </li>
 </ul>
