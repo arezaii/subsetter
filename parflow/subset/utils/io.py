@@ -3,6 +3,7 @@
 import os
 import sys
 import logging
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import gdal
@@ -25,22 +26,25 @@ def read_file(infile):
         a 3d numpy array with data from file in (z,y,x) format with y axis 0 at bottom
 
     """
+    infile_path = Path(infile)
     # get extension
-    ext = os.path.splitext(os.path.basename(infile))[1]
+    #ext = os.path.splitext(os.path.basename(infile))[1]
+    ext = infile_path.suffix
+    file_string_path = os.fspath(infile_path)
     if ext in ['.tif', '.tiff']:
-        res_arr = gdal.Open(infile).ReadAsArray()
+        res_arr = gdal.Open(file_string_path).ReadAsArray()
         if len(res_arr.shape) == 2:
             res_arr = res_arr[np.newaxis, ...]
         # flip y axis so tiff aligns with PFB native alignment
         res_arr = np.flip(res_arr, axis=1)
     elif ext == '.sa':  # parflow ascii file
-        with open(infile, 'r') as fi:
+        with open(file_string_path, 'r') as fi:
             header = fi.readline()
         nx, ny, nz = [int(x) for x in header.strip().split(' ')]
-        arr = pd.read_csv(infile, skiprows=1, header=None).values
+        arr = pd.read_csv(file_string_path, skiprows=1, header=None).values
         res_arr = np.reshape(arr, (nz, ny, nx))[:, :, :]
     elif ext == '.pfb':  # parflow binary file
-        pfdata = PFData(infile)
+        pfdata = PFData(file_string_path)
         pfdata.loadHeader()
         pfdata.loadData()
         res_arr = pfdata.getDataAsArray()
@@ -64,7 +68,9 @@ def read_geotiff(infile):
         gdal dataset object
 
     """
-    return gdal.Open(infile)
+    file_path = Path(infile)
+
+    return gdal.Open(os.fspath(file_path))
 
 
 def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
