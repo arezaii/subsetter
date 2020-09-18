@@ -27,6 +27,10 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser('Generate a Raster From a Shapefile')
 
+    """
+    Required Arguments
+    """
+
     parser.add_argument("--input_path", "-i", dest="input_path", required=True,
                         type=lambda x: is_valid_path(parser, x),
                         help="the input path to the shapefile file set")
@@ -37,6 +41,10 @@ def parse_args(args):
     parser.add_argument("--ref_file", "-r", dest="ref_file", required=True,
                         type=lambda x: is_valid_file(parser, x),
                         help="the reference tif to reproject to")
+
+    """
+    Optional Arguments
+    """
 
     parser.add_argument("--out_dir", "-o", dest="out_dir", required=False,
                         default='.',
