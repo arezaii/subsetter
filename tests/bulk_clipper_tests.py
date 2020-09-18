@@ -26,7 +26,7 @@ class BulkClipperArgParseTests(unittest.TestCase):
     def test_cli_mask_and_dims_specified(self):
         with self.assertRaises(SystemExit):
             bulk_clipper.parse_args(
-                ['-m', self.good_mask_file, '-i', '1', '1', '10', '10', '-d', self.good_input_file_list[0]])
+                ['-m', self.good_mask_file, '-l', '1', '1', '10', '10', '-d', self.good_input_file_list[0]])
 
     def test_cli_mask_and_box_specified(self):
         with self.assertRaises(SystemExit):
@@ -36,7 +36,7 @@ class BulkClipperArgParseTests(unittest.TestCase):
     def test_cli_mask_and_bbox_and_dims_specified(self):
         with self.assertRaises(SystemExit):
             bulk_clipper.parse_args(
-                ['-m', self.good_mask_file, '-b', self.good_bbox_file, '-i', '1', '1', '10', '10', '-d',
+                ['-m', self.good_mask_file, '-b', self.good_bbox_file, '-l', '1', '1', '10', '10', '-d',
                  self.good_input_file_list[0]])
 
     def test_cli_mask_and_bad_input_file(self):
@@ -63,7 +63,7 @@ class BulkClipperArgParseTests(unittest.TestCase):
         self.assertTrue(args.write_pfbs)
 
     def test_cli_good_dims_and_input_defaults(self):
-        args = bulk_clipper.parse_args(['-i', '10', '20', '30', '40', '-d', self.good_input_file_list[0]])
+        args = bulk_clipper.parse_args(['-l', '10', '20', '30', '40', '-d', self.good_input_file_list[0]])
         self.assertFalse(args.mask_file)
         self.assertFalse(args.bbox_file)
         self.assertTrue(args.bbox_def)

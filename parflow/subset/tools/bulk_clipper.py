@@ -41,13 +41,22 @@ def parse_args(args):
                         type=lambda x: is_valid_file(parser, x),
                         help="a tab separated text file indicating x1,y1,nx,ny of the files to be clipped")
 
-    exclusive_group.add_argument("--inline-bbox", "-i", dest="bbox_def", nargs=4, metavar=('X1', 'Y1', 'NX', 'NY'),
+    exclusive_group.add_argument("--inline-bbox", "-l", dest="bbox_def", nargs=4, metavar=('X1', 'Y1', 'NX', 'NY'),
                                  required=False, type=int, help="bbox defined by x1 y1 nx ny")
 
-    parser.add_argument("--datafiles", "-d", dest="data_files", required=True,
-                        nargs='+',
-                        type=lambda x: is_valid_file(parser, x),
-                        help="the list of gridded data files (.pfb or .tif) to clip from")
+    exclusive_group2 = parser.add_mutually_exclusive_group(required=True)
+
+    exclusive_group2.add_argument("--datafiles", "-d", dest="data_files", required=False,
+                                nargs='+',
+                                type=lambda x: is_valid_file(parser, x),
+                                help="the list of gridded data files (.pfb or .tif) to clip from")
+
+    exclusive_group2.add_argument("--glob", "-g", dest="glob_pattern", required=False, type=str,
+                                  help="a filter string for filtering files to clip")
+
+    parser.add_argument("--input_path", "-i", dest="input_path", required=False, default='.',
+                        type=lambda x: is_valid_path(parser, x),
+                        help="the folder to look for input files")
 
     parser.add_argument("--ref_file", "-r", dest="ref_file", required=False,
                         type=lambda x: is_valid_file(parser, x),
@@ -188,6 +197,10 @@ def main():
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
     # If tif out specified, look for a reference tif
+
+    # TODO: Identify args.input path
+    # TODO: Identify glob_pattern
+    # TODO: Locate input files using Path.glob(glob_str) https://docs.python.org/3/library/pathlib.html#module-pathlib
     if args.write_tifs and not args.ref_file:
         if 'tif' not in args.mask_file.lower():
             input_tifs = locate_tifs(args.data_files)
