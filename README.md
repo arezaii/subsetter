@@ -108,17 +108,16 @@ chmod +x run_tests.sh
 
 #### Create subset from CONUS models from a shapefile
 ```
-python -m parflow.subset.tools.subset_conus -i <path_to_shapefile_parts> -s <shapefile_name> -f <path_to_conus_input_files> 
-                            -n [name_for_output_files=shapfile_name] 
-                            -v [conus_verson=1] 
-                            -o [path_to_write_outputs=.] 
-                            -c [clip_clm=0]
-                            -w [write_tcl=0]
-                            -x [padding for left and right=0]
-                            -y [padding on top and bottom=0]
-                            -e [shapefile_attribute_name='OBJECTID']
-                            -a [shapefile_attribute_ids=[1]]
-                            -t [tif_outs=0]
+python -m parflow.subset.tools.subset_conus --input_path -i INPUT_PATH --shapefile -s
+                                     SHAPEFILE --conus_files -f CONUS_FILES
+                                     [--manifest -m MANIFEST_FILE]
+                                     [--version -v {1,2}] [--out_dir -o OUT_DIR]
+                                     [--out_name -n OUT_NAME] [--clip_clm -c]
+                                     [--write_tcl -w]
+                                     [--padding -p Top Right Bottom Left]
+                                     [--attribute_ids -a ATTRIBUTE_IDS [ATTRIBUTE_IDS ...]]
+                                     [--attribute_name -e ATTRIBUTE_NAME]
+                                     [--tif_outs -t]
 
 ```
 **Example usage:**
@@ -133,8 +132,7 @@ python -m parflow.subset.tools.subset_conus -i ~/downloads/shapefiles -s WBDHU8 
 python -m parflow.subset.tools.rasterize_shape -i <path_to_shapefile_parts> -s <shapefile_name> -r <reference_dataset> 
                               -o [path_to_write_outputs=.] 
                               -n [output_filename=shapfile_name] 
-                              -x [padding for left and right=0]
-                              -y [padding on top and bottom=0]
+                              -p [padding clockwise from top (top,right,bottom,left)=(0,0,0,0)]                              
                               -e [shapefile_attribute_name='OBJECTID'] 
                               -a [shapefile_attribute_ids=[1]]
 ```
@@ -154,9 +152,10 @@ assumes all files are identically gridded and same as the mask file, if write_ti
 must supply at least one tif with correct projection and transform information as either the mask file, 
 as a reference dataset with the -r option, or in the list of datafiles to clip
 ```
-python -m parflow.subset.tools.bulk_clipper [-m <mask_file> OR -b <bbox file>] -d <list_of_datafiles_to_clip> 
-                           -t [write_tifs=0] 
-                           -o [output_directory=.]
+python -m parflow.subset.tools.bulk_clipper (--maskfile -m MASK_FILE | --bboxfile -b BBOX_FILE | --inline-bbox -l X1 Y1 NX NY)
+       (--datafiles -d DATA_FILES [DATA_FILES ...] | --glob -g GLOB_PATTERN)
+       [--input_path -i INPUT_PATH] [--ref_file -r REF_FILE] [--out_dir -o OUT_DIR]
+       [--pfb_outs -p] [--tif_outs -t]
 ```
 **Example usage with mask file:**
 
@@ -171,7 +170,7 @@ Clip the domain outputs, starting at x,y, and extending for nx, ny
 ```
 python -m src.bulk_clipper -b ~/outputs/bbox.txt -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
 ```
-where bbox.txt is a tab-separted text file in the format:
+where bbox.txt is a tab-separated text file in the format:
 
 | x   | y   | nx | ny |
 |-----|-----|----|----|
@@ -194,7 +193,7 @@ Many optional arguments are available for subset_conus and rasterize_shape. Belo
 -w [write_tcl=0] Whether or not to write the .tcl file to run the ParFlow model. Defaults to False
 -x [padding for left and right=0] padding for right and left side
 -y [padding on top and bottom=0] padding for top and bottom side
--e [shapefile_attribute_name='OBJECTID'] The name of the attribute table column to uniquely ID objects. Default 'OBJECTID' 
+-e [shapefile_attribute_name='OBJECTID'] The name of the attribute table column to uniquely ID objects. 
 -a [shapefile_attribute_ids=[1]] The list of objects in the shapefile to rasterize. Default [1]
 -t [tif_outs=0] Whether or not to write outputs as .tif files. Defaults to False.
 ```

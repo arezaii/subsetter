@@ -223,8 +223,9 @@ class ParflowDomain:
                                     f&#39;{self.name}, version {self.version}&#39;)
 
     def __repr__(self):
-        return f&#34;{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, &#34; \
-               f&#34;manifest={self.manifest_file!r}, local_path={self.local_path!r}, )&#34;
+        return f&#34;{self.__class__.__name__}(name:{self.name!r}, version:{self.version!r}, &#34; \
+               f&#34;manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, &#34; \
+               f&#34;required_files:{self.required_files!r}, optional_files:{self.optional_files!r})&#34;
 
 
 class Conus(ParflowDomain):
@@ -255,7 +256,8 @@ class Conus(ParflowDomain):
 
     def __repr__(self):
         return f&#34;{self.__class__.__name__}(name:{self.name!r}, version:{self.version!r}, &#34; \
-        f&#34;manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, mask_array:{self.mask_array!r})&#34;</code></pre>
+               f&#34;manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, mask_array:{self.mask_array!r}), &#34; \
+               f&#34;required_files:{self.required_files!r}, optional_files:{self.optional_files!r})&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -320,7 +322,8 @@ class Conus(ParflowDomain):
 
     def __repr__(self):
         return f&#34;{self.__class__.__name__}(name:{self.name!r}, version:{self.version!r}, &#34; \
-        f&#34;manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, mask_array:{self.mask_array!r})&#34;</code></pre>
+               f&#34;manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, mask_array:{self.mask_array!r}), &#34; \
+               f&#34;required_files:{self.required_files!r}, optional_files:{self.optional_files!r})&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -551,8 +554,9 @@ class Conus(ParflowDomain):
                                     f&#39;{self.name}, version {self.version}&#39;)
 
     def __repr__(self):
-        return f&#34;{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, &#34; \
-               f&#34;manifest={self.manifest_file!r}, local_path={self.local_path!r}, )&#34;</code></pre>
+        return f&#34;{self.__class__.__name__}(name:{self.name!r}, version:{self.version!r}, &#34; \
+               f&#34;manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, &#34; \
+               f&#34;required_files:{self.required_files!r}, optional_files:{self.optional_files!r})&#34;</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">

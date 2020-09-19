@@ -1,4 +1,7 @@
+import shutil
 import unittest
+from pathlib import Path
+
 from parflow.subset.tools import bulk_clipper
 from tests import test_files
 from parflow.subset.utils.io import read_file
@@ -84,6 +87,82 @@ class BulkClipperArgParseTests(unittest.TestCase):
         self.assertFalse(args.ref_file)
         self.assertFalse(args.write_tifs)
         self.assertTrue(args.write_pfbs)
+
+    def test_mutual_exclusive_file_pattern_glob(self):
+        argstring = f'-m {self.good_mask_file} -d {self.good_input_file_list[0]} -g input_pattern*.pfb'
+        with self.assertRaises(SystemExit):
+            bulk_clipper.parse_args(argstring.split(' '))
+
+    def test_file_pattern_glob(self):
+        argstring = f'-m {self.good_mask_file} -g input_pattern*.pfb'
+        args = bulk_clipper.parse_args(argstring.split(' '))
+        self.assertEqual(os.fspath(self.good_mask_file), args.mask_file)
+        self.assertFalse(args.bbox_file)
+        self.assertFalse(args.bbox_def)
+        self.assertTrue(args.glob_pattern)
+        self.assertFalse(args.data_files)
+        self.assertEqual(args.out_dir, '.')
+        self.assertFalse(args.ref_file)
+        self.assertFalse(args.write_tifs)
+        self.assertTrue(args.write_pfbs)
+
+
+class BulkClipperUnitTests(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.good_input_file_list = [test_files.conus1_dem.as_posix(), test_files.conus1_mask.as_posix()]
+
+    def test_get_files_list_of_files(self):
+        files = bulk_clipper.get_file_list(Path('.'), files=self.good_input_file_list)
+        self.assertSequenceEqual(self.good_input_file_list, [os.fspath(f) for f in files])
+
+    def test_get_files_empty(self):
+        files = bulk_clipper.get_file_list(Path('.'))
+        self.assertSequenceEqual((), files)
+
+    def test_get_files_glob(self):
+        test_dir = Path('./test_outputs')
+        test_dir.mkdir(exist_ok=True)
+        variable_names = ['temp', 'rain', 'press']
+        for var in variable_names:
+            for i in range(3):
+                fname = test_dir / f'{var}.out.{i * 10:04d}_to_{(i * 10) + 9:04d}.pfb'
+                fname.write_text('junk test data')
+
+        temp_files = bulk_clipper.get_file_list(test_dir, glob_pattern=f"temp.out.{'[0-9]' * 4}_to_{'[0-9]' * 4}.pfb")
+        self.assertSequenceEqual(('temp.out.0000_to_0009.pfb', 'temp.out.0010_to_0019.pfb',
+                                  'temp.out.0020_to_0029.pfb'), [f.name for f in temp_files])
+
+        press_files2 = bulk_clipper.get_file_list(test_dir,
+                                                  glob_pattern=f"press.out.00[1-9][0-9]_to_00[1-9][0-9].pfb")
+        self.assertSequenceEqual(('press.out.0010_to_0019.pfb', 'press.out.0020_to_0029.pfb'),
+                                 [f.name for f in press_files2])
+
+        shutil.rmtree(test_dir)
+
+    def test_get_files_list_of_names(self):
+        test_dir = Path('./test_outputs')
+        test_dir.mkdir(exist_ok=True)
+        variable_names = ['temp', 'rain', 'press']
+        for var in variable_names:
+            for i in range(3):
+                fname = test_dir / f'{var}.out.{i * 10:04d}_to_{(i * 10) + 9:04d}.pfb'
+                fname.write_text('junk test data')
+
+        temp_files2 = bulk_clipper.get_file_list(test_dir,
+                                                 files=['temp.out.0000_to_0009.pfb', 'temp.out.0010_to_0019.pfb'])
+        self.assertSequenceEqual(('temp.out.00'
+                                  '00_to_0009.pfb', 'temp.out.0010_to_0019.pfb'),
+                                 [f.name for f in temp_files2])
+
+        press_files = bulk_clipper.get_file_list(test_dir,
+                                                 files=['press.out.0000_to_0009.pfb', 'press.out.0010_to_0019.pfb',
+                                                        'press.out.0020_to_0029.pfb'])
+        self.assertSequenceEqual(('press.out.0000_to_0009.pfb', 'press.out.0010_to_0019.pfb',
+                                  'press.out.0020_to_0029.pfb'),
+                                 [f.name for f in press_files])
+
+        shutil.rmtree(test_dir)
 
 
 class BulkClipperRegressionTests(unittest.TestCase):

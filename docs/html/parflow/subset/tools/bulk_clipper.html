@@ -46,7 +46,7 @@ from parflow.subset.mask import SubsetMask
 import parflow.subset.utils.io as file_io_tools
 
 
-def parse_args(args):
+def parse_args(args) -&gt; argparse.Namespace:
     &#34;&#34;&#34;Parse the command line arguments
 
     Parameters
@@ -71,13 +71,22 @@ def parse_args(args):
                         type=lambda x: is_valid_file(parser, x),
                         help=&#34;a tab separated text file indicating x1,y1,nx,ny of the files to be clipped&#34;)
 
-    exclusive_group.add_argument(&#34;--inline-bbox&#34;, &#34;-i&#34;, dest=&#34;bbox_def&#34;, nargs=4, metavar=(&#39;X1&#39;, &#39;Y1&#39;, &#39;NX&#39;, &#39;NY&#39;),
+    exclusive_group.add_argument(&#34;--inline-bbox&#34;, &#34;-l&#34;, dest=&#34;bbox_def&#34;, nargs=4, metavar=(&#39;X1&#39;, &#39;Y1&#39;, &#39;NX&#39;, &#39;NY&#39;),
                                  required=False, type=int, help=&#34;bbox defined by x1 y1 nx ny&#34;)
 
-    parser.add_argument(&#34;--datafiles&#34;, &#34;-d&#34;, dest=&#34;data_files&#34;, required=True,
-                        nargs=&#39;+&#39;,
-                        type=lambda x: is_valid_file(parser, x),
-                        help=&#34;the list of gridded data files (.pfb or .tif) to clip from&#34;)
+    exclusive_group2 = parser.add_mutually_exclusive_group(required=True)
+
+    exclusive_group2.add_argument(&#34;--datafiles&#34;, &#34;-d&#34;, dest=&#34;data_files&#34;, required=False,
+                                nargs=&#39;+&#39;,
+                                type=lambda x: is_valid_file(parser, x),
+                                help=&#34;the list of gridded data files (.pfb or .tif) to clip from&#34;)
+
+    exclusive_group2.add_argument(&#34;--glob&#34;, &#34;-g&#34;, dest=&#34;glob_pattern&#34;, required=False, type=str,
+                                  help=&#34;a filter string for filtering files to clip&#34;)
+
+    parser.add_argument(&#34;--input_path&#34;, &#34;-i&#34;, dest=&#34;input_path&#34;, required=False, default=&#39;.&#39;,
+                        type=lambda x: is_valid_path(parser, x),
+                        help=&#34;the folder to look for input files&#34;)
 
     parser.add_argument(&#34;--ref_file&#34;, &#34;-r&#34;, dest=&#34;ref_file&#34;, required=False,
                         type=lambda x: is_valid_file(parser, x),
@@ -97,7 +106,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def mask_clip(mask_file, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0):
+def mask_clip(mask_file, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0) -&gt; None:
     &#34;&#34;&#34;clip a list of files using a full_dim_mask and a domain reference tif
 
     Parameters
@@ -127,7 +136,7 @@ def mask_clip(mask_file, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0
                 tif_outs=tif_outs)
 
 
-def box_clip(bbox, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0):
+def box_clip(bbox, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0) -&gt; None:
     &#34;&#34;&#34;clip a list of files using a bounding box
 
     Parameters
@@ -156,7 +165,7 @@ def box_clip(bbox, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0):
                 tif_outs=tif_outs)
 
 
-def locate_tifs(file_list):
+def locate_tifs(file_list) -&gt; list:
     &#34;&#34;&#34;identify the .tif files in a list of files
 
     Parameters
@@ -173,7 +182,7 @@ def locate_tifs(file_list):
     return [s for s in file_list if &#39;.tif&#39; in s.lower()]
 
 
-def clip_inputs(clipper, input_list, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0, no_data=NO_DATA):
+def clip_inputs(clipper, input_list, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0, no_data=NO_DATA) -&gt; None:
     &#34;&#34;&#34;clip a list of files using a clipper object
 
     Parameters
@@ -211,12 +220,46 @@ def clip_inputs(clipper, input_list, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0
                                                  return_arr, new_geom, ref_proj, no_data=no_data)
 
 
+def get_file_list(input_dir, glob_pattern=None, files=None) -&gt; list:
+    &#34;&#34;&#34;get a list of proper paths for files either in the list or matching the glob pattern
+
+    Parameters
+    ----------
+    input_dir : Path
+        directory where input files are located
+    glob_pattern : str
+        filename pattern to match
+    files : list
+        list of input filenames to use
+    Returns
+    -------
+    file_list : list of Paths
+        the assembled list of filenames with paths
+    &#34;&#34;&#34;
+    file_list = []
+    if glob_pattern is not None:
+        file_list = input_dir.glob(glob_pattern)
+    elif files is not None:
+        file_list = [input_dir / filename for filename in files]
+    return file_list
+
+
 def main():
     # setup logging
     logging.basicConfig(filename=&#39;bulk_clipper.log&#39;, filemode=&#39;w&#39;, level=logging.INFO)
     start_date = datetime.utcnow()
     logging.info(f&#39;start process at {start_date} from command {&#34; &#34;.join(sys.argv[:])}&#39;)
     args = parse_args(sys.argv[1:])
+
+
+    # TODO: Identify args.input path
+    input_path = Path(args.input_path)
+    # TODO: Identify glob_pattern
+    if args.glob_pattern:
+        data_files = input_path.glob(args.glob_pattern)
+    else:
+        data_files = [input_path / filename for filename in args.data_files]
+    # TODO: Locate input files using Path.glob(glob_str) https://docs.python.org/3/library/pathlib.html#module-pathlib
     # If tif out specified, look for a reference tif
     if args.write_tifs and not args.ref_file:
         if &#39;tif&#39; not in args.mask_file.lower():
@@ -224,9 +267,9 @@ def main():
             if len(input_tifs) &lt; 1:
                 raise Exception(&#39;Must include at least one geotif input or a ref_file when tif_outs is selected&#39;)
     if args.mask_file:
-        mask_clip(args.mask_file, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+        mask_clip(args.mask_file, data_files, args.out_dir, args.write_pfbs, args.write_tifs)
     elif args.bbox_file:
-        box_clip(file_io_tools.read_bbox(args.bbox_file), args.data_files, args.out_dir, args.write_pfbs,
+        box_clip(file_io_tools.read_bbox(args.bbox_file), data_files, args.out_dir, args.write_pfbs,
                  args.write_tifs)
     elif args.bbox_def:
         box_clip(args.bbox_def, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
@@ -246,7 +289,7 @@ if __name__ == &#39;__main__&#39;:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="parflow.subset.tools.bulk_clipper.box_clip"><code class="name flex">
-<span>def <span class="ident">box_clip</span></span>(<span>bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0)</span>
+<span>def <span class="ident">box_clip</span></span>(<span>bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>clip a list of files using a bounding box</p>
@@ -272,7 +315,7 @@ if __name__ == &#39;__main__&#39;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def box_clip(bbox, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0):
+<pre><code class="python">def box_clip(bbox, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0) -&gt; None:
     &#34;&#34;&#34;clip a list of files using a bounding box
 
     Parameters
@@ -302,7 +345,7 @@ if __name__ == &#39;__main__&#39;:
 </details>
 </dd>
 <dt id="parflow.subset.tools.bulk_clipper.clip_inputs"><code class="name flex">
-<span>def <span class="ident">clip_inputs</span></span>(<span>clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=-999)</span>
+<span>def <span class="ident">clip_inputs</span></span>(<span>clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=-999) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>clip a list of files using a clipper object</p>
@@ -330,7 +373,7 @@ if __name__ == &#39;__main__&#39;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def clip_inputs(clipper, input_list, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0, no_data=NO_DATA):
+<pre><code class="python">def clip_inputs(clipper, input_list, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0, no_data=NO_DATA) -&gt; None:
     &#34;&#34;&#34;clip a list of files using a clipper object
 
     Parameters
@@ -368,8 +411,55 @@ if __name__ == &#39;__main__&#39;:
                                                  return_arr, new_geom, ref_proj, no_data=no_data)</code></pre>
 </details>
 </dd>
+<dt id="parflow.subset.tools.bulk_clipper.get_file_list"><code class="name flex">
+<span>def <span class="ident">get_file_list</span></span>(<span>input_dir, glob_pattern=None, files=None) ‑> list</span>
+</code></dt>
+<dd>
+<div class="desc"><p>get a list of proper paths for files either in the list or matching the glob pattern</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>input_dir</code></strong> :&ensp;<code>Path</code></dt>
+<dd>directory where input files are located</dd>
+<dt><strong><code>glob_pattern</code></strong> :&ensp;<code>str</code></dt>
+<dd>filename pattern to match</dd>
+<dt><strong><code>files</code></strong> :&ensp;<code>list</code></dt>
+<dd>list of input filenames to use</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>file_list</code></strong> :&ensp;<code>list</code> of <code>Paths</code></dt>
+<dd>the assembled list of filenames with paths</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_file_list(input_dir, glob_pattern=None, files=None) -&gt; list:
+    &#34;&#34;&#34;get a list of proper paths for files either in the list or matching the glob pattern
+
+    Parameters
+    ----------
+    input_dir : Path
+        directory where input files are located
+    glob_pattern : str
+        filename pattern to match
+    files : list
+        list of input filenames to use
+    Returns
+    -------
+    file_list : list of Paths
+        the assembled list of filenames with paths
+    &#34;&#34;&#34;
+    file_list = []
+    if glob_pattern is not None:
+        file_list = input_dir.glob(glob_pattern)
+    elif files is not None:
+        file_list = [input_dir / filename for filename in files]
+    return file_list</code></pre>
+</details>
+</dd>
 <dt id="parflow.subset.tools.bulk_clipper.locate_tifs"><code class="name flex">
-<span>def <span class="ident">locate_tifs</span></span>(<span>file_list)</span>
+<span>def <span class="ident">locate_tifs</span></span>(<span>file_list) ‑> list</span>
 </code></dt>
 <dd>
 <div class="desc"><p>identify the .tif files in a list of files</p>
@@ -387,7 +477,7 @@ if __name__ == &#39;__main__&#39;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def locate_tifs(file_list):
+<pre><code class="python">def locate_tifs(file_list) -&gt; list:
     &#34;&#34;&#34;identify the .tif files in a list of files
 
     Parameters
@@ -419,6 +509,16 @@ if __name__ == &#39;__main__&#39;:
     start_date = datetime.utcnow()
     logging.info(f&#39;start process at {start_date} from command {&#34; &#34;.join(sys.argv[:])}&#39;)
     args = parse_args(sys.argv[1:])
+
+
+    # TODO: Identify args.input path
+    input_path = Path(args.input_path)
+    # TODO: Identify glob_pattern
+    if args.glob_pattern:
+        data_files = input_path.glob(args.glob_pattern)
+    else:
+        data_files = [input_path / filename for filename in args.data_files]
+    # TODO: Locate input files using Path.glob(glob_str) https://docs.python.org/3/library/pathlib.html#module-pathlib
     # If tif out specified, look for a reference tif
     if args.write_tifs and not args.ref_file:
         if &#39;tif&#39; not in args.mask_file.lower():
@@ -426,9 +526,9 @@ if __name__ == &#39;__main__&#39;:
             if len(input_tifs) &lt; 1:
                 raise Exception(&#39;Must include at least one geotif input or a ref_file when tif_outs is selected&#39;)
     if args.mask_file:
-        mask_clip(args.mask_file, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+        mask_clip(args.mask_file, data_files, args.out_dir, args.write_pfbs, args.write_tifs)
     elif args.bbox_file:
-        box_clip(file_io_tools.read_bbox(args.bbox_file), args.data_files, args.out_dir, args.write_pfbs,
+        box_clip(file_io_tools.read_bbox(args.bbox_file), data_files, args.out_dir, args.write_pfbs,
                  args.write_tifs)
     elif args.bbox_def:
         box_clip(args.bbox_def, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
@@ -437,7 +537,7 @@ if __name__ == &#39;__main__&#39;:
 </details>
 </dd>
 <dt id="parflow.subset.tools.bulk_clipper.mask_clip"><code class="name flex">
-<span>def <span class="ident">mask_clip</span></span>(<span>mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0)</span>
+<span>def <span class="ident">mask_clip</span></span>(<span>mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>clip a list of files using a full_dim_mask and a domain reference tif</p>
@@ -463,7 +563,7 @@ if __name__ == &#39;__main__&#39;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def mask_clip(mask_file, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0):
+<pre><code class="python">def mask_clip(mask_file, data_files, out_dir=&#39;.&#39;, pfb_outs=1, tif_outs=0) -&gt; None:
     &#34;&#34;&#34;clip a list of files using a full_dim_mask and a domain reference tif
 
     Parameters
@@ -494,7 +594,7 @@ if __name__ == &#39;__main__&#39;:
 </details>
 </dd>
 <dt id="parflow.subset.tools.bulk_clipper.parse_args"><code class="name flex">
-<span>def <span class="ident">parse_args</span></span>(<span>args)</span>
+<span>def <span class="ident">parse_args</span></span>(<span>args) ‑> argparse.Namespace</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Parse the command line arguments</p>
@@ -512,7 +612,7 @@ if __name__ == &#39;__main__&#39;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def parse_args(args):
+<pre><code class="python">def parse_args(args) -&gt; argparse.Namespace:
     &#34;&#34;&#34;Parse the command line arguments
 
     Parameters
@@ -537,13 +637,22 @@ if __name__ == &#39;__main__&#39;:
                         type=lambda x: is_valid_file(parser, x),
                         help=&#34;a tab separated text file indicating x1,y1,nx,ny of the files to be clipped&#34;)
 
-    exclusive_group.add_argument(&#34;--inline-bbox&#34;, &#34;-i&#34;, dest=&#34;bbox_def&#34;, nargs=4, metavar=(&#39;X1&#39;, &#39;Y1&#39;, &#39;NX&#39;, &#39;NY&#39;),
+    exclusive_group.add_argument(&#34;--inline-bbox&#34;, &#34;-l&#34;, dest=&#34;bbox_def&#34;, nargs=4, metavar=(&#39;X1&#39;, &#39;Y1&#39;, &#39;NX&#39;, &#39;NY&#39;),
                                  required=False, type=int, help=&#34;bbox defined by x1 y1 nx ny&#34;)
 
-    parser.add_argument(&#34;--datafiles&#34;, &#34;-d&#34;, dest=&#34;data_files&#34;, required=True,
-                        nargs=&#39;+&#39;,
-                        type=lambda x: is_valid_file(parser, x),
-                        help=&#34;the list of gridded data files (.pfb or .tif) to clip from&#34;)
+    exclusive_group2 = parser.add_mutually_exclusive_group(required=True)
+
+    exclusive_group2.add_argument(&#34;--datafiles&#34;, &#34;-d&#34;, dest=&#34;data_files&#34;, required=False,
+                                nargs=&#39;+&#39;,
+                                type=lambda x: is_valid_file(parser, x),
+                                help=&#34;the list of gridded data files (.pfb or .tif) to clip from&#34;)
+
+    exclusive_group2.add_argument(&#34;--glob&#34;, &#34;-g&#34;, dest=&#34;glob_pattern&#34;, required=False, type=str,
+                                  help=&#34;a filter string for filtering files to clip&#34;)
+
+    parser.add_argument(&#34;--input_path&#34;, &#34;-i&#34;, dest=&#34;input_path&#34;, required=False, default=&#39;.&#39;,
+                        type=lambda x: is_valid_path(parser, x),
+                        help=&#34;the folder to look for input files&#34;)
 
     parser.add_argument(&#34;--ref_file&#34;, &#34;-r&#34;, dest=&#34;ref_file&#34;, required=False,
                         type=lambda x: is_valid_file(parser, x),
@@ -583,6 +692,7 @@ if __name__ == &#39;__main__&#39;:
 <ul class="two-column">
 <li><code><a title="parflow.subset.tools.bulk_clipper.box_clip" href="#parflow.subset.tools.bulk_clipper.box_clip">box_clip</a></code></li>
 <li><code><a title="parflow.subset.tools.bulk_clipper.clip_inputs" href="#parflow.subset.tools.bulk_clipper.clip_inputs">clip_inputs</a></code></li>
+<li><code><a title="parflow.subset.tools.bulk_clipper.get_file_list" href="#parflow.subset.tools.bulk_clipper.get_file_list">get_file_list</a></code></li>
 <li><code><a title="parflow.subset.tools.bulk_clipper.locate_tifs" href="#parflow.subset.tools.bulk_clipper.locate_tifs">locate_tifs</a></code></li>
 <li><code><a title="parflow.subset.tools.bulk_clipper.main" href="#parflow.subset.tools.bulk_clipper.main">main</a></code></li>
 <li><code><a title="parflow.subset.tools.bulk_clipper.mask_clip" href="#parflow.subset.tools.bulk_clipper.mask_clip">mask_clip</a></code></li>

@@ -16,7 +16,7 @@ from parflow.subset.mask import SubsetMask
 import parflow.subset.utils.io as file_io_tools
 
 
-def parse_args(args):
+def parse_args(args) -> argparse.Namespace:
     """Parse the command line arguments
 
     Parameters
@@ -76,7 +76,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def mask_clip(mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
+def mask_clip(mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0) -> None:
     """clip a list of files using a full_dim_mask and a domain reference tif
 
     Parameters
@@ -106,7 +106,7 @@ def mask_clip(mask_file, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
                 tif_outs=tif_outs)
 
 
-def box_clip(bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
+def box_clip(bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0) -> None:
     """clip a list of files using a bounding box
 
     Parameters
@@ -135,7 +135,7 @@ def box_clip(bbox, data_files, out_dir='.', pfb_outs=1, tif_outs=0):
                 tif_outs=tif_outs)
 
 
-def locate_tifs(file_list):
+def locate_tifs(file_list) -> list:
     """identify the .tif files in a list of files
 
     Parameters
@@ -152,7 +152,7 @@ def locate_tifs(file_list):
     return [s for s in file_list if '.tif' in s.lower()]
 
 
-def clip_inputs(clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=NO_DATA):
+def clip_inputs(clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=NO_DATA) -> None:
     """clip a list of files using a clipper object
 
     Parameters
@@ -190,26 +190,56 @@ def clip_inputs(clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_dat
                                                  return_arr, new_geom, ref_proj, no_data=no_data)
 
 
+def get_file_list(input_dir, glob_pattern=None, files=None) -> list:
+    """get a list of proper paths for files either in the list or matching the glob pattern
+
+    Parameters
+    ----------
+    input_dir : Path
+        directory where input files are located
+    glob_pattern : str
+        filename pattern to match
+    files : list
+        list of input filenames to use
+    Returns
+    -------
+    file_list : list of Paths
+        the assembled list of filenames with paths
+    """
+    file_list = []
+    if glob_pattern is not None:
+        file_list = input_dir.glob(glob_pattern)
+    elif files is not None:
+        file_list = [input_dir / filename for filename in files]
+    return file_list
+
+
 def main():
     # setup logging
     logging.basicConfig(filename='bulk_clipper.log', filemode='w', level=logging.INFO)
     start_date = datetime.utcnow()
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
-    # If tif out specified, look for a reference tif
+
 
     # TODO: Identify args.input path
+    input_path = Path(args.input_path)
     # TODO: Identify glob_pattern
+    if args.glob_pattern:
+        data_files = input_path.glob(args.glob_pattern)
+    else:
+        data_files = [input_path / filename for filename in args.data_files]
     # TODO: Locate input files using Path.glob(glob_str) https://docs.python.org/3/library/pathlib.html#module-pathlib
+    # If tif out specified, look for a reference tif
     if args.write_tifs and not args.ref_file:
         if 'tif' not in args.mask_file.lower():
             input_tifs = locate_tifs(args.data_files)
             if len(input_tifs) < 1:
                 raise Exception('Must include at least one geotif input or a ref_file when tif_outs is selected')
     if args.mask_file:
-        mask_clip(args.mask_file, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+        mask_clip(args.mask_file, data_files, args.out_dir, args.write_pfbs, args.write_tifs)
     elif args.bbox_file:
-        box_clip(file_io_tools.read_bbox(args.bbox_file), args.data_files, args.out_dir, args.write_pfbs,
+        box_clip(file_io_tools.read_bbox(args.bbox_file), data_files, args.out_dir, args.write_pfbs,
                  args.write_tifs)
     elif args.bbox_def:
         box_clip(args.bbox_def, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)

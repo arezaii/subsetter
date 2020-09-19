@@ -17,7 +17,7 @@ import parflow.subset.tools.bulk_clipper as bulk_clipper
 import parflow.subset.builders.solidfile as solidfile_generator
 from parflow.subset.builders.tcl import build_tcl
 from parflow.subset.clipper import ClmClipper
-from parflow.subset.data import parkinglot_template
+from parflow.subset.data import parkinglot_template, conus_manifest
 
 
 def parse_args(args):
@@ -52,6 +52,11 @@ def parse_args(args):
     """
     Optional Arguments
     """
+    parser.add_argument("--manifest", "-m", dest="manifest_file", required=False,
+                        default=conus_manifest,
+                        type=lambda x: is_valid_file(parser, x),
+                        help="the manifest of CONUS filenames to build the domain from")
+
     parser.add_argument("--version", "-v", dest="conus_version", required=False,
                         default=1, choices=[1, 2],
                         type=lambda x: is_positive_integer(parser, x),
@@ -96,7 +101,8 @@ def parse_args(args):
 
 
 def subset_conus(input_path, shapefile, conus_version=1, conus_files='.', out_dir='.', out_name=None, clip_clm=False,
-                 write_tcl=False, padding=(0, 0, 0, 0), attribute_name='OBJECTID', attribute_ids=None, write_tifs=False):
+                 write_tcl=False, padding=(0, 0, 0, 0), attribute_name='OBJECTID', attribute_ids=None, write_tifs=False,
+                 manifest_file=conus_manifest):
     """subset a conus domain inputs for running a regional model
 
     Parameters
@@ -132,7 +138,7 @@ def subset_conus(input_path, shapefile, conus_version=1, conus_files='.', out_di
     """
     if out_name is None:
         out_name = shapefile
-    conus = Conus(version=conus_version, local_path=conus_files)
+    conus = Conus(version=conus_version, local_path=conus_files, manifest_file=manifest_file)
 
     if attribute_ids is None:
         attribute_ids = [1]
@@ -198,7 +204,7 @@ def main():
     subset_conus(input_path=args.input_path, shapefile=args.shapefile, conus_version=args.conus_version,
                  conus_files=args.conus_files, out_dir=args.out_dir, out_name=args.out_name, clip_clm=args.clip_clm,
                  write_tcl=args.write_tcl, padding=args.padding, attribute_ids=args.attribute_ids,
-                 attribute_name=args.attribute_name, write_tifs=args.write_tifs)
+                 attribute_name=args.attribute_name, write_tifs=args.write_tifs, manifest_file=args.manifest_file)
 
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date - start_date}')

@@ -80,6 +80,13 @@ class SubsetConusCLITests(unittest.TestCase):
         self.assertSequenceEqual([2, 3], args.attribute_ids)
         self.assertEqual('ID', args.attribute_name)
 
+    def test_cli_alt_manifest_file(self):
+        argstring = f'-i {self.good_shape_file_path} -s {self.good_shape_file_name} -f . ' \
+                    f'-m {test_files.test_domain_manifest}'
+        args = subset_conus.parse_args(argstring.split(' '))
+        self.assertEqual(os.fspath(test_files.test_domain_manifest), args.manifest_file,
+                         'should be able to provide an alternate manifest file')
+
 
 class SubsetConusRegressionTests(unittest.TestCase):
 

@@ -194,8 +194,9 @@ class ParflowDomain:
                                     f'{self.name}, version {self.version}')
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(name={self.name!r}, version={self.version!r}, " \
-               f"manifest={self.manifest_file!r}, local_path={self.local_path!r}, )"
+        return f"{self.__class__.__name__}(name:{self.name!r}, version:{self.version!r}, " \
+               f"manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, " \
+               f"required_files:{self.required_files!r}, optional_files:{self.optional_files!r})"
 
 
 class Conus(ParflowDomain):
@@ -226,4 +227,5 @@ class Conus(ParflowDomain):
 
     def __repr__(self):
         return f"{self.__class__.__name__}(name:{self.name!r}, version:{self.version!r}, " \
-        f"manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, mask_array:{self.mask_array!r})"
+               f"manifest:{self.manifest_file!r}, local_path:{self.local_path!r}, mask_array:{self.mask_array!r}), " \
+               f"required_files:{self.required_files!r}, optional_files:{self.optional_files!r})"

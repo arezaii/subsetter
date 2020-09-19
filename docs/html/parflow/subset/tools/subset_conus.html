@@ -47,7 +47,7 @@ import parflow.subset.tools.bulk_clipper as bulk_clipper
 import parflow.subset.builders.solidfile as solidfile_generator
 from parflow.subset.builders.tcl import build_tcl
 from parflow.subset.clipper import ClmClipper
-from parflow.subset.data import parkinglot_template
+from parflow.subset.data import parkinglot_template, conus_manifest
 
 
 def parse_args(args):
@@ -82,6 +82,11 @@ def parse_args(args):
     &#34;&#34;&#34;
     Optional Arguments
     &#34;&#34;&#34;
+    parser.add_argument(&#34;--manifest&#34;, &#34;-m&#34;, dest=&#34;manifest_file&#34;, required=False,
+                        default=conus_manifest,
+                        type=lambda x: is_valid_file(parser, x),
+                        help=&#34;the manifest of CONUS filenames to build the domain from&#34;)
+
     parser.add_argument(&#34;--version&#34;, &#34;-v&#34;, dest=&#34;conus_version&#34;, required=False,
                         default=1, choices=[1, 2],
                         type=lambda x: is_positive_integer(parser, x),
@@ -126,7 +131,8 @@ def parse_args(args):
 
 
 def subset_conus(input_path, shapefile, conus_version=1, conus_files=&#39;.&#39;, out_dir=&#39;.&#39;, out_name=None, clip_clm=False,
-                 write_tcl=False, padding=(0, 0, 0, 0), attribute_name=&#39;OBJECTID&#39;, attribute_ids=None, write_tifs=False):
+                 write_tcl=False, padding=(0, 0, 0, 0), attribute_name=&#39;OBJECTID&#39;, attribute_ids=None, write_tifs=False,
+                 manifest_file=conus_manifest):
     &#34;&#34;&#34;subset a conus domain inputs for running a regional model
 
     Parameters
@@ -162,7 +168,7 @@ def subset_conus(input_path, shapefile, conus_version=1, conus_files=&#39;.&#39;
     &#34;&#34;&#34;
     if out_name is None:
         out_name = shapefile
-    conus = Conus(version=conus_version, local_path=conus_files)
+    conus = Conus(version=conus_version, local_path=conus_files, manifest_file=manifest_file)
 
     if attribute_ids is None:
         attribute_ids = [1]
@@ -228,7 +234,7 @@ def main():
     subset_conus(input_path=args.input_path, shapefile=args.shapefile, conus_version=args.conus_version,
                  conus_files=args.conus_files, out_dir=args.out_dir, out_name=args.out_name, clip_clm=args.clip_clm,
                  write_tcl=args.write_tcl, padding=args.padding, attribute_ids=args.attribute_ids,
-                 attribute_name=args.attribute_name, write_tifs=args.write_tifs)
+                 attribute_name=args.attribute_name, write_tifs=args.write_tifs, manifest_file=args.manifest_file)
 
     end_date = datetime.utcnow()
     logging.info(f&#39;completed process at {end_date} for a runtime of {end_date - start_date}&#39;)
@@ -265,7 +271,7 @@ if __name__ == &#39;__main__&#39;:
     subset_conus(input_path=args.input_path, shapefile=args.shapefile, conus_version=args.conus_version,
                  conus_files=args.conus_files, out_dir=args.out_dir, out_name=args.out_name, clip_clm=args.clip_clm,
                  write_tcl=args.write_tcl, padding=args.padding, attribute_ids=args.attribute_ids,
-                 attribute_name=args.attribute_name, write_tifs=args.write_tifs)
+                 attribute_name=args.attribute_name, write_tifs=args.write_tifs, manifest_file=args.manifest_file)
 
     end_date = datetime.utcnow()
     logging.info(f&#39;completed process at {end_date} for a runtime of {end_date - start_date}&#39;)</code></pre>
@@ -322,6 +328,11 @@ if __name__ == &#39;__main__&#39;:
     &#34;&#34;&#34;
     Optional Arguments
     &#34;&#34;&#34;
+    parser.add_argument(&#34;--manifest&#34;, &#34;-m&#34;, dest=&#34;manifest_file&#34;, required=False,
+                        default=conus_manifest,
+                        type=lambda x: is_valid_file(parser, x),
+                        help=&#34;the manifest of CONUS filenames to build the domain from&#34;)
+
     parser.add_argument(&#34;--version&#34;, &#34;-v&#34;, dest=&#34;conus_version&#34;, required=False,
                         default=1, choices=[1, 2],
                         type=lambda x: is_positive_integer(parser, x),
@@ -366,7 +377,7 @@ if __name__ == &#39;__main__&#39;:
 </details>
 </dd>
 <dt id="parflow.subset.tools.subset_conus.subset_conus"><code class="name flex">
-<span>def <span class="ident">subset_conus</span></span>(<span>input_path, shapefile, conus_version=1, conus_files='.', out_dir='.', out_name=None, clip_clm=False, write_tcl=False, padding=(0, 0, 0, 0), attribute_name='OBJECTID', attribute_ids=None, write_tifs=False)</span>
+<span>def <span class="ident">subset_conus</span></span>(<span>input_path, shapefile, conus_version=1, conus_files='.', out_dir='.', out_name=None, clip_clm=False, write_tcl=False, padding=(0, 0, 0, 0), attribute_name='OBJECTID', attribute_ids=None, write_tifs=False, manifest_file=PosixPath('/home/arezaii/git/pf_subsetter/parflow/subset/data/conus_manifest.yaml'))</span>
 </code></dt>
 <dd>
 <div class="desc"><p>subset a conus domain inputs for running a regional model</p>
@@ -407,7 +418,8 @@ if __name__ == &#39;__main__&#39;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def subset_conus(input_path, shapefile, conus_version=1, conus_files=&#39;.&#39;, out_dir=&#39;.&#39;, out_name=None, clip_clm=False,
-                 write_tcl=False, padding=(0, 0, 0, 0), attribute_name=&#39;OBJECTID&#39;, attribute_ids=None, write_tifs=False):
+                 write_tcl=False, padding=(0, 0, 0, 0), attribute_name=&#39;OBJECTID&#39;, attribute_ids=None, write_tifs=False,
+                 manifest_file=conus_manifest):
     &#34;&#34;&#34;subset a conus domain inputs for running a regional model
 
     Parameters
@@ -443,7 +455,7 @@ if __name__ == &#39;__main__&#39;:
     &#34;&#34;&#34;
     if out_name is None:
         out_name = shapefile
-    conus = Conus(version=conus_version, local_path=conus_files)
+    conus = Conus(version=conus_version, local_path=conus_files, manifest_file=manifest_file)
 
     if attribute_ids is None:
         attribute_ids = [1]
