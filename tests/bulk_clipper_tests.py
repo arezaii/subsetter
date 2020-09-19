@@ -129,12 +129,11 @@ class BulkClipperUnitTests(unittest.TestCase):
                 fname = test_dir / f'{var}.out.{i * 10:04d}_to_{(i * 10) + 9:04d}.pfb'
                 fname.write_text('junk test data')
 
-        temp_files = bulk_clipper.get_file_list(test_dir, glob_pattern=f"temp.out.{'[0-9]' * 4}_to_{'[0-9]' * 4}.pfb")
-        self.assertListEqual(['temp.out.0000_to_0009.pfb', 'temp.out.0010_to_0019.pfb',
-                                  'temp.out.0020_to_0029.pfb'], [f.name for f in temp_files])
+        temp_files = bulk_clipper.get_file_list(test_dir, glob_pattern=f'temp.out.{"[0-9]" * 4}_to_{"[0-9]" * 4}.pfb')
+        self.assertListEqual(['temp.out.0000_to_0009.pfb', 'temp.out.0010_to_0019.pfb', 'temp.out.0020_to_0029.pfb'], [f.name for f in temp_files])
 
         press_files2 = bulk_clipper.get_file_list(test_dir,
-                                                  glob_pattern=f"press.out.00[1-9][0-9]_to_00[1-9][0-9].pfb")
+                                                  glob_pattern=f'press.out.00[1-9][0-9]_to_00[1-9][0-9].pfb')
         self.assertListEqual(['press.out.0010_to_0019.pfb', 'press.out.0020_to_0029.pfb'],
                              [f.name for f in press_files2])
 
