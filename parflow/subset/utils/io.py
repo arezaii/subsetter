@@ -99,7 +99,7 @@ def write_pfb(data, outfile, x0=0, y0=0, z0=0, dx=1000, dz=1000):
     """
     logging.info(f'wrote pfb file {outfile}, (z,y,x)={data.shape}')
     pf_data = PFData()
-    pf_data.setDataArray(np.ascontiguousarray(data, np.float64))
+    pf_data.setDataArray(data)
     pf_data.setDX(dx)
     pf_data.setDY(dx)
     pf_data.setDZ(dz)

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="parflow_subsetter",
-    version="0.0.27",
+    version="0.0.28",
     author="Ahmad Rezaii",
     author_email="ahmadrezaii@u.boisestate.edu",
     description="A set of tools for clipping ParFlow models and their outputs",
