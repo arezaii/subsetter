@@ -114,11 +114,11 @@ class BulkClipperUnitTests(unittest.TestCase):
 
     def test_get_files_list_of_files(self):
         files = bulk_clipper.get_file_list(Path('.'), files=self.good_input_file_list)
-        self.assertSequenceEqual(self.good_input_file_list, [os.fspath(f) for f in files])
+        self.assertListEqual(self.good_input_file_list, [os.fspath(f) for f in files])
 
     def test_get_files_empty(self):
         files = bulk_clipper.get_file_list(Path('.'))
-        self.assertSequenceEqual((), files)
+        self.assertListEqual([], list(files))
 
     def test_get_files_glob(self):
         test_dir = Path('./test_outputs')
@@ -130,13 +130,13 @@ class BulkClipperUnitTests(unittest.TestCase):
                 fname.write_text('junk test data')
 
         temp_files = bulk_clipper.get_file_list(test_dir, glob_pattern=f"temp.out.{'[0-9]' * 4}_to_{'[0-9]' * 4}.pfb")
-        self.assertSequenceEqual(('temp.out.0000_to_0009.pfb', 'temp.out.0010_to_0019.pfb',
-                                  'temp.out.0020_to_0029.pfb'), [f.name for f in temp_files])
+        self.assertListEqual(['temp.out.0000_to_0009.pfb', 'temp.out.0010_to_0019.pfb',
+                                  'temp.out.0020_to_0029.pfb'], [f.name for f in temp_files])
 
         press_files2 = bulk_clipper.get_file_list(test_dir,
                                                   glob_pattern=f"press.out.00[1-9][0-9]_to_00[1-9][0-9].pfb")
-        self.assertSequenceEqual(('press.out.0010_to_0019.pfb', 'press.out.0020_to_0029.pfb'),
-                                 [f.name for f in press_files2])
+        self.assertListEqual(['press.out.0010_to_0019.pfb', 'press.out.0020_to_0029.pfb'],
+                             [f.name for f in press_files2])
 
         shutil.rmtree(test_dir)
 
@@ -151,16 +151,14 @@ class BulkClipperUnitTests(unittest.TestCase):
 
         temp_files2 = bulk_clipper.get_file_list(test_dir,
                                                  files=['temp.out.0000_to_0009.pfb', 'temp.out.0010_to_0019.pfb'])
-        self.assertSequenceEqual(('temp.out.00'
-                                  '00_to_0009.pfb', 'temp.out.0010_to_0019.pfb'),
-                                 [f.name for f in temp_files2])
+        self.assertListEqual(['temp.out.0000_to_0009.pfb', 'temp.out.0010_to_0019.pfb'],
+                            [f.name for f in temp_files2])
 
         press_files = bulk_clipper.get_file_list(test_dir,
                                                  files=['press.out.0000_to_0009.pfb', 'press.out.0010_to_0019.pfb',
                                                         'press.out.0020_to_0029.pfb'])
-        self.assertSequenceEqual(('press.out.0000_to_0009.pfb', 'press.out.0010_to_0019.pfb',
-                                  'press.out.0020_to_0029.pfb'),
-                                 [f.name for f in press_files])
+        self.assertListEqual(['press.out.0000_to_0009.pfb', 'press.out.0010_to_0019.pfb', 'press.out.0020_to_0029.pfb'],
+                            [f.name for f in press_files])
 
         shutil.rmtree(test_dir)
 
