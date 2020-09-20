@@ -166,9 +166,9 @@ python -m parflow.subset.tools.bulk_clipper -m ~/outputs/WBDHU8.tif -d ~/outputs
 
 **Example usage with bounding box file:**
 
-Clip the domain outputs, starting at x,y, and extending for nx, ny
+Clip the domain outputs, starting at x, y, and extending for nx, ny
 ```
-python -m src.bulk_clipper -b ~/outputs/bbox.txt -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
+python -m parflow.subset.tools.bulk_clipper -b ~/outputs/bbox.txt -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
 ```
 where bbox.txt is a tab-separated text file in the format:
 
@@ -176,11 +176,20 @@ where bbox.txt is a tab-separated text file in the format:
 |-----|-----|----|----|
 | x_1 | y_1 | nx | ny |
 
-Example bbox clipping only the very first (lower left) cell in a domain:
+Example bbox.txt clipping only the very first (lower left) cell in a domain:
 
 | x   | y   | nx | ny |
 |-----|-----|----|----|
 | 1 | 1 | 1 | 1 |
+
+
+**Example usage with bounding box declared in-line:**
+
+Clip the domain outputs, starting at x, y, and extending for nx, ny
+```
+python -m parflow.subset.tools.bulk_clipper -l 1 1 10 20 -d ~/outputs/runname.out.press.00001.pfb ~/outputs/runname.out.press.00002.pfb
+```
+clips a 10 x 20 grid anchored in the lower left from each of the inputs
 
 ### Optional Arguments Explanation
 
@@ -189,13 +198,12 @@ Many optional arguments are available for subset_conus and rasterize_shape. Belo
 -n [name for output files=shapfile_name] The name to give the output raster, defaults to shapefile name
 -v [conus verson=1] The version of the ParFlow CONUS model to subset from (1 or 2), defaults to version 1
 -o [path_to_write_outputs=.] The path to write the output files, defaults to current directory
--c [clip_clim=0] Whether or not to clip the CLM lat/lon and vegm data. Defaults to False.
--w [write_tcl=0] Whether or not to write the .tcl file to run the ParFlow model. Defaults to False
--x [padding for left and right=0] padding for right and left side
--y [padding on top and bottom=0] padding for top and bottom side
+-c [clip_clim] Whether or not to clip the CLM lat/lon and vegm data. Defaults to False.
+-w [write_tcl] Whether or not to write the .tcl file to run the ParFlow model. Defaults to False
+-p [padding for mask areas] specified clockwise from top (top, right, bottom, left). Default (0,0,0,0)
 -e [shapefile_attribute_name='OBJECTID'] The name of the attribute table column to uniquely ID objects. 
 -a [shapefile_attribute_ids=[1]] The list of objects in the shapefile to rasterize. Default [1]
--t [tif_outs=0] Whether or not to write outputs as .tif files. Defaults to False.
+-t [tif_outs] Whether or not to write outputs as .tif files. Defaults to False.
 ```
 
 

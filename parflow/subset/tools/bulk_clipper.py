@@ -149,7 +149,7 @@ def locate_tifs(file_list) -> list:
         list of files where the extension is .tif
 
     """
-    return [s for s in file_list if '.tif' in s.lower()]
+    return list([s for s in file_list if '.tif' in s.lower()])
 
 
 def clip_inputs(clipper, input_list, out_dir='.', pfb_outs=1, tif_outs=0, no_data=NO_DATA) -> None:
@@ -211,7 +211,7 @@ def get_file_list(input_dir, glob_pattern=None, files=None) -> list:
         file_list = input_dir.glob(glob_pattern)
     elif files is not None:
         file_list = [input_dir / filename for filename in files]
-    return file_list
+    return list(file_list)
 
 
 def main():
@@ -220,20 +220,13 @@ def main():
     start_date = datetime.utcnow()
     logging.info(f'start process at {start_date} from command {" ".join(sys.argv[:])}')
     args = parse_args(sys.argv[1:])
-
-
-    # TODO: Identify args.input path
+    # get the input path and data file list
     input_path = Path(args.input_path)
-    # TODO: Identify glob_pattern
-    if args.glob_pattern:
-        data_files = input_path.glob(args.glob_pattern)
-    else:
-        data_files = [input_path / filename for filename in args.data_files]
-    # TODO: Locate input files using Path.glob(glob_str) https://docs.python.org/3/library/pathlib.html#module-pathlib
+    data_files = get_file_list(input_dir=input_path, files=args.data_files, glob_pattern=args.glob_pattern)
     # If tif out specified, look for a reference tif
     if args.write_tifs and not args.ref_file:
         if 'tif' not in args.mask_file.lower():
-            input_tifs = locate_tifs(args.data_files)
+            input_tifs = locate_tifs(data_files)
             if len(input_tifs) < 1:
                 raise Exception('Must include at least one geotif input or a ref_file when tif_outs is selected')
     if args.mask_file:
@@ -242,7 +235,7 @@ def main():
         box_clip(file_io_tools.read_bbox(args.bbox_file), data_files, args.out_dir, args.write_pfbs,
                  args.write_tifs)
     elif args.bbox_def:
-        box_clip(args.bbox_def, args.data_files, args.out_dir, args.write_pfbs, args.write_tifs)
+        box_clip(args.bbox_def, data_files, args.out_dir, args.write_pfbs, args.write_tifs)
     end_date = datetime.utcnow()
     logging.info(f'completed process at {end_date} for a runtime of {end_date-start_date}')
 
